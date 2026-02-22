@@ -1,24 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/session_provider.dart';
+import '../models/user_session.dart';
 import '../theme/app_colors.dart';
 
 /// Botón de menú de perfil compartido por todas las pantallas.
 ///
 /// Muestra un [PopupMenuButton] con:
-/// - Encabezado con avatar, nombre y email del usuario.
+/// - Encabezado con avatar, nombre y email del usuario (datos reales de sesión).
 /// - Badge del plan activo.
 /// - Opción «Mi Perfil» → navega a /profile.
-/// - Opción «Cerrar sesión» → navega a /.
+/// - Opción «Cerrar sesión» → limpia sesión y navega a /.
 class ProfileMenuButton extends StatelessWidget {
   const ProfileMenuButton({super.key});
 
+  /// Calcula las iniciales a partir del nombre completo (máx. 2 letras).
+  static String _initials(UserSession s) {
+    final parts = s.fullName.trim().split(RegExp(r'\s+'));
+    if (parts.length >= 2) {
+      return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+    }
+    return s.fullName.substring(0, s.fullName.length.clamp(0, 2)).toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<SessionProvider>().session;
+    final initials = session != null ? _initials(session) : '?';
+    final fullName = session?.fullName ?? 'Usuario';
+    final email = session?.email ?? '';
+
     return PopupMenuButton<String>(
-      onSelected: (value) {
+      onSelected: (value) async {
         if (value == 'profile') {
           Navigator.of(context).pushNamed('/profile');
         } else if (value == 'logout') {
-          Navigator.of(context).pushReplacementNamed('/');
+          await context.read<SessionProvider>().clearSession();
+          if (context.mounted) {
+            Navigator.of(context).pushReplacementNamed('/');
+          }
         }
       },
       color: AppColors.surface,
@@ -33,42 +53,56 @@ class ProfileMenuButton extends StatelessWidget {
         PopupMenuItem<String>(
           enabled: false,
           padding: EdgeInsets.zero,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: const Row(
-              children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: AppColors.secondary,
-                  child: Text(
-                    'OB',
-                    style: TextStyle(
-                      color: AppColors.actionSecondaryInverted,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
+          child: SizedBox(
+            width: 260,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: AppColors.secondary,
+                    backgroundImage: (session?.image != null && session!.image!.isNotEmpty)
+                        ? NetworkImage(session.image!)
+                        : null,
+                    child: (session?.image == null || session!.image!.isEmpty)
+                        ? Text(
+                            initials,
+                            style: const TextStyle(
+                              color: AppColors.actionSecondaryInverted,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          )
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          fullName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          email,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Oscar Barragán',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'oscar.barragan@email.com',
-                      style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -165,17 +199,23 @@ class ProfileMenuButton extends StatelessWidget {
           ),
         ),
       ],
-      child: const CircleAvatar(
+      // ── Avatar del botón (trigger) ───────────────────────────────
+      child: CircleAvatar(
         radius: 18,
         backgroundColor: AppColors.secondary,
-        child: Text(
-          'OB',
-          style: TextStyle(
-            color: AppColors.actionSecondaryInverted,
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-        ),
+        backgroundImage: (session?.image != null && session!.image!.isNotEmpty)
+            ? NetworkImage(session.image!)
+            : null,
+        child: (session?.image == null || session!.image!.isEmpty)
+            ? Text(
+                initials,
+                style: const TextStyle(
+                  color: AppColors.actionSecondaryInverted,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              )
+            : null,
       ),
     );
   }

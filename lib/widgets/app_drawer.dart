@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/session_provider.dart';
 import '../theme/app_colors.dart';
 
 /// Rutas que tienen entrada en el menú lateral.
@@ -139,56 +141,83 @@ class AppDrawer extends StatelessWidget {
             ),
 
             // ── Footer: perfil del usuario ──────────────────────────────
-            Container(
-              decoration: const BoxDecoration(
-                color: AppColors.white,
-                border: Border(top: BorderSide(color: AppColors.neutral8)),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(10),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pushNamed('/profile');
-                },
-                child: const Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: AppColors.secondary,
-                      child: Text(
-                        'OB',
-                        style: TextStyle(
-                          color: AppColors.actionSecondaryInverted,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
+            Builder(
+              builder: (ctx) {
+                final session = ctx.watch<SessionProvider>().session;
+                final fullName = session?.fullName ?? 'Usuario';
+                final rolLabel = session != null
+                    ? (session.isCoach
+                        ? 'Entrenador'
+                        : session.isAthlete
+                            ? 'Deportista'
+                            : 'Usuario')
+                    : '';
+                // Iniciales (máx. 2 letras)
+                final parts = fullName.trim().split(RegExp(r'\s+'));
+                final initials = parts.length >= 2
+                    ? '${parts.first[0]}${parts.last[0]}'.toUpperCase()
+                    : fullName.substring(0, fullName.length.clamp(0, 2)).toUpperCase();
+
+                return Container(
+                  decoration: const BoxDecoration(
+                    color: AppColors.white,
+                    border: Border(top: BorderSide(color: AppColors.neutral8)),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pushNamed('/profile');
+                    },
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundColor: AppColors.secondary,
+                          backgroundImage: (session?.image != null && session!.image!.isNotEmpty)
+                              ? NetworkImage(session.image!)
+                              : null,
+                          child: (session?.image == null || session!.image!.isEmpty)
+                              ? Text(
+                                  initials,
+                                  style: const TextStyle(
+                                    color: AppColors.actionSecondaryInverted,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                )
+                              : null,
                         ),
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Oscar Barragán',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                              color: AppColors.textPrimary,
-                            ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                fullName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: AppColors.textPrimary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (rolLabel.isNotEmpty)
+                                Text(
+                                  '$rolLabel · Plan Premium',
+                                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                ),
+                            ],
                           ),
-                          Text(
-                            'Coach · Plan Premium',
-                            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                          ),
-                        ],
-                      ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios, size: 13, color: AppColors.neutral5),
+                      ],
                     ),
-                    Icon(Icons.arrow_forward_ios, size: 13, color: AppColors.neutral5),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
           ],
         ),

@@ -213,19 +213,26 @@ class _AthletesScreenState extends State<AthletesScreen> {
           children: [
             Text(_selectedFlag, style: const TextStyle(fontSize: 16)),
             const SizedBox(width: 6),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _selectedTeam,
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                ),
-                Text(
-                  _selectedSubtitle,
-                  style: const TextStyle(fontSize: 9, color: AppColors.textSecondary),
-                ),
-              ],
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 140),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _selectedTeam,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  ),
+                  Text(
+                    _selectedSubtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 9, color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(width: 4),
             const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary, size: 18),

@@ -188,19 +188,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Text(_selectedFlag, style: const TextStyle(fontSize: 18)),
             const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(_selectedTeam,
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 150),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _selectedTeam,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary)),
-                Text(_selectedSubtitle,
+                        color: AppColors.textPrimary),
+                  ),
+                  Text(
+                    _selectedSubtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                        fontSize: 10, color: AppColors.textSecondary)),
-              ],
+                        fontSize: 10, color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(width: 8),
             const Icon(Icons.arrow_drop_down,
