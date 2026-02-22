@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
 
@@ -65,7 +66,11 @@ class UserService {
   }
 
   // PUT /api/User/UpdatePassword
-  Future<Map<String, dynamic>?> updatePassword({
+  //
+  // Retorna un Map con:
+  //   {'success': true,  'data': {...}}           → contraseña actualizada OK
+  //   {'success': false, 'message': 'Texto...'}   → error con mensaje legible
+  Future<Map<String, dynamic>> updatePassword({
     required int userId,
     required String currentPassword,
     required String newPassword,
@@ -82,12 +87,43 @@ class UserService {
           'confirmPassword': confirmPassword,
         }),
       );
+
       if (response.statusCode == 200) {
-        return jsonDecode(response.body) as Map<String, dynamic>;
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        // Si la API devuelve explícitamente success=false, lo propagamos
+        if (body['success'] == false) {
+          return {
+            'success': false,
+            'message': body['message'] as String? ??
+                'No se pudo actualizar la contraseña.',
+          };
+        }
+        return {'success': true, 'data': body};
       }
-      return null;
+
+      final String message = switch (response.statusCode) {
+        400 => 'La contraseña actual es incorrecta o los datos son inválidos.',
+        401 => 'La contraseña actual no coincide.',
+        403 => 'No tienes permiso para realizar esta acción.',
+        404 => 'Usuario no encontrado.',
+        429 => 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
+        >= 500 => 'Error en el servidor. Inténtalo más tarde.',
+        _ =>
+          'No se pudo actualizar la contraseña (código ${response.statusCode}).',
+      };
+
+      return {'success': false, 'message': message};
+    } on SocketException {
+      return {
+        'success': false,
+        'message':
+            'Sin conexión a Internet. Comprueba tu red e inténtalo de nuevo.',
+      };
     } catch (_) {
-      return null;
+      return {
+        'success': false,
+        'message': 'Ocurrió un error inesperado. Inténtalo de nuevo.',
+      };
     }
   }
 

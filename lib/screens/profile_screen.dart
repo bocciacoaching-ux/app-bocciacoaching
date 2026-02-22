@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/session_provider.dart';
 import '../models/user_session.dart';
 import '../theme/app_colors.dart';
+import 'change_password_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -215,8 +216,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Cambiar contraseña',
             icon: Icons.lock_outline,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Función en desarrollo')),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const ChangePasswordScreen(),
+                ),
               );
             },
           ),
