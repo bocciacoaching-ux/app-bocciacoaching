@@ -21,17 +21,17 @@ class _EvaluationsScreenState extends State<EvaluationsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Tarjeta Evaluación de Fuerza
+            // Tarjeta Evaluación de Fuerza (NUEVA IMPLEMENTACIÓN)
             GestureDetector(
               onTap: () {
-                Navigator.of(context).pushNamed('/athlete-selection', arguments: 'strength');
+                Navigator.of(context).pushNamed('/force-test-module');
               },
               child: _buildEvaluationCard(
                 context,
                 icon: '⚡',
-                title: 'Evaluación de Fuerza',
-                description: 'Realiza la evaluación de control de fuerza para medir la capacidad del atleta',
-                badgeLabel: 'FÍSICA',
+                title: 'Evaluación de Fuerza (Boccia)',
+                description: 'Nuevo módulo completo de 36 tiros con estadísticas en tiempo real y mapa de calor.',
+                badgeLabel: 'NUEVO',
                 badgeColor: const Color(0xFFD4E8F7),
                 badgeTextColor: const Color(0xFF477D9E),
               ),

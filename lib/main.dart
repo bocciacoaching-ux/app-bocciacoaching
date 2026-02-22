@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:boccia_coaching_app/providers/force_test_provider.dart';
 import 'package:boccia_coaching_app/screens/splash_screen.dart';
 import 'package:boccia_coaching_app/screens/login_screen.dart';
 import 'package:boccia_coaching_app/screens/register_screen.dart';
@@ -11,9 +13,17 @@ import 'package:boccia_coaching_app/screens/evaluations_screen.dart';
 import 'package:boccia_coaching_app/screens/athlete_selection_screen.dart';
 import 'package:boccia_coaching_app/screens/strength_test_screen.dart';
 import 'package:boccia_coaching_app/screens/test_statistics_screen.dart';
+import 'package:boccia_coaching_app/screens/test_force_panel_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ForceTestProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -41,6 +51,7 @@ class MyApp extends StatelessWidget {
         '/teams': (_) => const TeamsScreen(),
         '/profile': (_) => const ProfileScreen(),
         '/evaluations': (_) => const EvaluationsScreen(),
+        '/force-test-module': (_) => const TestForcePanelScreen(),
         '/athlete-selection': (context) {
           final evaluationType = ModalRoute.of(context)?.settings.arguments as String?;
           return AthleteSelectionScreen(evaluationType: evaluationType ?? 'strength');
