@@ -35,6 +35,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  /// Lista de roles disponibles según los rolIds que devuelve la API.
+  static List<String> _availableRoles(List<int> rolIds) {
+    return rolIds.map(_roleLabel).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final session = context.watch<SessionProvider>().session;
@@ -42,6 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final fullName = session?.fullName ?? 'Usuario';
     final email = session?.email ?? '';
     final rolLabel = session != null ? _roleLabel(session.rolId) : '';
+    final availableRoles = session != null ? _availableRoles([session.rolId]) : <String>[];
     final country = session?.country ?? '';
     final category = session?.category ?? '';
 
@@ -197,11 +203,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // ── Rol Activo (según la API) ──────────────────────────────
             const Text('Rol Activo', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 12),
-            _roleOption('Entrenador', _activeRole == 'Entrenador'),
-            const SizedBox(height: 12),
-            _roleOption('Deportista', _activeRole == 'Deportista'),
-            const SizedBox(height: 12),
-            _roleOption('Árbitro', _activeRole == 'Árbitro'),
+            ...availableRoles.map((role) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _roleOption(role, _activeRole == role),
+            )),
             const SizedBox(height: 24),
           // Settings section
           const Text('Configuración', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),

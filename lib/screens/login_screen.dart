@@ -21,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen>
   final _passwordController = TextEditingController();
   bool _obscure = true;
   bool _loading = false;
+  String? _errorMessage;
 
   late AnimationController _animController;
   late Animation<double> _fadeIn;
@@ -52,6 +53,8 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Future<void> _submit() async {
+    // Limpiar error previo al intentar de nuevo
+    setState(() => _errorMessage = null);
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
     final email = _emailController.text.trim();
@@ -69,16 +72,44 @@ class _LoginScreenState extends State<LoginScreen>
         MaterialPageRoute(builder: (_) => const DashboardScreen()),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Credenciales incorrectas'),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
+      final message = (result != null && result['message'] != null)
+          ? result['message'] as String
+          : 'Correo o contraseña incorrectos. Inténtalo de nuevo.';
+      setState(() => _errorMessage = message);
     }
+  }
+
+  // ── Banner de error ───────────────────────────────────────────────
+  Widget _errorBanner(String message) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.errorBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.error.withOpacity(0.35)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.error_outline_rounded,
+              color: AppColors.error, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: AppColors.error,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // ── Helpers de input ──────────────────────────────────────────────
@@ -337,6 +368,12 @@ class _LoginScreenState extends State<LoginScreen>
                                     ),
                                   ),
                                   const SizedBox(height: 16),
+
+                                  // ── Banner de error API ──────────────────
+                                  if (_errorMessage != null) ...[
+                                    _errorBanner(_errorMessage!),
+                                    const SizedBox(height: 14),
+                                  ],
 
                                   // ── Botón principal ──────────────────
                                   SizedBox(
