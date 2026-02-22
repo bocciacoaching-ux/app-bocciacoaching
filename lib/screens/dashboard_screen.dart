@@ -598,54 +598,140 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // ── Header con logo y botón de cierre ──────────────────────
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              padding: const EdgeInsets.fromLTRB(20, 20, 12, 20),
               color: AppColors.white,
-              child: Center(
-                child: const BocciaLogo(size: 120),
+              child: Row(
+                children: [
+                  const Expanded(child: BocciaLogo(size: 40)),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close, color: AppColors.neutral4, size: 22),
+                    tooltip: 'Cerrar menú',
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 8),
+            // Acento de color en la parte inferior del header
+            Container(height: 3, color: AppColors.primary),
+
+            // ── Navegación principal ────────────────────────────────────
             Expanded(
               child: SingleChildScrollView(
+                padding: const EdgeInsets.only(top: 16, bottom: 16),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _drawerItem(context, icon: Icons.home_outlined, label: 'Inicio', active: _selectedIndex == 0, onTap: () {
-                      setState(() => _selectedIndex = 0);
-                      Navigator.of(context).pop();
-                    }),
-                    _drawerItem(context, icon: Icons.fitness_center_outlined, label: 'Entrenamiento', active: _selectedIndex == 1, onTap: () {
-                      setState(() => _selectedIndex = 1);
-                      Navigator.of(context).pop();
-                    }),
-                    _drawerItem(context, icon: Icons.group_outlined, label: 'Atletas', onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pushNamed(
-                        '/athletes',
-                        arguments: {
-                          'teamName': _selectedTeam,
-                          'teamFlag': _selectedFlag,
-                          'teamSubtitle': _selectedSubtitle,
-                        },
-                      );
-                    }),
-                    _drawerItem(context, icon: Icons.bar_chart_outlined, label: 'Análisis y estadísticas', onTap: () {}),
+                    // — Sección principal
+                    _drawerSectionLabel('PRINCIPAL'),
+                    _drawerItem(
+                      context,
+                      icon: Icons.home_outlined,
+                      activeIcon: Icons.home,
+                      label: 'Inicio',
+                      active: _selectedIndex == 0,
+                      onTap: () {
+                        setState(() => _selectedIndex = 0);
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    _drawerItem(
+                      context,
+                      icon: Icons.assignment_outlined,
+                      activeIcon: Icons.assignment,
+                      label: 'Evaluaciones',
+                      active: _selectedIndex == 1,
+                      onTap: () {
+                        setState(() => _selectedIndex = 1);
+                        Navigator.of(context).pop();
+                      },
+                    ),
+
+                    const SizedBox(height: 8),
+                    // — Sección análisis
+                    _drawerSectionLabel('ANÁLISIS'),
+                    _drawerItem(
+                      context,
+                      icon: Icons.bar_chart_outlined,
+                      activeIcon: Icons.bar_chart,
+                      label: 'Estadísticas',
+                      badge: 'Próximo',
+                      onTap: () {},
+                    ),
                   ],
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                  child: FloatingActionButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  backgroundColor: AppColors.surface,
-                  child: const Icon(Icons.close, color: AppColors.black),
+
+            // ── Footer: perfil del usuario ──────────────────────────────
+            Container(
+              decoration: const BoxDecoration(
+                color: AppColors.white,
+                border: Border(top: BorderSide(color: AppColors.neutral8)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushNamed('/profile');
+                },
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: AppColors.secondary,
+                      child: const Text(
+                        'OB',
+                        style: TextStyle(
+                          color: AppColors.actionSecondaryInverted,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Oscar Barragán',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            'Coach · Plan Premium',
+                            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward_ios, size: 13, color: AppColors.neutral5),
+                  ],
                 ),
               ),
-            )
+            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerSectionLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 16, 6),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 11,
+          color: AppColors.neutral5,
+          letterSpacing: 1.2,
         ),
       ),
     );
@@ -673,29 +759,94 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _drawerItem(BuildContext context, {required IconData icon, required String label, bool active = false, VoidCallback? onTap}) {
+  Widget _drawerItem(
+    BuildContext context, {
+    required IconData icon,
+    IconData? activeIcon,
+    required String label,
+    bool active = false,
+    String? badge,
+    VoidCallback? onTap,
+  }) {
+    final Color iconColor = active ? AppColors.primary : AppColors.neutral4;
+    final Color textColor = active ? AppColors.primary : AppColors.neutral2;
+    final IconData displayIcon = active && activeIcon != null ? activeIcon : icon;
+
     return InkWell(
       onTap: onTap ?? () => Navigator.of(context).pop(),
       child: Container(
-        color: active ? const Color.fromRGBO(0, 0, 0, 0.04) : Colors.transparent,
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+        decoration: BoxDecoration(
+          color: active ? AppColors.primary10 : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Row(
           children: [
+            // Barra de acento lateral
             Container(
-              width: 6,
-              height: 56,
-              color: active ? AppColors.black : Colors.transparent,
-            ),
-            const SizedBox(width: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-              child: Row(
-                children: [
-                  Icon(icon, color: AppColors.neutral2),
-                  const SizedBox(width: 16),
-                  Text(label, style: const TextStyle(fontSize: 16, color: AppColors.neutral2)),
-                ],
+              width: 4,
+              height: 50,
+              decoration: BoxDecoration(
+                color: active ? AppColors.primary : Colors.transparent,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  bottomLeft: Radius.circular(10),
+                ),
               ),
             ),
+            const SizedBox(width: 12),
+            // Ícono con fondo cuando está activo
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: active ? AppColors.primary20 : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(displayIcon, color: iconColor, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 14.0),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: active ? FontWeight.bold : FontWeight.w500,
+                    color: textColor,
+                  ),
+                ),
+              ),
+            ),
+            if (badge != null) ...[
+              Container(
+                margin: const EdgeInsets.only(right: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.accent2x10,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  badge,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.accent2,
+                  ),
+                ),
+              ),
+            ] else if (!active) ...[
+              const Padding(
+                padding: EdgeInsets.only(right: 14),
+                child: Icon(Icons.arrow_forward_ios, size: 12, color: AppColors.neutral6),
+              ),
+            ] else ...[
+              Padding(
+                padding: const EdgeInsets.only(right: 14),
+                child: Icon(Icons.circle, size: 8, color: AppColors.primary),
+              ),
+            ],
           ],
         ),
       ),
