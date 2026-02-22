@@ -81,6 +81,17 @@ class ForceTestProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Limpia todo el estado para comenzar una nueva evaluación desde cero.
+  Future<void> resetForNewEvaluation() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('assessStrengthId');
+    _assessStrengthId = null;
+    _currentShotIndex = 0;
+    _selectedAthletes = [];
+    _completedThrows = [];
+    _resetCurrentShotState();
+  }
+
   Future<void> startNewEvaluation(String name, int teamId, int coachId) async {
     _isLoading = true;
     notifyListeners();

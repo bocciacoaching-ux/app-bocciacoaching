@@ -92,7 +92,9 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
         backgroundColor: const Color(0xFF477D9E),
         foregroundColor: Colors.white,
       ),
-      body: Column(
+      body: SafeArea(
+        top: false,
+        child: Column(
         children: [
           // Header
           Container(
@@ -262,6 +264,7 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

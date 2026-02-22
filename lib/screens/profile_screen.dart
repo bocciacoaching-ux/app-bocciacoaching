@@ -23,8 +23,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
         children: [
           // User info card
           Container(
@@ -175,6 +177,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 24),
         ],
+      ),
       ),
     );
   }

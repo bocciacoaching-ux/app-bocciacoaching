@@ -21,8 +21,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
         children: [
           _notificationItem(
             title: 'María González completó entrenamiento',
@@ -59,6 +61,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             iconColor: Colors.teal,
           ),
         ],
+      ),
       ),
     );
   }

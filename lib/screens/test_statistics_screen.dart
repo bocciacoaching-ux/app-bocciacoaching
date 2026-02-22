@@ -44,8 +44,10 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
         backgroundColor: const Color(0xFF477D9E),
         foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+      body: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -106,6 +108,7 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
               ],
             ),
           ],
+        ),
         ),
       ),
     );

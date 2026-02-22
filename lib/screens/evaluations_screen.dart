@@ -1,36 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/force_test_provider.dart';
 
-class EvaluationsScreen extends StatefulWidget {
-  const EvaluationsScreen({super.key});
+/// Widget reutilizable con el contenido de evaluaciones (sin Scaffold),
+/// para poder embeberse dentro del DashboardScreen.
+class EvaluationsBody extends StatelessWidget {
+  const EvaluationsBody({super.key});
 
-  @override
-  State<EvaluationsScreen> createState() => _EvaluationsScreenState();
-}
-
-class _EvaluationsScreenState extends State<EvaluationsScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Evaluaciones'),
-        backgroundColor: const Color(0xFF477D9E),
-        foregroundColor: Colors.white,
-      ),
-      body: SingleChildScrollView(
+    return SafeArea(
+      top: false,
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Tarjeta Evaluación de Fuerza (NUEVA IMPLEMENTACIÓN)
             GestureDetector(
-              onTap: () {
-                Navigator.of(context).pushNamed('/force-test-module');
+              onTap: () async {
+                // Reiniciar el provider para mostrar siempre el setup inicial
+                final provider = context.read<ForceTestProvider>();
+                await provider.resetForNewEvaluation();
+                if (context.mounted) {
+                  Navigator.of(context).pushNamed('/force-test-module');
+                }
               },
               child: _buildEvaluationCard(
                 context,
                 icon: '⚡',
                 title: 'Evaluación de Fuerza (Boccia)',
-                description: 'Nuevo módulo completo de 36 tiros con estadísticas en tiempo real y mapa de calor.',
+                description:
+                    'Nuevo módulo completo de 36 tiros con estadísticas en tiempo real y mapa de calor.',
                 badgeLabel: 'NUEVO',
                 badgeColor: const Color(0xFFD4E8F7),
                 badgeTextColor: const Color(0xFF477D9E),
@@ -40,13 +41,15 @@ class _EvaluationsScreenState extends State<EvaluationsScreen> {
             // Tarjeta Evaluación de Control de Dirección
             GestureDetector(
               onTap: () {
-                Navigator.of(context).pushNamed('/athlete-selection', arguments: 'direction');
+                Navigator.of(context)
+                    .pushNamed('/athlete-selection', arguments: 'direction');
               },
               child: _buildEvaluationCard(
                 context,
                 icon: '📖',
                 title: 'Evaluación de Control de Dirección',
-                description: 'Evalúa la precisión y el control de dirección del atleta',
+                description:
+                    'Evalúa la precisión y el control de dirección del atleta',
                 badgeLabel: 'TÉCNICA',
                 badgeColor: const Color(0xFFF0E6F6),
                 badgeTextColor: const Color(0xFF8B5CF6),
@@ -137,12 +140,10 @@ class _EvaluationsScreenState extends State<EvaluationsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                icon,
-                style: const TextStyle(fontSize: 24),
-              ),
+              Text(icon, style: const TextStyle(fontSize: 24)),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: badgeColor,
                   borderRadius: BorderRadius.circular(20),
@@ -181,3 +182,28 @@ class _EvaluationsScreenState extends State<EvaluationsScreen> {
     );
   }
 }
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Pantalla standalone (se mantiene para rutas directas si se necesitara)
+// ──────────────────────────────────────────────────────────────────────────────
+class EvaluationsScreen extends StatefulWidget {
+  const EvaluationsScreen({super.key});
+
+  @override
+  State<EvaluationsScreen> createState() => _EvaluationsScreenState();
+}
+
+class _EvaluationsScreenState extends State<EvaluationsScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Evaluaciones'),
+        backgroundColor: const Color(0xFF477D9E),
+        foregroundColor: Colors.white,
+      ),
+      body: const EvaluationsBody(),
+    );
+  }
+}
+

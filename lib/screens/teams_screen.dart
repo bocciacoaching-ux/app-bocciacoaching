@@ -23,8 +23,10 @@ class _TeamsScreenState extends State<TeamsScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
         children: [
           const Text('Equipos activos', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 12),
@@ -86,6 +88,7 @@ class _TeamsScreenState extends State<TeamsScreen> {
             },
           ),
         ],
+      ),
       ),
     );
   }

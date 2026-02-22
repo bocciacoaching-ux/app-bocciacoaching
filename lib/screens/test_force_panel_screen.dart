@@ -46,8 +46,10 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+      body: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -168,6 +170,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
             ),
           ],
         ),
+        ),
       ),
     );
   }
@@ -275,8 +278,10 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
         backgroundColor: Colors.white,
         elevation: 0.5,
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
+      body: SafeArea(
+        top: false,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
           final isWide = constraints.maxWidth > 900;
           return Row(
             children: [
@@ -443,6 +448,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
             ],
           );
         },
+        ),
       ),
       endDrawer: MediaQuery.of(context).size.width <= 900
           ? Drawer(
