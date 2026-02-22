@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:boccia_coaching_app/providers/force_test_provider.dart';
+import 'package:boccia_coaching_app/providers/session_provider.dart';
 import 'package:boccia_coaching_app/theme/app_colors.dart';
 import 'package:boccia_coaching_app/screens/splash_screen.dart';
 import 'package:boccia_coaching_app/screens/login_screen.dart';
@@ -23,6 +24,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ForceTestProvider()),
+        ChangeNotifierProvider(create: (_) => SessionProvider()),
       ],
       child: const MyApp(),
     ),
