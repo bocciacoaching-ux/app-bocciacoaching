@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class TestStatisticsScreen extends StatefulWidget {
   final String evaluationType;
@@ -41,8 +42,8 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_getEvaluationTitle()),
-        backgroundColor: const Color(0xFF477D9E),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.white,
       ),
       body: SafeArea(
         top: false,
@@ -56,7 +57,7 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937),
+                color: AppColors.black,
               ),
             ),
             const SizedBox(height: 24),
@@ -78,8 +79,8 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
                       Navigator.of(context).popUntil((route) => route.isFirst);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE5E7EB),
-                      foregroundColor: const Color(0xFF1F2937),
+                      backgroundColor: AppColors.neutral8,
+                      foregroundColor: AppColors.black,
                     ),
                     child: const Text('Volver'),
                   ),
@@ -92,16 +93,16 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Resultados guardados correctamente'),
-                          backgroundColor: Colors.green,
+                        backgroundColor: AppColors.success,
                         ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF477D9E),
+                      backgroundColor: AppColors.primary,
                     ),
                     child: const Text(
                       'Guardar',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: AppColors.white),
                     ),
                   ),
                 ),
@@ -122,11 +123,11 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: AppColors.black.withOpacity(0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -140,7 +141,7 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2937),
+                color: AppColors.black,
             ),
           ),
           const SizedBox(height: 12),
@@ -148,7 +149,7 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
             const Text(
               'Sin resultados registrados',
               style: TextStyle(
-                color: Color(0xFF9CA3AF),
+                color: AppColors.neutral6,
                 fontSize: 13,
               ),
             )
@@ -165,14 +166,14 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF3F4F6),
+                    color: AppColors.neutral9,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     'Total de pruebas: ${results.length}',
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF6B7280),
+                      color: AppColors.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -192,7 +193,7 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
           label,
           style: const TextStyle(
             fontSize: 13,
-            color: Color(0xFF6B7280),
+            color: AppColors.textSecondary,
           ),
         ),
         Text(
@@ -200,7 +201,7 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: value != null ? const Color(0xFF477D9E) : const Color(0xFF9CA3AF),
+            color: value != null ? AppColors.primary : AppColors.neutral6,
           ),
         ),
       ],
@@ -211,7 +212,7 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFE0F2FE),
+        color: AppColors.infoBg,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -222,7 +223,7 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF477D9E),
+              color: AppColors.primary,
             ),
           ),
           const SizedBox(height: 12),
@@ -230,7 +231,7 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
             'Atletas evaluados: ${widget.athletes.length}',
             style: const TextStyle(
               fontSize: 13,
-              color: Color(0xFF6B7280),
+              color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 8),
@@ -238,7 +239,7 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
             'Total de pruebas: ${widget.results.values.fold(0, (sum, list) => sum + list.length)}',
             style: const TextStyle(
               fontSize: 13,
-              color: Color(0xFF6B7280),
+              color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 8),
@@ -246,7 +247,7 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
             'Tipo de evaluación: ${widget.evaluationType == 'strength' ? 'Prueba de Fuerza' : 'Prueba de Dirección'}',
             style: const TextStyle(
               fontSize: 13,
-              color: Color(0xFF6B7280),
+              color: AppColors.textSecondary,
             ),
           ),
         ],

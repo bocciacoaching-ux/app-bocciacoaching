@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:boccia_coaching_app/services/auth_service.dart';
 import 'package:boccia_coaching_app/screens/dashboard_screen.dart';
+import 'package:boccia_coaching_app/theme/app_colors.dart';
 
-// Color tokens to match the provided design
-// Primary color changed to match requested brand color #477D9E
-const Color kHeaderColor = Color(0xFF477D9E);
-const Color kBackground = Color(0xFFF7F8F9); // very light grey page background
-const Color kInputBorder = Color(0xFFE6E9EC); // input border
-const Color kPrimaryButton = kHeaderColor; // same as header
-const Color kLinkColor = kHeaderColor;
-const Color kAsteriskColor = Color(0xFFD23B4B); // subtle red for required asterisk
+// Color tokens to match the provided design system
+const Color kHeaderColor = AppColors.primary;
+const Color kBackground = AppColors.background;
+const Color kInputBorder = AppColors.inputBorder;
+const Color kPrimaryButton = AppColors.actionPrimaryDefault;
+const Color kLinkColor = AppColors.primary;
+const Color kAsteriskColor = AppColors.error;
 
 class LoginScreen extends StatefulWidget {
   final AuthService? authService;
@@ -78,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Material(
-                      color: Colors.white,
+                      color: AppColors.white,
                       elevation: 4,
                       borderRadius: BorderRadius.circular(8),
                       child: Padding(
@@ -207,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   onPressed: _loading ? null : _submit,
                                   child: _loading
-                                      ? const CircularProgressIndicator(color: Colors.white)
+                                      ? const CircularProgressIndicator(color: AppColors.white)
                                       : const Text('Iniciar sesión'),
                                 ),
                               ),

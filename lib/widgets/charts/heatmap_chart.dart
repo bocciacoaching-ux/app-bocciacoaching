@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_colors.dart';
 
 class HeatmapChart extends StatelessWidget {
   final List<Map<String, double>> coordinates;
@@ -11,9 +12,9 @@ class HeatmapChart extends StatelessWidget {
       aspectRatio: 1,
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: AppColors.neutral7),
           borderRadius: BorderRadius.circular(8),
-          color: Colors.grey.shade100,
+          color: AppColors.neutral9,
         ),
         child: Stack(
           children: [
@@ -25,7 +26,7 @@ class HeatmapChart extends StatelessWidget {
                     width: 12,
                     height: 12,
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.3),
+                      color: AppColors.error.withOpacity(0.3),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -33,7 +34,7 @@ class HeatmapChart extends StatelessWidget {
             Center(
               child: Text(
                 "Mapa de Calor",
-                style: TextStyle(color: Colors.black38, fontWeight: FontWeight.bold),
+                style: TextStyle(color: AppColors.neutral6, fontWeight: FontWeight.bold),
               ),
             ),
           ],

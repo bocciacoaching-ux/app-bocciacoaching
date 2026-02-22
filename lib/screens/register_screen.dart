@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:boccia_coaching_app/theme/app_colors.dart';
 // auth_service not required in this verification-only screen
 
-const Color kHeaderColor = Color(0xFF477D9E);
-const Color kBackground = Color(0xFFF7F8F9);
-const Color kInputBorder = Color(0xFFE6E9EC);
-const Color kPrimaryColor = Color(0xFF477D9E);
-const Color kLinkColor = Color(0xFF477D9E);
-const Color kAsteriskColor = Color(0xFFD23B4B);
+const Color kHeaderColor = AppColors.primary;
+const Color kBackground = AppColors.background;
+const Color kInputBorder = AppColors.inputBorder;
+const Color kPrimaryColor = AppColors.actionPrimaryDefault;
+const Color kLinkColor = AppColors.primary;
+const Color kAsteriskColor = AppColors.error;
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -164,7 +165,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Material(
-                      color: Colors.white,
+                      color: AppColors.white,
                       elevation: 4,
                       borderRadius: BorderRadius.circular(8),
                       child: Padding(
@@ -288,7 +289,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Text(
                           'Verifica tu cuenta para continuar. Hemos enviado un código de 6 dígitos a ${_emailCtrl.text.trim().isEmpty ? "anagonzalez@email.com" : _emailCtrl.text.trim()}. Por favor, escríbelo a continuación.',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.black54),
+                          style: const TextStyle(color: AppColors.textSecondary),
                         ),
                         const SizedBox(height: 22),
                         // code boxes (responsive to available width to avoid overflow)
@@ -319,7 +320,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       isDense: true,
                                       contentPadding: EdgeInsets.zero,
                                       filled: true,
-                                      fillColor: Colors.white,
+                                      fillColor: AppColors.white,
                                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: kInputBorder)),
                                       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: kInputBorder)),
                                       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: kHeaderColor, width: 1.5)),
@@ -345,13 +346,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: RichText(
                             textAlign: TextAlign.center,
                             text: TextSpan(
-                              style: const TextStyle(color: Colors.black54),
+                              style: const TextStyle(color: AppColors.textSecondary),
                               children: [
                                 const TextSpan(text: '¿No recibiste el código? Revisa tu correo no deseado o '),
                                 WidgetSpan(
                                   child: GestureDetector(
                                     onTap: _resendCode,
-                                    child: const Text('reenviar.', style: TextStyle(decoration: TextDecoration.underline, color: Colors.black87)),
+                                    child: const Text('reenviar.', style: TextStyle(decoration: TextDecoration.underline, color: AppColors.textPrimary)),
                                   ),
                                 ),
                               ],
@@ -368,7 +369,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               child: OutlinedButton(
                                 onPressed: () => setState(() => _step = 0),
                                 style: OutlinedButton.styleFrom(
-                                  backgroundColor: Colors.white,
+                                  backgroundColor: AppColors.white,
                                   side: BorderSide(color: kHeaderColor),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
@@ -399,7 +400,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 12),
                         const Center(
-                          child: Text('Crea tu contraseña.\nLa usarás más adelante para iniciar sesión.', textAlign: TextAlign.center, style: TextStyle(color: Colors.black54)),
+                          child: Text('Crea tu contraseña.\nLa usarás más adelante para iniciar sesión.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary)),
                         ),
                         const SizedBox(height: 28),
                         Text.rich(
@@ -435,19 +436,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             Row(children: [
                               Icon(_pwAtLeast8 ? Icons.check_circle : Icons.close, color: _pwAtLeast8 ? const Color(0xFF2E7D32) : const Color(0xFFB00020), size: 16),
                               const SizedBox(width: 8),
-                              Expanded(child: Text('Mínimo 8 caracteres', style: TextStyle(color: Colors.black54, fontSize: 13))),
+                              Expanded(child: Text('Mínimo 8 caracteres', style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
                             ]),
                             const SizedBox(height: 8),
                             Row(children: [
                               Icon(_pwHasNumber ? Icons.check_circle : Icons.close, color: _pwHasNumber ? const Color(0xFF2E7D32) : const Color(0xFFB00020), size: 16),
                               const SizedBox(width: 8),
-                              Expanded(child: Text('Al menos 1 número', style: TextStyle(color: Colors.black54, fontSize: 13))),
+                              Expanded(child: Text('Al menos 1 número', style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
                             ]),
                             const SizedBox(height: 8),
                             Row(children: [
                               Icon(_pwNoSpecial ? Icons.check_circle : Icons.close, color: _pwNoSpecial ? const Color(0xFF2E7D32) : const Color(0xFFB00020), size: 16),
                               const SizedBox(width: 8),
-                              Expanded(child: Text('Sin caracteres especiales', style: TextStyle(color: Colors.black54, fontSize: 13))),
+                              Expanded(child: Text('Sin caracteres especiales', style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
                             ]),
                           ],
                         ),
@@ -461,7 +462,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               child: OutlinedButton(
                                 onPressed: () => setState(() => _step = 1),
                                 style: OutlinedButton.styleFrom(
-                                  backgroundColor: Colors.white,
+                                  backgroundColor: AppColors.white,
                                   side: BorderSide(color: kHeaderColor),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
@@ -492,7 +493,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 12),
                         const Center(
-                          child: Text('Completa tu región y rol dentro de Boccia Coaching.\nNos ayudará a personalizar tu experiencia.', textAlign: TextAlign.center, style: TextStyle(color: Colors.black54)),
+                          child: Text('Completa tu región y rol dentro de Boccia Coaching.\nNos ayudará a personalizar tu experiencia.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary)),
                         ),
                         const SizedBox(height: 28),
                         // Region field
@@ -510,12 +511,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             height: 48,
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: kInputBorder)),
+                            decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: kInputBorder)),
                             child: Row(children: [
-                              const Icon(Icons.place, color: Colors.black54),
+                              const Icon(Icons.place, color: AppColors.textSecondary),
                               const SizedBox(width: 12),
-                              Expanded(child: Text(_selectedRegion ?? _regions.first, style: const TextStyle(color: Colors.black87))),
-                              const Icon(Icons.arrow_drop_down, color: Colors.black54),
+                              Expanded(child: Text(_selectedRegion ?? _regions.first, style: const TextStyle(color: AppColors.textPrimary))),
+                              const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
                             ]),
                           ),
                         ),
@@ -535,12 +536,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             height: 48,
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: kInputBorder)),
+                            decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: kInputBorder)),
                             child: Row(children: [
-                              const Icon(Icons.person, color: Colors.black54),
+                              const Icon(Icons.person, color: AppColors.textSecondary),
                               const SizedBox(width: 12),
-                              Expanded(child: Text(_selectedRole ?? _roles.first, style: const TextStyle(color: Colors.black87))),
-                              const Icon(Icons.arrow_drop_down, color: Colors.black54),
+                              Expanded(child: Text(_selectedRole ?? _roles.first, style: const TextStyle(color: AppColors.textPrimary))),
+                              const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
                             ]),
                           ),
                         ),
@@ -560,12 +561,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             height: 48,
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: kInputBorder)),
+                            decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: kInputBorder)),
                             child: Row(children: [
-                              const Icon(Icons.sports_score, color: Colors.black54),
+                              const Icon(Icons.sports_score, color: AppColors.textSecondary),
                               const SizedBox(width: 12),
-                              Expanded(child: Text(_selectedCategory ?? _categories.first, style: const TextStyle(color: Colors.black87))),
-                              const Icon(Icons.arrow_drop_down, color: Colors.black54),
+                              Expanded(child: Text(_selectedCategory ?? _categories.first, style: const TextStyle(color: AppColors.textPrimary))),
+                              const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
                             ]),
                           ),
                         ),
@@ -579,7 +580,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               child: OutlinedButton(
                                 onPressed: () => setState(() => _step = 2),
                                 style: OutlinedButton.styleFrom(
-                                  backgroundColor: Colors.white,
+                                  backgroundColor: AppColors.white,
                                   side: BorderSide(color: kHeaderColor),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),

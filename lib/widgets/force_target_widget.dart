@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class ForceTargetWidget extends StatefulWidget {
   final void Function(double x, double y, int score)? onTargetTap;
@@ -125,10 +126,10 @@ class ForceTargetWidgetState extends State<ForceTargetWidget> {
           height: widget.size,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: AppColors.neutral7),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
+                color: AppColors.black.withValues(alpha: 0.08),
                 blurRadius: 12,
                 spreadRadius: 2,
               )
@@ -197,7 +198,7 @@ class ForceTargetPainter extends CustomPainter {
 
     // ── 5) Zone 4 pts: white circle (radius ≈ 28% of width) ───────
     final circle4Radius = w * 0.28;
-    canvas.drawCircle(center, circle4Radius, Paint()..color = Colors.white);
+    canvas.drawCircle(center, circle4Radius, Paint()..color = AppColors.white);
     canvas.drawCircle(
       center,
       circle4Radius,
@@ -333,7 +334,7 @@ class ForceTargetPainter extends CustomPainter {
       Offset(ballX + 1.5, ballY + 1.5),
       ballRadius,
       Paint()
-        ..color = Colors.black.withValues(alpha: 0.25)
+        ..color = AppColors.black.withValues(alpha: 0.25)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
     );
 
@@ -395,7 +396,7 @@ class ForceTargetPainter extends CustomPainter {
     canvas.drawCircle(
       Offset(ballX, ballY),
       ballRadius * 0.4,
-      Paint()..color = Colors.white.withValues(alpha: 0.9),
+      Paint()..color = AppColors.white.withValues(alpha: 0.9),
     );
 
     // Highlight (gloss)
@@ -405,7 +406,7 @@ class ForceTargetPainter extends CustomPainter {
     canvas.drawPath(
       highlightPath,
       Paint()
-        ..color = Colors.white.withValues(alpha: 0.35)
+        ..color = AppColors.white.withValues(alpha: 0.35)
         ..style = PaintingStyle.stroke
         ..strokeWidth = ballRadius * 0.3
         ..strokeCap = StrokeCap.round,

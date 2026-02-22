@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/force_test_provider.dart';
+import '../theme/app_colors.dart';
 
 /// Widget reutilizable con el contenido de evaluaciones (sin Scaffold),
 /// para poder embeberse dentro del DashboardScreen.
@@ -33,8 +34,8 @@ class EvaluationsBody extends StatelessWidget {
                 description:
                     'Nuevo módulo completo de 36 tiros con estadísticas en tiempo real y mapa de calor.',
                 badgeLabel: 'NUEVO',
-                badgeColor: const Color(0xFFD4E8F7),
-                badgeTextColor: const Color(0xFF477D9E),
+                badgeColor: AppColors.infoBg,
+                badgeTextColor: AppColors.primary,
               ),
             ),
             const SizedBox(height: 24),
@@ -51,8 +52,8 @@ class EvaluationsBody extends StatelessWidget {
                 description:
                     'Evalúa la precisión y el control de dirección del atleta',
                 badgeLabel: 'TÉCNICA',
-                badgeColor: const Color(0xFFF0E6F6),
-                badgeTextColor: const Color(0xFF8B5CF6),
+                badgeColor: AppColors.accent4x10,
+                badgeTextColor: AppColors.accent4,
               ),
             ),
             const SizedBox(height: 32),
@@ -60,7 +61,7 @@ class EvaluationsBody extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFE0F2FE),
+              color: AppColors.infoBg,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -69,12 +70,12 @@ class EvaluationsBody extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFD4E8F7),
+                    color: AppColors.primary10,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
                       Icons.info,
-                      color: Color(0xFF477D9E),
+                      color: AppColors.primary,
                       size: 20,
                     ),
                   ),
@@ -88,7 +89,7 @@ class EvaluationsBody extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1F2937),
+                            color: AppColors.black,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -96,7 +97,7 @@ class EvaluationsBody extends StatelessWidget {
                           'Las evaluaciones están diseñadas para medir el rendimiento de los atletas de forma precisa y objetiva. Selecciona la evaluación apropiada según tus objetivos de entrenamiento.',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF6B7280),
+                            color: AppColors.textSecondary,
                             height: 1.4,
                           ),
                         ),
@@ -124,11 +125,11 @@ class EvaluationsBody extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: AppColors.black.withOpacity(0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -165,7 +166,7 @@ class EvaluationsBody extends StatelessWidget {
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2937),
+            color: AppColors.black,
             ),
           ),
           const SizedBox(height: 12),
@@ -173,7 +174,7 @@ class EvaluationsBody extends StatelessWidget {
             description,
             style: const TextStyle(
               fontSize: 14,
-              color: Color(0xFF6B7280),
+            color: AppColors.textSecondary,
               height: 1.5,
             ),
           ),
@@ -199,8 +200,8 @@ class _EvaluationsScreenState extends State<EvaluationsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Evaluaciones'),
-        backgroundColor: const Color(0xFF477D9E),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.white,
       ),
       body: const EvaluationsBody(),
     );

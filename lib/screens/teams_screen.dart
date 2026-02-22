@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class TeamsScreen extends StatefulWidget {
   const TeamsScreen({super.key});
@@ -13,13 +14,13 @@ class _TeamsScreenState extends State<TeamsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F8FB),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
-        title: const Text('Mis Equipos', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+        title: const Text('Mis Equipos', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black54),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textSecondary),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -106,9 +107,9 @@ class _TeamsScreenState extends State<TeamsScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(10),
-          border: isSelected ? Border.all(color: const Color(0xFF477D9E), width: 2) : null,
+          border: isSelected ? Border.all(color: AppColors.primary, width: 2) : null,
           boxShadow: [
             BoxShadow(
               color: const Color.fromRGBO(0, 0, 0, 0.03),
@@ -127,20 +128,20 @@ class _TeamsScreenState extends State<TeamsScreen> {
                 children: [
                   Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                   const SizedBox(height: 4),
-                  Text(country, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                  Text(country, style: TextStyle(color: AppColors.neutral4, fontSize: 12)),
                 ],
               ),
             ),
             Column(
               children: [
-                const Icon(Icons.group, size: 20, color: Colors.grey),
+                const Icon(Icons.group, size: 20, color: AppColors.neutral5),
                 const SizedBox(height: 4),
                 Text('$athletes', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
               ],
             ),
             const SizedBox(width: 16),
             if (isSelected)
-              const Icon(Icons.check_circle, color: Color(0xFF477D9E), size: 24),
+              const Icon(Icons.check_circle, color: AppColors.primary, size: 24),
           ],
         ),
       ),
@@ -157,7 +158,7 @@ class _TeamsScreenState extends State<TeamsScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
@@ -173,18 +174,18 @@ class _TeamsScreenState extends State<TeamsScreen> {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: const Color(0xFF477D9E).withAlpha((0.12 * 255).round()),
+                color: AppColors.primary10,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Center(
-                child: Icon(icon, color: const Color(0xFF477D9E), size: 24),
+                child: Icon(icon, color: AppColors.primary, size: 24),
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+            const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.neutral5),
           ],
         ),
       ),

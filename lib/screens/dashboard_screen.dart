@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'evaluations_screen.dart';
 import '../widgets/notifications_bottom_sheet.dart';
+import '../theme/app_colors.dart';
 
 // Widget para el logo BOCCIA COACHING
 class BocciaLogo extends StatelessWidget {
@@ -52,9 +53,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: const Color(0xFFF3F8FB),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         title: _buildTeamSelector(),
         actions: [
@@ -82,8 +83,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey[300]!),
+          color: AppColors.surface,
+          border: Border.all(color: AppColors.neutral7),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -95,12 +96,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(_selectedTeam, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87)),
-                Text(_selectedSubtitle, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
+                Text(_selectedTeam, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                Text(_selectedSubtitle, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
               ],
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.arrow_drop_down, color: Colors.black54, size: 20),
+            const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary, size: 20),
           ],
         ),
       ),
@@ -114,7 +115,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           onPressed: () {
             showNotificationsBottomSheet(context);
           },
-          icon: const Icon(Icons.notifications_none, color: Colors.black54),
+          icon: const Icon(Icons.notifications_none, color: AppColors.textSecondary),
         ),
         if (_notificationCount > 0)
           Positioned(
@@ -123,12 +124,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: const BoxDecoration(
-                color: Colors.red,
+                color: AppColors.error,
                 shape: BoxShape.circle,
               ),
               child: Text(
                 '$_notificationCount',
-                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: AppColors.white, fontSize: 10, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -157,7 +158,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Plan Premium Pro', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                  Text('Válido hasta 31 dic 2026', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  Text('Válido hasta 31 dic 2026', style: TextStyle(fontSize: 10, color: AppColors.neutral5)),
                 ],
               ),
             ],
@@ -175,35 +176,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
         const PopupMenuDivider(),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'logout',
           child: Row(
             children: [
-              Icon(Icons.logout, size: 20, color: Colors.red),
+              Icon(Icons.logout, size: 20, color: AppColors.error),
               SizedBox(width: 12),
-              Text('Cerrar sesión', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.red)),
+              Text('Cerrar sesión', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.error)),
             ],
           ),
         ),
       ],
       child: CircleAvatar(
         radius: 18,
-        backgroundColor: const Color(0xFF7DA5D1),
-        child: const Text('OB', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+        backgroundColor: AppColors.secondary,
+        child: const Text('OB', style: TextStyle(color: AppColors.actionSecondaryInverted, fontWeight: FontWeight.bold, fontSize: 14)),
       ),
     );
   }
 
   Widget _buildTeamEndDrawer() {
     return Drawer(
-      backgroundColor: const Color(0xFFF3F8FB),
+      backgroundColor: AppColors.background,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Header — mismo fondo oscuro que el drawer principal usa como acento
             Container(
-              color: Colors.white,
+              color: AppColors.surface,
               padding: const EdgeInsets.fromLTRB(20, 20, 8, 20),
               child: Row(
                 children: [
@@ -211,10 +212,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF477D9E).withAlpha((0.12 * 255).round()),
+                      color: AppColors.primary10,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.group_outlined, color: Color(0xFF477D9E), size: 20),
+                    child: const Icon(Icons.group_outlined, color: AppColors.primary, size: 20),
                   ),
                   const SizedBox(width: 12),
                   const Expanded(
@@ -226,25 +227,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF0F2336),
+                            color: AppColors.black,
                           ),
                         ),
                         Text(
                           'Selecciona tu equipo activo',
-                          style: TextStyle(fontSize: 11, color: Color(0xFF304150)),
+                          style: TextStyle(fontSize: 11, color: AppColors.neutral2),
                         ),
                       ],
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, color: Color(0xFF304150), size: 20),
+                    icon: const Icon(Icons.close, color: AppColors.neutral2, size: 20),
                   ),
                 ],
               ),
             ),
             // Línea separadora con el acento de color primario
-            Container(height: 3, color: const Color(0xFF477D9E)),
+            Container(height: 3, color: AppColors.primary),
 
             // Lista de equipos y administración
             Expanded(
@@ -259,7 +260,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
-                        color: Colors.grey[500],
+                        color: AppColors.neutral5,
                         letterSpacing: 1.2,
                       ),
                     ),
@@ -282,7 +283,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             width: 4,
                             height: 72,
                             color: isSelected
-                                ? const Color(0xFF477D9E)
+                                ? AppColors.primary
                                 : Colors.transparent,
                           ),
                           Expanded(
@@ -291,13 +292,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? Colors.white
+                                    ? AppColors.surface
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(10),
                                 boxShadow: isSelected
                                     ? [
                                         BoxShadow(
-                                          color: const Color.fromRGBO(71, 125, 158, 0.1),
+                                          color: AppColors.primary10,
                                           blurRadius: 8,
                                           offset: const Offset(0, 2),
                                         ),
@@ -319,16 +320,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
                                             color: isSelected
-                                                ? const Color(0xFF0F2336)
-                                                : const Color(0xFF304150),
+                                                ? AppColors.black
+                                                : AppColors.neutral2,
                                           ),
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
                                           team['country'],
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontSize: 12,
-                                            color: Colors.grey[500],
+                                            color: AppColors.neutral5,
                                           ),
                                         ),
                                       ],
@@ -340,8 +341,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                       color: isSelected
-                                          ? const Color(0xFF477D9E).withAlpha((0.12 * 255).round())
-                                          : const Color.fromRGBO(0, 0, 0, 0.04),
+                                          ? AppColors.primary10
+                                          : AppColors.neutral9,
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Row(
@@ -350,8 +351,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         Icon(Icons.person_outline,
                                             size: 12,
                                             color: isSelected
-                                                ? const Color(0xFF477D9E)
-                                                : Colors.grey),
+                                                ? AppColors.primary
+                                                : AppColors.neutral5),
                                         const SizedBox(width: 3),
                                         Text(
                                           '${team['athletes']}',
@@ -359,8 +360,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
                                             color: isSelected
-                                                ? const Color(0xFF477D9E)
-                                                : Colors.grey,
+                                                ? AppColors.primary
+                                                : AppColors.neutral5,
                                           ),
                                         ),
                                       ],
@@ -369,11 +370,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   if (isSelected) ...[
                                     const SizedBox(width: 10),
                                     const Icon(Icons.check_circle,
-                                        color: Color(0xFF477D9E), size: 20),
+                                        color: AppColors.primary, size: 20),
                                   ] else ...[
                                     const SizedBox(width: 10),
                                     const Icon(Icons.radio_button_unchecked,
-                                        color: Colors.grey, size: 20),
+                                        color: AppColors.neutral5, size: 20),
                                   ],
                                 ],
                               ),
@@ -393,7 +394,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
-                        color: Colors.grey[500],
+                        color: AppColors.neutral5,
                         letterSpacing: 1.2,
                       ),
                     ),
@@ -438,7 +439,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
@@ -454,11 +455,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFF477D9E).withAlpha((0.12 * 255).round()),
+                color: AppColors.primary10,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Center(
-                child: Icon(icon, color: const Color(0xFF477D9E), size: 20),
+                child: Icon(icon, color: AppColors.primary, size: 20),
               ),
             ),
             const SizedBox(width: 14),
@@ -468,12 +469,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
-                  color: Color(0xFF304150),
+                  color: AppColors.neutral2,
                 ),
               ),
             ),
             const Icon(Icons.arrow_forward_ios,
-                size: 13, color: Color(0xFF477D9E)),
+                size: 13, color: AppColors.primary),
           ],
         ),
       ),
@@ -482,14 +483,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildDrawer() {
     return Drawer(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              color: Colors.white,
+              color: AppColors.white,
               child: Center(
                 child: const BocciaLogo(size: 120),
               ),
@@ -527,10 +528,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Align(
                 alignment: Alignment.bottomLeft,
-                child: FloatingActionButton(
+                  child: FloatingActionButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  backgroundColor: Colors.white,
-                  child: const Icon(Icons.close, color: Color(0xFF0F2336)),
+                  backgroundColor: AppColors.surface,
+                  child: const Icon(Icons.close, color: AppColors.black),
                 ),
               ),
             )
@@ -552,11 +553,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
-        Text(widget.parentLabel, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[700])),
+        Text(widget.parentLabel, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
         const SizedBox(height: 8),
         Text('Dashboard', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        Text('Resumen general de tus atletas y actividades', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[700])),
+        Text('Resumen general de tus atletas y actividades', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textSecondary)),
         const SizedBox(height: 16),
       ],
     );
@@ -572,16 +573,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               width: 6,
               height: 56,
-              color: active ? const Color(0xFF0F2336) : Colors.transparent,
+              color: active ? AppColors.black : Colors.transparent,
             ),
             const SizedBox(width: 12),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
               child: Row(
                 children: [
-                  Icon(icon, color: const Color(0xFF304150)),
+                  Icon(icon, color: AppColors.neutral2),
                   const SizedBox(width: 16),
-                  Text(label, style: const TextStyle(fontSize: 16, color: Color(0xFF304150))),
+                  Text(label, style: const TextStyle(fontSize: 16, color: AppColors.neutral2)),
                 ],
               ),
             ),

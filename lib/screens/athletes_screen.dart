@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/notifications_bottom_sheet.dart';
+import '../theme/app_colors.dart';
 
 // Logo reutilizado del dashboard
 class _BocciaLogo extends StatelessWidget {
@@ -72,11 +73,11 @@ const _teamAthletes = <String, List<Athlete>>{
 Color _statusColor(String status) {
   switch (status) {
     case 'Lesionado':
-      return Colors.orange;
+      return AppColors.warning;
     case 'Inactivo':
-      return Colors.red;
+      return AppColors.error;
     default:
-      return Colors.green;
+      return AppColors.success;
   }
 }
 
@@ -148,7 +149,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: const Color(0xFFF3F8FB),
+      backgroundColor: AppColors.background,
       appBar: _buildAppBar(),
       drawer: _buildDrawer(),
       endDrawer: _buildTeamEndDrawer(),
@@ -173,8 +174,8 @@ class _AthletesScreenState extends State<AthletesScreen> {
             const SnackBar(content: Text('Agregar atleta — en desarrollo')),
           );
         },
-        backgroundColor: const Color(0xFF477D9E),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.actionPrimaryDefault,
+        foregroundColor: AppColors.actionPrimaryInverted,
         icon: const Icon(Icons.person_add_outlined),
         label: const Text('Agregar atleta', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
@@ -184,11 +185,11 @@ class _AthletesScreenState extends State<AthletesScreen> {
   // ── AppBar con hamburguesa (drawer) + chip de equipo (endDrawer) ─────────
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       elevation: 0,
       automaticallyImplyLeading: false,
       leading: IconButton(
-        icon: const Icon(Icons.menu, color: Colors.black54),
+        icon: const Icon(Icons.menu, color: AppColors.textSecondary),
         onPressed: () => _scaffoldKey.currentState?.openDrawer(),
       ),
       title: _buildTeamChip(),
@@ -206,8 +207,8 @@ class _AthletesScreenState extends State<AthletesScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey[300]!),
+          color: AppColors.surface,
+          border: Border.all(color: AppColors.neutral7),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -221,16 +222,16 @@ class _AthletesScreenState extends State<AthletesScreen> {
               children: [
                 Text(
                   _selectedTeam,
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                 ),
                 Text(
                   _selectedSubtitle,
-                  style: TextStyle(fontSize: 9, color: Colors.grey[600]),
+                  style: const TextStyle(fontSize: 9, color: AppColors.textSecondary),
                 ),
               ],
             ),
             const SizedBox(width: 4),
-            const Icon(Icons.arrow_drop_down, color: Colors.black54, size: 18),
+            const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary, size: 18),
           ],
         ),
       ),
@@ -240,14 +241,14 @@ class _AthletesScreenState extends State<AthletesScreen> {
   // ── Drawer de navegación (igual al del dashboard) ─────────────────────
   Widget _buildDrawer() {
     return Drawer(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              color: Colors.white,
+              color: AppColors.white,
               child: Center(child: _BocciaLogo()),
             ),
             const SizedBox(height: 8),
@@ -277,11 +278,11 @@ class _AthletesScreenState extends State<AthletesScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Align(
                 alignment: Alignment.bottomLeft,
-                child: FloatingActionButton(
+                  child: FloatingActionButton(
                   heroTag: 'drawer_close',
                   onPressed: () => Navigator.of(context).pop(),
-                  backgroundColor: Colors.white,
-                  child: const Icon(Icons.close, color: Color(0xFF0F2336)),
+                  backgroundColor: AppColors.surface,
+                  child: const Icon(Icons.close, color: AppColors.black),
                 ),
               ),
             ),
@@ -301,16 +302,16 @@ class _AthletesScreenState extends State<AthletesScreen> {
             Container(
               width: 6,
               height: 56,
-              color: active ? const Color(0xFF0F2336) : Colors.transparent,
+              color: active ? AppColors.black : Colors.transparent,
             ),
             const SizedBox(width: 12),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
               child: Row(
                 children: [
-                  Icon(icon, color: const Color(0xFF304150)),
+                  Icon(icon, color: AppColors.neutral2),
                   const SizedBox(width: 16),
-                  Text(label, style: const TextStyle(fontSize: 16, color: Color(0xFF304150))),
+                  Text(label, style: const TextStyle(fontSize: 16, color: AppColors.neutral2)),
                 ],
               ),
             ),
@@ -323,13 +324,13 @@ class _AthletesScreenState extends State<AthletesScreen> {
   // ── EndDrawer de cambio de equipo (igual al del dashboard) ───────────────
   Widget _buildTeamEndDrawer() {
     return Drawer(
-      backgroundColor: const Color(0xFFF3F8FB),
+      backgroundColor: AppColors.background,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              color: Colors.white,
+              color: AppColors.surface,
               padding: const EdgeInsets.fromLTRB(20, 20, 8, 20),
               child: Row(
                 children: [
@@ -337,10 +338,10 @@ class _AthletesScreenState extends State<AthletesScreen> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF477D9E).withAlpha((0.12 * 255).round()),
+                      color: AppColors.primary10,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.group_outlined, color: Color(0xFF477D9E), size: 20),
+                    child: const Icon(Icons.group_outlined, color: AppColors.primary, size: 20),
                   ),
                   const SizedBox(width: 12),
                   const Expanded(
@@ -348,20 +349,20 @@ class _AthletesScreenState extends State<AthletesScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Cambiar equipo',
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F2336))),
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.black)),
                         Text('Selecciona tu equipo activo',
-                            style: TextStyle(fontSize: 11, color: Color(0xFF304150))),
+                            style: TextStyle(fontSize: 11, color: AppColors.neutral2)),
                       ],
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, color: Color(0xFF304150), size: 20),
+                    icon: const Icon(Icons.close, color: AppColors.neutral2, size: 20),
                   ),
                 ],
               ),
             ),
-            Container(height: 3, color: const Color(0xFF477D9E)),
+            Container(height: 3, color: AppColors.primary),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.only(top: 20, bottom: 16),
@@ -370,7 +371,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                     child: Text(
                       'EQUIPOS ACTIVOS',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.grey[500], letterSpacing: 1.2),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: AppColors.neutral5, letterSpacing: 1.2),
                     ),
                   ),
                   ..._teams.map((team) {
@@ -392,17 +393,17 @@ class _AthletesScreenState extends State<AthletesScreen> {
                           Container(
                             width: 4,
                             height: 72,
-                            color: isSelected ? const Color(0xFF477D9E) : Colors.transparent,
+                            color: isSelected ? AppColors.primary : Colors.transparent,
                           ),
                           Expanded(
                             child: Container(
                               margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               decoration: BoxDecoration(
-                                color: isSelected ? Colors.white : Colors.transparent,
+                                color: isSelected ? AppColors.surface : Colors.transparent,
                                 borderRadius: BorderRadius.circular(10),
                                 boxShadow: isSelected
-                                    ? [const BoxShadow(color: Color.fromRGBO(71, 125, 158, 0.1), blurRadius: 8, offset: Offset(0, 2))]
+                                    ? [const BoxShadow(color: AppColors.primary10, blurRadius: 8, offset: Offset(0, 2))]
                                     : null,
                               ),
                               child: Row(
@@ -417,10 +418,10 @@ class _AthletesScreenState extends State<AthletesScreen> {
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14,
-                                                color: isSelected ? const Color(0xFF0F2336) : const Color(0xFF304150))),
+                                                color: isSelected ? AppColors.black : AppColors.neutral2)),
                                         const SizedBox(height: 2),
                                         Text(team['country'] as String,
-                                            style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                                            style: const TextStyle(fontSize: 12, color: AppColors.neutral5)),
                                       ],
                                     ),
                                   ),
@@ -428,28 +429,28 @@ class _AthletesScreenState extends State<AthletesScreen> {
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                       color: isSelected
-                                          ? const Color(0xFF477D9E).withAlpha((0.12 * 255).round())
-                                          : const Color.fromRGBO(0, 0, 0, 0.04),
+                                          ? AppColors.primary10
+                                          : AppColors.neutral9,
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(Icons.person_outline, size: 12,
-                                            color: isSelected ? const Color(0xFF477D9E) : Colors.grey),
+                                            color: isSelected ? AppColors.primary : AppColors.neutral5),
                                         const SizedBox(width: 3),
                                         Text('${team['athletes']}',
                                             style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.bold,
-                                                color: isSelected ? const Color(0xFF477D9E) : Colors.grey)),
+                                                color: isSelected ? AppColors.primary : AppColors.neutral5)),
                                       ],
                                     ),
                                   ),
                                   const SizedBox(width: 10),
                                   isSelected
-                                      ? const Icon(Icons.check_circle, color: Color(0xFF477D9E), size: 20)
-                                      : const Icon(Icons.radio_button_unchecked, color: Colors.grey, size: 20),
+                                      ? const Icon(Icons.check_circle, color: AppColors.primary, size: 20)
+                                      : const Icon(Icons.radio_button_unchecked, color: AppColors.neutral5, size: 20),
                                 ],
                               ),
                             ),
@@ -472,7 +473,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
       children: [
         IconButton(
           onPressed: () => showNotificationsBottomSheet(context),
-          icon: const Icon(Icons.notifications_none, color: Colors.black54),
+          icon: const Icon(Icons.notifications_none, color: AppColors.textSecondary),
         ),
         if (_notificationCount > 0)
           Positioned(
@@ -480,10 +481,10 @@ class _AthletesScreenState extends State<AthletesScreen> {
             top: 8,
             child: Container(
               padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+              decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
               child: Text(
                 '$_notificationCount',
-                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: AppColors.white, fontSize: 10, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -506,7 +507,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
             SizedBox(width: 12),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Plan Premium Pro', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-              Text('Válido hasta 31 dic 2026', style: TextStyle(fontSize: 10, color: Colors.grey)),
+              Text('Válido hasta 31 dic 2026', style: TextStyle(fontSize: 10, color: AppColors.neutral5)),
             ]),
           ]),
         ),
@@ -520,19 +521,19 @@ class _AthletesScreenState extends State<AthletesScreen> {
           ]),
         ),
         const PopupMenuDivider(),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'logout',
           child: Row(children: [
-            Icon(Icons.logout, size: 20, color: Colors.red),
+            Icon(Icons.logout, size: 20, color: AppColors.error),
             SizedBox(width: 12),
-            Text('Cerrar sesión', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.red)),
+            Text('Cerrar sesión', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.error)),
           ]),
         ),
       ],
       child: const CircleAvatar(
         radius: 18,
-        backgroundColor: Color(0xFF7DA5D1),
-        child: Text('OB', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+        backgroundColor: AppColors.secondary,
+        child: Text('OB', style: TextStyle(color: AppColors.actionSecondaryInverted, fontWeight: FontWeight.bold, fontSize: 14)),
       ),
     );
   }
@@ -540,7 +541,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
   // ── Barra de búsqueda + filtros + toggle de vista ────────────────────────
   Widget _buildToolbar() {
     return Container(
-      color: Colors.white,
+      color: AppColors.surface,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,12 +549,12 @@ class _AthletesScreenState extends State<AthletesScreen> {
           // Título
           Row(
             children: [
-              const Icon(Icons.group, color: Color(0xFF477D9E), size: 20),
+              const Icon(Icons.group, color: AppColors.primary, size: 20),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Atletas · $_selectedTeam',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F2336)),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.black),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -561,12 +562,12 @@ class _AthletesScreenState extends State<AthletesScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF477D9E).withAlpha(28),
+                  color: AppColors.primary10,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '${_filtered.length} atletas',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF477D9E)),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primary),
                 ),
               ),
             ],
@@ -580,22 +581,22 @@ class _AthletesScreenState extends State<AthletesScreen> {
                   onChanged: (v) => setState(() => _search = v),
                   decoration: InputDecoration(
                     hintText: 'Buscar atleta o clasificación…',
-                    hintStyle: TextStyle(fontSize: 13, color: Colors.grey[400]),
-                    prefixIcon: const Icon(Icons.search, size: 20, color: Colors.grey),
+                    hintStyle: const TextStyle(fontSize: 13, color: AppColors.textDisabled),
+                    prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.neutral5),
                     filled: true,
-                    fillColor: const Color(0xFFF3F8FB),
+                    fillColor: AppColors.background,
                     contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
+                      borderSide: const BorderSide(color: AppColors.neutral7),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
+                      borderSide: const BorderSide(color: AppColors.neutral7),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Color(0xFF477D9E)),
+                      borderSide: const BorderSide(color: AppColors.primary),
                     ),
                   ),
                 ),
@@ -604,9 +605,9 @@ class _AthletesScreenState extends State<AthletesScreen> {
               // Toggle de vista
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF3F8FB),
+                  color: AppColors.background,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey[300]!),
+                  border: Border.all(color: AppColors.neutral7),
                 ),
                 child: Row(
                   children: [
@@ -646,10 +647,10 @@ class _AthletesScreenState extends State<AthletesScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: active ? const Color(0xFF477D9E) : Colors.transparent,
+          color: active ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(9),
         ),
-        child: Icon(icon, size: 20, color: active ? Colors.white : Colors.grey[500]),
+        child: Icon(icon, size: 20, color: active ? AppColors.actionPrimaryInverted : AppColors.neutral5),
       ),
     );
   }
@@ -662,10 +663,10 @@ class _AthletesScreenState extends State<AthletesScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
-          color: active ? const Color(0xFF477D9E) : Colors.white,
+          color: active ? AppColors.primary : AppColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: active ? const Color(0xFF477D9E) : Colors.grey[300]!,
+            color: active ? AppColors.primary : AppColors.neutral7,
           ),
         ),
         child: Text(
@@ -673,7 +674,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: active ? Colors.white : Colors.grey[600],
+            color: active ? AppColors.actionPrimaryInverted : AppColors.textSecondary,
           ),
         ),
       ),
@@ -701,7 +702,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
       padding: const EdgeInsets.all(16),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -715,13 +716,13 @@ class _AthletesScreenState extends State<AthletesScreen> {
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(
-            headingRowColor: WidgetStateProperty.all(const Color(0xFFF3F8FB)),
+            headingRowColor: WidgetStateProperty.all(AppColors.background),
             headingTextStyle: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 12,
-              color: Color(0xFF304150),
+              color: AppColors.neutral2,
             ),
-            dataTextStyle: const TextStyle(fontSize: 12, color: Colors.black87),
+            dataTextStyle: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
             columnSpacing: 18,
             horizontalMargin: 16,
             dividerThickness: 0.8,
@@ -748,7 +749,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
                 DataCell(Text(a.position)),
                 DataCell(Text('${a.age} a')),
                 DataCell(Text(a.avgScore.toStringAsFixed(1),
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF477D9E)))),
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary))),
                 DataCell(_StatusChip(status: a.status)),
               ]);
             }).toList(),
@@ -761,10 +762,10 @@ class _AthletesScreenState extends State<AthletesScreen> {
   Widget _miniAvatar(Athlete a) {
     return CircleAvatar(
       radius: 15,
-      backgroundColor: const Color(0xFF477D9E).withAlpha(38),
+      backgroundColor: AppColors.primary10,
       child: Text(
         a.name.split(' ').map((w) => w[0]).take(2).join(),
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF477D9E)),
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary),
       ),
     );
   }
@@ -775,12 +776,12 @@ class _AthletesScreenState extends State<AthletesScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.search_off_rounded, size: 60, color: Colors.grey[300]),
+          const Icon(Icons.search_off_rounded, size: 60, color: AppColors.neutral7),
           const SizedBox(height: 12),
-          Text('Sin resultados', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[500], fontSize: 16)),
+          const Text('Sin resultados', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.neutral5, fontSize: 16)),
           const SizedBox(height: 4),
-          Text('Intenta con otro nombre o ajusta los filtros',
-              style: TextStyle(fontSize: 12, color: Colors.grey[400])),
+          const Text('Intenta con otro nombre o ajusta los filtros',
+              style: TextStyle(fontSize: 12, color: AppColors.neutral6)),
         ],
       ),
     );
@@ -802,7 +803,7 @@ class _AthleteCard extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -819,13 +820,13 @@ class _AthleteCard extends StatelessWidget {
             // Avatar con iniciales
             CircleAvatar(
               radius: 28,
-              backgroundColor: const Color(0xFF477D9E).withAlpha(38),
+              backgroundColor: AppColors.primary10,
               child: Text(
                 athlete.name.split(' ').map((w) => w[0]).take(2).join(),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF477D9E),
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -835,12 +836,12 @@ class _AthleteCard extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F2336)),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.black),
             ),
             const SizedBox(height: 4),
             Text(
               '${athlete.flag}  ${athlete.nationality}',
-              style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+              style: const TextStyle(fontSize: 11, color: AppColors.neutral5),
             ),
             const Spacer(),
             Row(
@@ -855,16 +856,16 @@ class _AthleteCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(children: [
-                  const Icon(Icons.star_rounded, size: 14, color: Color(0xFFFBBF24)),
+                  const Icon(Icons.star_rounded, size: 14, color: AppColors.accent2),
                   const SizedBox(width: 2),
                   Text(
                     athlete.avgScore.toStringAsFixed(1),
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0F2336)),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.black),
                   ),
                 ]),
                 Text(
                   athlete.position,
-                  style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+                  style: const TextStyle(fontSize: 10, color: AppColors.neutral5),
                 ),
               ],
             ),
@@ -887,12 +888,12 @@ class _ClassBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: const Color(0xFF477D9E).withAlpha(28),
+        color: AppColors.primary10,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         classification,
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF477D9E)),
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary),
       ),
     );
   }

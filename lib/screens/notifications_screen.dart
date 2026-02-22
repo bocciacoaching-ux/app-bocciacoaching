@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -11,13 +12,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F8FB),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
-        title: const Text('Notificaciones', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+        title: const Text('Notificaciones', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black54),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textSecondary),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -30,35 +31,35 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             title: 'María González completó entrenamiento',
             subtitle: 'Hace 2 horas',
             icon: Icons.check_circle,
-            iconColor: Colors.green,
+            iconColor: AppColors.success,
           ),
           const SizedBox(height: 12),
           _notificationItem(
             title: 'Nueva prueba disponible',
             subtitle: 'Hace 5 horas',
             icon: Icons.description,
-            iconColor: Colors.blue,
+            iconColor: AppColors.info,
           ),
           const SizedBox(height: 12),
           _notificationItem(
             title: 'Carlos Jiménez no realizó su sesión',
             subtitle: 'Hace 1 día',
             icon: Icons.warning,
-            iconColor: Colors.orange,
+            iconColor: AppColors.warning,
           ),
           const SizedBox(height: 12),
           _notificationItem(
             title: 'Análisis de rendimiento actualizado',
             subtitle: 'Hace 2 días',
             icon: Icons.show_chart,
-            iconColor: Colors.purple,
+            iconColor: AppColors.accent4,
           ),
           const SizedBox(height: 12),
           _notificationItem(
             title: 'Nuevo equipo agregado',
             subtitle: 'Hace 3 días',
             icon: Icons.group,
-            iconColor: Colors.teal,
+            iconColor: AppColors.secondary,
           ),
         ],
       ),
@@ -75,7 +76,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
@@ -110,7 +111,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  style: TextStyle(color: AppColors.neutral4, fontSize: 12),
                 ),
               ],
             ),

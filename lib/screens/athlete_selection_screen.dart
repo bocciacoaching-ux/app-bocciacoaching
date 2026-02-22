@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class AthleteSelectionScreen extends StatefulWidget {
   final String evaluationType;
@@ -62,7 +63,7 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor selecciona al menos un atleta'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
       return;
@@ -89,8 +90,8 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_getEvaluationTitle()),
-        backgroundColor: const Color(0xFF477D9E),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.white,
       ),
       body: SafeArea(
         top: false,
@@ -98,7 +99,7 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
         children: [
           // Header
           Container(
-            color: Colors.white,
+            color: AppColors.surface,
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +109,7 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1F2937),
+                    color: AppColors.black,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -116,7 +117,7 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
                   'Escribe las primeras 3 letras del nombre del atleta y selecciónalo.',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF6B7280),
+                    color: AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -125,22 +126,22 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'Buscar atleta...',
-                    hintStyle: const TextStyle(color: Color(0xFFD1D5DB)),
-                    prefixIcon: const Icon(Icons.search, color: Color(0xFF9CA3AF)),
+                    hintStyle: const TextStyle(color: AppColors.neutral7),
+                    prefixIcon: const Icon(Icons.search, color: AppColors.neutral5),
                     filled: true,
-                    fillColor: const Color(0xFFF9FAFB),
+                    fillColor: AppColors.background,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                      borderSide: const BorderSide(color: AppColors.neutral8),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                      borderSide: const BorderSide(color: AppColors.neutral8),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(
-                        color: Color(0xFF477D9E),
+                        color: AppColors.primary,
                         width: 2,
                       ),
                     ),
@@ -161,11 +162,9 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFFE0F2FE) : Colors.white,
+                    color: isSelected ? AppColors.infoBg : AppColors.surface,
                     border: Border.all(
-                      color: isSelected
-                          ? const Color(0xFF477D9E)
-                          : const Color(0xFFE5E7EB),
+                      color: isSelected ? AppColors.primary : AppColors.neutral8,
                       width: isSelected ? 2 : 1,
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -189,11 +188,9 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
                         width: 24,
                         height: 24,
                         decoration: BoxDecoration(
-                          color: isSelected
-                              ? const Color(0xFF477D9E)
-                              : Colors.white,
+                          color: isSelected ? AppColors.primary : AppColors.surface,
                           border: Border.all(
-                            color: const Color(0xFF477D9E),
+                            color: AppColors.primary,
                             width: 2,
                           ),
                           borderRadius: BorderRadius.circular(6),
@@ -201,7 +198,7 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
                         child: isSelected
                             ? const Icon(
                                 Icons.check,
-                                color: Colors.white,
+                                color: AppColors.white,
                                 size: 14,
                               )
                             : null,
@@ -212,16 +209,14 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: isSelected
-                            ? const Color(0xFF477D9E)
-                            : const Color(0xFF1F2937),
+                        color: isSelected ? AppColors.primary : AppColors.black,
                       ),
                     ),
                     subtitle: Text(
                       athlete['team']!,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF9CA3AF),
+                        color: AppColors.neutral6,
                       ),
                     ),
                     onTap: () {
@@ -247,7 +242,7 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
               child: ElevatedButton(
                 onPressed: _startTest,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6B8FB1),
+                  backgroundColor: AppColors.actionPrimaryDefault,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -257,7 +252,7 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: AppColors.actionPrimaryInverted,
                   ),
                 ),
               ),

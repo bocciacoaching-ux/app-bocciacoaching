@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 /// Modelo simple de notificación
 class AppNotification {
@@ -23,21 +24,21 @@ final List<AppNotification> sampleNotifications = [
     title: 'María González completó entrenamiento',
     subtitle: 'Hace 2 horas',
     icon: Icons.check_circle,
-    iconColor: Colors.green,
+    iconColor: AppColors.success,
     isRead: false,
   ),
   const AppNotification(
     title: 'Nueva prueba disponible',
     subtitle: 'Hace 5 horas',
     icon: Icons.description,
-    iconColor: Colors.blue,
+    iconColor: AppColors.info,
     isRead: false,
   ),
   const AppNotification(
     title: 'Carlos Jiménez no realizó su sesión',
     subtitle: 'Hace 1 día',
     icon: Icons.warning,
-    iconColor: Colors.orange,
+    iconColor: AppColors.warning,
     isRead: true,
   ),
 ];
@@ -61,7 +62,7 @@ class _NotificationsBottomSheet extends StatelessWidget {
 
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -74,7 +75,7 @@ class _NotificationsBottomSheet extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: AppColors.neutral7,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -91,7 +92,7 @@ class _NotificationsBottomSheet extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ),
@@ -100,13 +101,13 @@ class _NotificationsBottomSheet extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF477D9E),
+                      color: AppColors.primary,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       '${notifications.where((n) => !n.isRead).length} nuevas',
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.white,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
@@ -146,8 +147,8 @@ class _NotificationsBottomSheet extends StatelessWidget {
                 width: double.infinity,
                 child: TextButton(
                   style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFF477D9E),
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -212,13 +213,13 @@ class _NotificationTile extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
                       fontSize: 13,
-                      color: Colors.black87,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 3),
                   Text(
                     notification.subtitle,
-                    style: TextStyle(color: Colors.grey[500], fontSize: 11),
+                    style: TextStyle(color: AppColors.neutral5, fontSize: 11),
                   ),
                 ],
               ),
@@ -231,7 +232,7 @@ class _NotificationTile extends StatelessWidget {
                 width: 8,
                 height: 8,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF477D9E),
+                  color: AppColors.primary,
                   shape: BoxShape.circle,
                 ),
               ),

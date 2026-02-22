@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/force_test_provider.dart';
+import '../theme/app_colors.dart';
 import '../widgets/force_target_widget.dart';
 import '../widgets/statistics_panel.dart';
 import '../models/athlete.dart';
@@ -36,15 +37,15 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
 
   Widget _buildSetupScreen(BuildContext context, ForceTestProvider provider) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
         title: const Text(
           'Test de Fuerza - Inicio',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
       body: SafeArea(
         top: false,
@@ -58,7 +59,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2C3E50),
+                color: AppColors.neutral1,
               ),
             ),
             const SizedBox(height: 24),
@@ -67,7 +68,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
               decoration: InputDecoration(
                 labelText: 'Nombre de la Evaluación',
                 filled: true,
-                fillColor: Colors.grey[50],
+                fillColor: AppColors.neutral9,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -81,7 +82,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF34495E),
+                color: AppColors.neutral2,
               ),
             ),
             const SizedBox(height: 12),
@@ -93,7 +94,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                 child: Text(
                   'Agrega al menos un atleta para comenzar',
                   style: TextStyle(
-                    color: Colors.orange[800],
+                    color: AppColors.warning,
                     fontSize: 13,
                     fontStyle: FontStyle.italic,
                   ),
@@ -107,9 +108,9 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                     (athlete) => InputChip(
                       label: Text(athlete.name),
                       onDeleted: () => provider.removeAthlete(athlete.id),
-                      backgroundColor: const Color(0xFFE8F0F5),
-                      labelStyle: const TextStyle(color: Color(0xFF477D9E)),
-                      deleteIconColor: const Color(0xFF477D9E),
+                      backgroundColor: AppColors.infoBg,
+                      labelStyle: const TextStyle(color: AppColors.primary),
+                      deleteIconColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -142,8 +143,8 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                       }
                     },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF477D9E),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.white,
                 padding: const EdgeInsets.all(20),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -155,7 +156,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
-                        color: Colors.white,
+                        color: AppColors.white,
                         strokeWidth: 2,
                       ),
                     )
@@ -182,7 +183,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
         hintText: 'Escribe un nombre y presiona el "+" o Enter',
         prefixIcon: const Icon(Icons.person_add),
         suffixIcon: IconButton(
-          icon: const Icon(Icons.add_circle, color: Color(0xFF477D9E)),
+          icon: const Icon(Icons.add_circle, color: AppColors.primary),
           onPressed: () {
             if (_athleteSearchController.text.isNotEmpty) {
               provider.addAthlete(
@@ -196,7 +197,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
           },
         ),
         filled: true,
-        fillColor: Colors.grey[50],
+        fillColor: AppColors.neutral9,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -233,22 +234,22 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
         provider.currentShotNumber / provider.totalShots;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Test de Fuerza',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: AppColors.textPrimary,
               ),
             ),
             Text(
               'Tiro ${provider.currentShotNumber} de ${provider.totalShots}',
-              style: const TextStyle(fontSize: 13, color: Colors.grey),
+              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -268,14 +269,14 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                 '${(progressPct * 100).toStringAsFixed(0)}%',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF477D9E),
+                  color: AppColors.primary,
                   fontSize: 15,
                 ),
               ),
             ),
           ),
         ],
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0.5,
       ),
       body: SafeArea(
@@ -292,9 +293,9 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                     // Progress bar
                     LinearProgressIndicator(
                       value: progressPct,
-                      backgroundColor: Colors.grey[200],
+                      backgroundColor: AppColors.neutral8,
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xFF477D9E),
+                        AppColors.primary,
                       ),
                       minHeight: 5,
                     ),
@@ -350,14 +351,14 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                                     '0-2: Fallo',
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: Colors.red[300],
+                                      color: AppColors.error,
                                     ),
                                   ),
                                   Text(
                                     '3-5: Acierto',
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: Colors.green[400],
+                                      color: AppColors.success,
                                     ),
                                   ),
                                 ],
@@ -381,7 +382,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                                     ' (requerida)',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.red,
+                                      color: AppColors.error,
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),
@@ -394,13 +395,13 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                               decoration: InputDecoration(
                                 hintText: 'Agrega tus comentarios...',
                                 filled: true,
-                                fillColor: Colors.white,
+                                fillColor: AppColors.surface,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(
                                     color: _shouldHighlightObs(provider)
-                                        ? Colors.red
-                                        : Colors.grey.shade300,
+                                        ? AppColors.error
+                                        : AppColors.neutral7,
                                     width: _shouldHighlightObs(provider)
                                         ? 2
                                         : 1,
@@ -410,8 +411,8 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(
                                     color: _shouldHighlightObs(provider)
-                                        ? Colors.red
-                                        : Colors.grey.shade300,
+                                        ? AppColors.error
+                                        : AppColors.neutral7,
                                     width: _shouldHighlightObs(provider)
                                         ? 2
                                         : 1,
@@ -441,7 +442,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                 Expanded(
                   flex: 1,
                   child: Container(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     child: StatisticsPanel(stats: provider.stats),
                   ),
                 ),
@@ -465,12 +466,12 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF477D9E), Color(0xFF3A6B89)],
+          colors: [AppColors.primary, AppColors.actionPrimaryActive],
         ),
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF477D9E).withValues(alpha: 0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -484,7 +485,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: AppColors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
@@ -493,7 +494,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                 style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppColors.white,
                 ),
               ),
             ),
@@ -508,19 +509,19 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppColors.white,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.straighten, color: Colors.white70, size: 16),
+                    const Icon(Icons.straighten, color: AppColors.white, size: 16),
                     const SizedBox(width: 6),
                     Text(
                       'Distancia: ${config.targetDistance.toStringAsFixed(1)} m',
                       style: const TextStyle(
                         fontSize: 14,
-                        color: Colors.white70,
+                        color: AppColors.white,
                       ),
                     ),
                   ],
@@ -536,7 +537,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
               decoration: BoxDecoration(
                 color: _scoreColor(provider.currentScore!),
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
+                border: Border.all(color: AppColors.white, width: 2),
               ),
               child: Center(
                 child: Text(
@@ -544,7 +545,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppColors.white,
                   ),
                 ),
               ),
@@ -578,10 +579,10 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                 duration: const Duration(milliseconds: 200),
                 height: 48,
                 decoration: BoxDecoration(
-                  color: isSelected ? color : Colors.white,
+                  color: isSelected ? color : AppColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isSelected ? color : Colors.grey.shade300,
+                    color: isSelected ? color : AppColors.neutral7,
                     width: isSelected ? 2 : 1,
                   ),
                   boxShadow: isSelected
@@ -600,7 +601,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.white : Colors.black87,
+                      color: isSelected ? AppColors.white : AppColors.textPrimary,
                     ),
                   ),
                 ),
@@ -624,7 +625,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
               if (config.prevBox != null)
                 Text(
                   'Cajón n° ${config.prevBox}',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
               const SizedBox(height: 4),
               OutlinedButton.icon(
@@ -638,8 +639,8 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  side: BorderSide(color: Colors.grey.shade300),
-                  foregroundColor: Colors.grey[700],
+                  side: const BorderSide(color: AppColors.neutral7),
+                  foregroundColor: AppColors.neutral4,
                 ),
               ),
             ],
@@ -653,7 +654,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
               if (config.nextBox != null)
                 Text(
                   'Cajón n° ${config.nextBox}',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
               if (config.nextBox == null) const SizedBox(height: 14),
               const SizedBox(height: 4),
@@ -671,7 +672,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                                   content: Text(
                                     'Para puntajes 0-2, la observación es obligatoria.',
                                   ),
-                                  backgroundColor: Colors.redAccent,
+                                  backgroundColor: AppColors.error,
                                 ),
                               );
                               return;
@@ -685,7 +686,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                         height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: AppColors.white,
                         ),
                       )
                     : Icon(
@@ -700,8 +701,8 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                       : 'Siguiente',
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF477D9E),
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.white,
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -742,7 +743,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
       case 5:
         return const Color(0xFF22C55E); // green
       default:
-        return Colors.grey;
+        return AppColors.neutral5;
     }
   }
 }

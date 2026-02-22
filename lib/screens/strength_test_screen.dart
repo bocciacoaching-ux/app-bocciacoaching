@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class StrengthTestScreen extends StatefulWidget {
   final String evaluationType;
@@ -55,7 +56,7 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor completa la distancia corta'),
-          backgroundColor: Colors.orange,
+          backgroundColor: AppColors.warning,
         ),
       );
       return;
@@ -77,7 +78,7 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Resultado guardado. Siguiente atleta: $currentAthlete'),
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.success,
         ),
       );
     } else {
@@ -138,11 +139,11 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
               _showStatistics();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF477D9E),
+              backgroundColor: AppColors.primary,
             ),
             child: const Text(
               'Ver Estadísticas',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.white),
             ),
           ),
         ],
@@ -169,8 +170,8 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_getEvaluationTitle()),
-        backgroundColor: const Color(0xFF477D9E),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.white,
       ),
       body: SafeArea(
         top: false,
@@ -183,7 +184,7 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFE0F2FE),
+                color: AppColors.infoBg,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -193,7 +194,7 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
                     'Atleta actual',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF6B7280),
+                      color: AppColors.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -203,7 +204,7 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF477D9E),
+                      color: AppColors.primary,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -213,7 +214,7 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
                         '${currentAthleteIndex + 1} de ${widget.athletes.length}',
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF6B7280),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -225,7 +226,7 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
                             minHeight: 6,
                             backgroundColor: const Color(0xFFD1D5DB),
                             valueColor: const AlwaysStoppedAnimation<Color>(
-                              Color(0xFF477D9E),
+                              AppColors.primary,
                             ),
                           ),
                         ),
@@ -242,7 +243,7 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1F2937),
+                color: AppColors.black,
               ),
             ),
             const SizedBox(height: 24),
@@ -256,7 +257,7 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
               child: ElevatedButton(
                 onPressed: _saveResult,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6B8FB1),
+                  backgroundColor: AppColors.actionPrimaryDefault,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -266,7 +267,7 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: AppColors.white,
                   ),
                 ),
               ),
@@ -290,7 +291,7 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1F2937),
+                color: AppColors.black,
               ),
             ),
             const SizedBox(height: 8),
@@ -299,21 +300,21 @@ class _StrengthTestScreenState extends State<StrengthTestScreen> {
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 hintText: 'Ingresa el valor en metros',
-                hintStyle: const TextStyle(color: Color(0xFFD1D5DB)),
+                hintStyle: const TextStyle(color: AppColors.neutral7),
                 filled: true,
-                fillColor: const Color(0xFFF9FAFB),
+                fillColor: AppColors.neutral9,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  borderSide: const BorderSide(color: AppColors.inputBorder),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  borderSide: const BorderSide(color: AppColors.inputBorder),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: const BorderSide(
-                    color: Color(0xFF477D9E),
+                    color: AppColors.primary,
                     width: 2,
                   ),
                 ),

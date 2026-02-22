@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/assess_strength.dart';
+import '../theme/app_colors.dart';
 
 class PendingEvaluationsCard extends StatelessWidget {
   final AssessStrength evaluation;
@@ -42,7 +43,7 @@ class PendingEvaluationsCard extends StatelessWidget {
             const SizedBox(height: 8),
             LinearProgressIndicator(
               value: progress,
-              backgroundColor: Colors.grey[200],
+              backgroundColor: AppColors.neutral8,
               valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
             ),
             const SizedBox(height: 16),
@@ -51,7 +52,7 @@ class PendingEvaluationsCard extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: onNew,
-                  child: const Text('NUEVA EVALUACIÓN', style: TextStyle(color: Colors.red)),
+                  child: const Text('NUEVA EVALUACIÓN', style: TextStyle(color: AppColors.error)),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/force_test_provider.dart';
 import '../models/athlete.dart' as model;
+import '../theme/app_colors.dart';
 // El modelo UI de atleta viene de athletes_screen.dart
 import 'athletes_screen.dart' show Athlete;
 
@@ -14,12 +15,12 @@ class AthleteProfileScreen extends StatelessWidget {
   const AthleteProfileScreen({super.key, required this.athlete});
 
   // Color principal de la app
-  static const _primary = Color(0xFF477D9E);
+  static const _primary = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F8FB),
+      backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
           _buildSliverAppBar(context),
@@ -53,14 +54,14 @@ class AthleteProfileScreen extends StatelessWidget {
       expandedHeight: 220,
       pinned: true,
       backgroundColor: _primary,
-      iconTheme: const IconThemeData(color: Colors.white),
+      iconTheme: const IconThemeData(color: AppColors.white),
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFF2C5F7A), Color(0xFF477D9E)],
+              colors: [AppColors.actionPrimaryActive, AppColors.primary],
             ),
           ),
           child: SafeArea(
@@ -73,13 +74,13 @@ class AthleteProfileScreen extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 44,
-                      backgroundColor: Colors.white.withAlpha(38),
+                      backgroundColor: AppColors.white.withAlpha(38),
                       child: Text(
                         initials,
                         style: const TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: AppColors.white,
                         ),
                       ),
                     ),
@@ -90,7 +91,7 @@ class AthleteProfileScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: statusColor,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2.5),
+                        border: Border.all(color: AppColors.white, width: 2.5),
                       ),
                     ),
                   ],
@@ -99,7 +100,7 @@ class AthleteProfileScreen extends StatelessWidget {
                 Text(
                   athlete.name,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -113,7 +114,7 @@ class AthleteProfileScreen extends StatelessWidget {
                     Text(
                       athlete.nationality,
                       style: TextStyle(
-                        color: Colors.white.withAlpha(200),
+                        color: AppColors.white.withAlpha(200),
                         fontSize: 13,
                       ),
                     ),
@@ -125,7 +126,7 @@ class AthleteProfileScreen extends StatelessWidget {
         ),
         title: Text(
           athlete.name,
-          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(color: AppColors.white, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         titlePadding: const EdgeInsets.only(left: 56, bottom: 16),
       ),
@@ -137,7 +138,7 @@ class AthleteProfileScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.05), blurRadius: 8, offset: Offset(0, 2))],
       ),
@@ -145,7 +146,7 @@ class AthleteProfileScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Información del atleta',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F2336))),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.black)),
           const SizedBox(height: 16),
           _infoRow(Icons.category_outlined,      'Clasificación', athlete.classification),
           _infoRow(Icons.sports_outlined,         'Posición',      athlete.position),
@@ -174,14 +175,14 @@ class AthleteProfileScreen extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+            child: Text(label, style: const TextStyle(fontSize: 13, color: AppColors.neutral5)),
           ),
           Text(
             value,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: valueColor ?? const Color(0xFF0F2336),
+              color: valueColor ?? AppColors.black,
             ),
           ),
         ],
@@ -207,19 +208,19 @@ class AthleteProfileScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(14),
           boxShadow: const [BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.05), blurRadius: 8, offset: Offset(0, 2))],
         ),
         child: Column(
           children: [
-            Text(label, style: TextStyle(fontSize: 10, color: Colors.grey[500], fontWeight: FontWeight.w500),
+            Text(label, style: const TextStyle(fontSize: 10, color: AppColors.neutral5, fontWeight: FontWeight.w500),
                 textAlign: TextAlign.center),
             const SizedBox(height: 6),
             Text(value,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF0F2336))),
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.black)),
             if (unit.isNotEmpty)
-              Text(unit, style: TextStyle(fontSize: 10, color: Colors.grey[400])),
+              Text(unit, style: const TextStyle(fontSize: 10, color: AppColors.neutral6)),
           ],
         ),
       ),
@@ -233,12 +234,12 @@ class AthleteProfileScreen extends StatelessWidget {
       children: [
         const Text(
           'Iniciar evaluación',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F2336)),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.black),
         ),
         const SizedBox(height: 4),
         Text(
           'Selecciona el tipo de evaluación para ${athlete.name.split(' ').first}',
-          style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+          style: const TextStyle(fontSize: 12, color: AppColors.neutral5),
         ),
         const SizedBox(height: 14),
         _evaluationCard(
@@ -247,8 +248,8 @@ class AthleteProfileScreen extends StatelessWidget {
           title: 'Evaluación de Fuerza',
           description: 'Módulo de 36 tiros con estadísticas en tiempo real y mapa de calor.',
           badgeLabel: 'NUEVO',
-          badgeColor: const Color(0xFFD4E8F7),
-          badgeTextColor: _primary,
+          badgeColor: AppColors.infoBg,
+          badgeTextColor: AppColors.primary,
           onTap: () => _startForceEvaluation(context),
         ),
         const SizedBox(height: 14),
@@ -258,8 +259,8 @@ class AthleteProfileScreen extends StatelessWidget {
           title: 'Evaluación de Dirección',
           description: 'Evalúa la precisión y el control de dirección del atleta.',
           badgeLabel: 'TÉCNICA',
-          badgeColor: const Color(0xFFF0E6F6),
-          badgeTextColor: const Color(0xFF8B5CF6),
+          badgeColor: AppColors.accent4x10,
+          badgeTextColor: AppColors.accent4,
           onTap: () => _startDirectionEvaluation(context),
         ),
       ],
@@ -281,7 +282,7 @@ class AthleteProfileScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.05), blurRadius: 8, offset: Offset(0, 2))],
         ),
@@ -292,7 +293,7 @@ class AthleteProfileScreen extends StatelessWidget {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: const Color(0xFFF3F8FB),
+                color: AppColors.background,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Center(child: Text(icon, style: const TextStyle(fontSize: 26))),
@@ -308,7 +309,7 @@ class AthleteProfileScreen extends StatelessWidget {
                       Expanded(
                         child: Text(title,
                             style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F2336))),
+                                fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.black)),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -323,12 +324,12 @@ class AthleteProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(description,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[500], height: 1.3)),
+                      style: const TextStyle(fontSize: 12, color: AppColors.neutral5, height: 1.3)),
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF477D9E)),
+            const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.primary),
           ],
         ),
       ),
@@ -366,11 +367,11 @@ class AthleteProfileScreen extends StatelessWidget {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Lesionado':
-        return Colors.orange;
+        return AppColors.warning;
       case 'Inactivo':
-        return Colors.red;
+        return AppColors.error;
       default:
-        return Colors.green;
+        return AppColors.success;
     }
   }
 }

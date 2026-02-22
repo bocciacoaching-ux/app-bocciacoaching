@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:boccia_coaching_app/providers/force_test_provider.dart';
+import 'package:boccia_coaching_app/theme/app_colors.dart';
 import 'package:boccia_coaching_app/screens/splash_screen.dart';
 import 'package:boccia_coaching_app/screens/login_screen.dart';
 import 'package:boccia_coaching_app/screens/register_screen.dart';
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
       title: 'Boccia Coaching App',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF477D9E)),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         inputDecorationTheme: const InputDecorationTheme(
           filled: true,
         ),

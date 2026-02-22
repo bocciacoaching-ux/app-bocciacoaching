@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -13,13 +14,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F8FB),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
-        title: const Text('Mi Perfil', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+        title: const Text('Mi Perfil', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black54),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textSecondary),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -32,7 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
@@ -48,11 +49,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF7DA5D1),
+                    color: AppColors.secondary,
                     borderRadius: BorderRadius.circular(32),
                   ),
                   child: const Center(
-                    child: Text('OB', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+                    child: Text('OB', style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold, fontSize: 20)),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -62,7 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       const Text('Oscar Barragán', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 4),
-                      Text('oscar.barragan@email.com', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                      Text('oscar.barragan@email.com', style: TextStyle(color: AppColors.neutral4, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -76,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
@@ -92,11 +93,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF477D9E).withAlpha((0.12 * 255).round()),
+                    color: AppColors.primary10,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Center(
-                    child: Icon(Icons.card_membership, color: Color(0xFF477D9E), size: 24),
+                    child: Icon(Icons.card_membership, color: AppColors.primary, size: 24),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -106,11 +107,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       const Text('Premium Pro', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                       const SizedBox(height: 4),
-                      Text('Válido hasta 31 dic 2026', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                      Text('Válido hasta 31 dic 2026', style: TextStyle(color: AppColors.neutral4, fontSize: 12)),
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.neutral5),
               ],
             ),
           ),
@@ -170,7 +171,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _settingItem(
             title: 'Cerrar sesión',
             icon: Icons.logout,
-            iconColor: Colors.red,
+            iconColor: AppColors.error,
             onTap: () {
               _showLogoutDialog(context);
             },
@@ -190,9 +191,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(10),
-          border: isActive ? Border.all(color: const Color(0xFF477D9E), width: 2) : null,
+          border: isActive ? Border.all(color: AppColors.primary, width: 2) : null,
           boxShadow: [
             BoxShadow(
               color: const Color.fromRGBO(0, 0, 0, 0.03),
@@ -203,13 +204,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         child: Row(
           children: [
-            Icon(Icons.person_outline, color: const Color(0xFF477D9E)),
+            Icon(Icons.person_outline, color: AppColors.primary),
             const SizedBox(width: 16),
             Expanded(
               child: Text(role, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
             if (isActive)
-              const Icon(Icons.check_circle, color: Color(0xFF477D9E), size: 24),
+              const Icon(Icons.check_circle, color: AppColors.primary, size: 24),
           ],
         ),
       ),
@@ -219,7 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _settingItem({
     required String title,
     required IconData icon,
-    Color iconColor = const Color(0xFF477D9E),
+    Color iconColor = AppColors.primary,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
@@ -227,7 +228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
@@ -254,7 +255,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Expanded(
               child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+            const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.neutral5),
           ],
         ),
       ),
@@ -277,7 +278,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.of(context).pop();
               Navigator.of(context).pushReplacementNamed('/');
             },
-            child: const Text('Cerrar sesión', style: TextStyle(color: Colors.red)),
+            child: const Text('Cerrar sesión', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),

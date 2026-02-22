@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import '../../theme/app_colors.dart';
 
 class FatigueLineChart extends StatelessWidget {
   final List<double> data;
@@ -38,7 +39,7 @@ class FatigueLineChart extends StatelessWidget {
             LineChartBarData(
               spots: data.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value)).toList(),
               isCurved: true,
-              color: Colors.blue,
+              color: AppColors.primary,
               barWidth: 3,
               dotData: const FlDotData(show: true),
             ),
