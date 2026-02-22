@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'evaluations_screen.dart';
 import '../widgets/notifications_bottom_sheet.dart';
+import '../widgets/app_drawer.dart';
+import '../widgets/profile_menu_button.dart';
 import '../theme/app_colors.dart';
 
 // Widget para el logo BOCCIA COACHING
@@ -60,11 +62,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: _buildTeamSelector(),
         actions: [
           _buildNotificationButton(),
-          _buildProfileMenu(),
+          const ProfileMenuButton(),
           const SizedBox(width: 8),
         ],
       ),
-      drawer: _buildDrawer(),
+      drawer: AppDrawer(
+        activeRoute: _selectedIndex == 1
+            ? AppDrawerRoute.evaluaciones
+            : AppDrawerRoute.inicio,
+        teamName: _selectedTeam,
+        teamFlag: _selectedFlag,
+        onHomeSelected: () => setState(() => _selectedIndex = 0),
+        onEvaluationsSelected: () => setState(() => _selectedIndex = 1),
+      ),
       endDrawer: _buildTeamEndDrawer(),
       body: SafeArea(
         top: false,
@@ -134,174 +144,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
       ],
-    );
-  }
-
-  Widget _buildProfileMenu() {
-    return PopupMenuButton<String>(
-      onSelected: (value) {
-        if (value == 'profile') {
-          Navigator.of(context).pushNamed('/profile');
-        } else if (value == 'logout') {
-          Navigator.of(context).pushReplacementNamed('/');
-        }
-      },
-      color: AppColors.surface,
-      elevation: 4,
-      shadowColor: AppColors.black.withValues(alpha: 0.10),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: AppColors.neutral8),
-      ),
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        // ── Encabezado: info del usuario ──────────────────────────────
-        PopupMenuItem<String>(
-          enabled: false,
-          padding: EdgeInsets.zero,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: AppColors.secondary,
-                  child: const Text(
-                    'OB',
-                    style: TextStyle(
-                      color: AppColors.actionSecondaryInverted,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Oscar Barragán',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'oscar.barragan@email.com',
-                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        // ── Plan activo ───────────────────────────────────────────────
-        PopupMenuItem<String>(
-          enabled: false,
-          padding: EdgeInsets.zero,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.primary10,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.card_membership_outlined, size: 16, color: AppColors.primary),
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Plan Premium Pro',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    const Text(
-                      'Válido hasta 31 dic 2026',
-                      style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        const PopupMenuDivider(height: 12),
-        // ── Mi Perfil ─────────────────────────────────────────────────
-        PopupMenuItem<String>(
-          value: 'profile',
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: AppColors.neutral8,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.person_outline, size: 18, color: AppColors.textPrimary),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Mi Perfil',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const PopupMenuDivider(height: 12),
-        // ── Cerrar sesión ─────────────────────────────────────────────
-        PopupMenuItem<String>(
-          value: 'logout',
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: AppColors.errorBg,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.logout, size: 18, color: AppColors.error),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Cerrar sesión',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                  color: AppColors.error,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-      child: CircleAvatar(
-        radius: 18,
-        backgroundColor: AppColors.secondary,
-        child: const Text(
-          'OB',
-          style: TextStyle(
-            color: AppColors.actionSecondaryInverted,
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-        ),
-      ),
     );
   }
 
@@ -591,152 +433,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildDrawer() {
-    return Drawer(
-      backgroundColor: AppColors.surface,
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ── Header con logo y botón de cierre ──────────────────────
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 12, 20),
-              color: AppColors.white,
-              child: Row(
-                children: [
-                  const Expanded(child: BocciaLogo(size: 40)),
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, color: AppColors.neutral4, size: 22),
-                    tooltip: 'Cerrar menú',
-                  ),
-                ],
-              ),
-            ),
-            // Acento de color en la parte inferior del header
-            Container(height: 3, color: AppColors.primary),
-
-            // ── Navegación principal ────────────────────────────────────
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(top: 16, bottom: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // — Sección principal
-                    _drawerSectionLabel('PRINCIPAL'),
-                    _drawerItem(
-                      context,
-                      icon: Icons.home_outlined,
-                      activeIcon: Icons.home,
-                      label: 'Inicio',
-                      active: _selectedIndex == 0,
-                      onTap: () {
-                        setState(() => _selectedIndex = 0);
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    _drawerItem(
-                      context,
-                      icon: Icons.assignment_outlined,
-                      activeIcon: Icons.assignment,
-                      label: 'Evaluaciones',
-                      active: _selectedIndex == 1,
-                      onTap: () {
-                        setState(() => _selectedIndex = 1);
-                        Navigator.of(context).pop();
-                      },
-                    ),
-
-                    const SizedBox(height: 8),
-                    // — Sección análisis
-                    _drawerSectionLabel('ANÁLISIS'),
-                    _drawerItem(
-                      context,
-                      icon: Icons.bar_chart_outlined,
-                      activeIcon: Icons.bar_chart,
-                      label: 'Estadísticas',
-                      badge: 'Próximo',
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // ── Footer: perfil del usuario ──────────────────────────────
-            Container(
-              decoration: const BoxDecoration(
-                color: AppColors.white,
-                border: Border(top: BorderSide(color: AppColors.neutral8)),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(10),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pushNamed('/profile');
-                },
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: AppColors.secondary,
-                      child: const Text(
-                        'OB',
-                        style: TextStyle(
-                          color: AppColors.actionSecondaryInverted,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Oscar Barragán',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          Text(
-                            'Coach · Plan Premium',
-                            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.arrow_forward_ios, size: 13, color: AppColors.neutral5),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _drawerSectionLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 16, 6),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 11,
-          color: AppColors.neutral5,
-          letterSpacing: 1.2,
-        ),
-      ),
-    );
-  }
-
   Widget _buildMobileLayout() {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -756,100 +452,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Text('Resumen general de tus atletas y actividades', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textSecondary)),
         const SizedBox(height: 16),
       ],
-    );
-  }
-
-  Widget _drawerItem(
-    BuildContext context, {
-    required IconData icon,
-    IconData? activeIcon,
-    required String label,
-    bool active = false,
-    String? badge,
-    VoidCallback? onTap,
-  }) {
-    final Color iconColor = active ? AppColors.primary : AppColors.neutral4;
-    final Color textColor = active ? AppColors.primary : AppColors.neutral2;
-    final IconData displayIcon = active && activeIcon != null ? activeIcon : icon;
-
-    return InkWell(
-      onTap: onTap ?? () => Navigator.of(context).pop(),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-        decoration: BoxDecoration(
-          color: active ? AppColors.primary10 : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            // Barra de acento lateral
-            Container(
-              width: 4,
-              height: 50,
-              decoration: BoxDecoration(
-                color: active ? AppColors.primary : Colors.transparent,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  bottomLeft: Radius.circular(10),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Ícono con fondo cuando está activo
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: active ? AppColors.primary20 : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(displayIcon, color: iconColor, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 14.0),
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: active ? FontWeight.bold : FontWeight.w500,
-                    color: textColor,
-                  ),
-                ),
-              ),
-            ),
-            if (badge != null) ...[
-              Container(
-                margin: const EdgeInsets.only(right: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.accent2x10,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  badge,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.accent2,
-                  ),
-                ),
-              ),
-            ] else if (!active) ...[
-              const Padding(
-                padding: EdgeInsets.only(right: 14),
-                child: Icon(Icons.arrow_forward_ios, size: 12, color: AppColors.neutral6),
-              ),
-            ] else ...[
-              Padding(
-                padding: const EdgeInsets.only(right: 14),
-                child: Icon(Icons.circle, size: 8, color: AppColors.primary),
-              ),
-            ],
-          ],
-        ),
-      ),
     );
   }
 }

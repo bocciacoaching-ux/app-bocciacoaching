@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/notifications_bottom_sheet.dart';
+import '../widgets/app_drawer.dart';
+import '../widgets/profile_menu_button.dart';
 import '../theme/app_colors.dart';
-
-// Logo reutilizado del dashboard
-class _BocciaLogo extends StatelessWidget {
-  const _BocciaLogo();
-  @override
-  Widget build(BuildContext context) {
-    return Image.asset('assets/images/isologo-horizontal.png', height: 72, fit: BoxFit.contain);
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Modelo de atleta (datos de ejemplo; reemplazar por provider/servicio real)
@@ -151,7 +144,11 @@ class _AthletesScreenState extends State<AthletesScreen> {
       key: _scaffoldKey,
       backgroundColor: AppColors.background,
       appBar: _buildAppBar(),
-      drawer: _buildDrawer(),
+      drawer: AppDrawer(
+        activeRoute: AppDrawerRoute.atletas,
+        teamName: _selectedTeam,
+        teamFlag: _selectedFlag,
+      ),
       endDrawer: _buildTeamEndDrawer(),
       body: SafeArea(
         top: false,
@@ -195,7 +192,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
       title: _buildTeamChip(),
       actions: [
         _buildNotificationButton(),
-        _buildProfileMenu(),
+        const ProfileMenuButton(),
         const SizedBox(width: 8),
       ],
     );
@@ -232,89 +229,6 @@ class _AthletesScreenState extends State<AthletesScreen> {
             ),
             const SizedBox(width: 4),
             const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary, size: 18),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── Drawer de navegación (igual al del dashboard) ─────────────────────
-  Widget _buildDrawer() {
-    return Drawer(
-      backgroundColor: AppColors.surface,
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              color: AppColors.white,
-              child: Center(child: _BocciaLogo()),
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _drawerItem(Icons.home_outlined, 'Inicio', onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (r) => false);
-                    }),
-                    _drawerItem(Icons.fitness_center_outlined, 'Entrenamiento', onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pushNamed('/evaluations');
-                    }),
-                    _drawerItem(Icons.group_outlined, 'Atletas', active: true, onTap: () {
-                      Navigator.of(context).pop(); // ya estamos aquí
-                    }),
-                    _drawerItem(Icons.bar_chart_outlined, 'Análisis y estadísticas', onTap: () {
-                      Navigator.of(context).pop();
-                    }),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                  child: FloatingActionButton(
-                  heroTag: 'drawer_close',
-                  onPressed: () => Navigator.of(context).pop(),
-                  backgroundColor: AppColors.surface,
-                  child: const Icon(Icons.close, color: AppColors.black),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _drawerItem(IconData icon, String label, {bool active = false, VoidCallback? onTap}) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        color: active ? const Color.fromRGBO(0, 0, 0, 0.04) : Colors.transparent,
-        child: Row(
-          children: [
-            Container(
-              width: 6,
-              height: 56,
-              color: active ? AppColors.black : Colors.transparent,
-            ),
-            const SizedBox(width: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-              child: Row(
-                children: [
-                  Icon(icon, color: AppColors.neutral2),
-                  const SizedBox(width: 16),
-                  Text(label, style: const TextStyle(fontSize: 16, color: AppColors.neutral2)),
-                ],
-              ),
-            ),
           ],
         ),
       ),
@@ -489,52 +403,6 @@ class _AthletesScreenState extends State<AthletesScreen> {
             ),
           ),
       ],
-    );
-  }
-
-  Widget _buildProfileMenu() {
-    return PopupMenuButton<String>(
-      onSelected: (value) {
-        if (value == 'profile') Navigator.of(context).pushNamed('/profile');
-        if (value == 'logout') Navigator.of(context).pushReplacementNamed('/');
-      },
-      itemBuilder: (_) => [
-        const PopupMenuItem(
-          enabled: false,
-          value: 'plan',
-          child: Row(children: [
-            Icon(Icons.card_membership, size: 20),
-            SizedBox(width: 12),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Plan Premium Pro', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-              Text('Válido hasta 31 dic 2026', style: TextStyle(fontSize: 10, color: AppColors.neutral5)),
-            ]),
-          ]),
-        ),
-        const PopupMenuDivider(),
-        const PopupMenuItem(
-          value: 'profile',
-          child: Row(children: [
-            Icon(Icons.person_outline, size: 20),
-            SizedBox(width: 12),
-            Text('Mi Perfil', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-          ]),
-        ),
-        const PopupMenuDivider(),
-        PopupMenuItem(
-          value: 'logout',
-          child: Row(children: [
-            Icon(Icons.logout, size: 20, color: AppColors.error),
-            SizedBox(width: 12),
-            Text('Cerrar sesión', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.error)),
-          ]),
-        ),
-      ],
-      child: const CircleAvatar(
-        radius: 18,
-        backgroundColor: AppColors.secondary,
-        child: Text('OB', style: TextStyle(color: AppColors.actionSecondaryInverted, fontWeight: FontWeight.bold, fontSize: 14)),
-      ),
     );
   }
 
