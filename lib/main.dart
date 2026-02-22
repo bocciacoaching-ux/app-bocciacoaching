@@ -18,6 +18,7 @@ import 'package:boccia_coaching_app/screens/athlete_profile_screen.dart';
 import 'package:boccia_coaching_app/screens/strength_test_screen.dart';
 import 'package:boccia_coaching_app/screens/test_statistics_screen.dart';
 import 'package:boccia_coaching_app/screens/test_force_panel_screen.dart';
+import 'package:boccia_coaching_app/screens/biometric_lock_screen.dart';
 
 void main() {
   runApp(
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         '/splash': (_) => const SplashScreen(),
         '/': (_) => const LoginScreen(),
         '/register': (_) => const RegisterScreen(),
+        '/biometric-lock': (_) => const BiometricLockScreen(),
         '/home': (_) => const HomeScreen(),
         '/dashboard': (_) => const DashboardScreen(),
         '/notifications': (_) => const NotificationsScreen(),

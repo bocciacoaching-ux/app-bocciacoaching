@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:boccia_coaching_app/providers/session_provider.dart';
 import 'package:boccia_coaching_app/services/auth_service.dart';
-import 'package:boccia_coaching_app/screens/dashboard_screen.dart';
 import 'package:boccia_coaching_app/theme/app_colors.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -64,13 +63,13 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => _loading = false);
     if (result != null && result['success'] == true) {
       // Guardar sesión con los datos del usuario devueltos por la API
-      await context
-          .read<SessionProvider>()
+      final sessionProvider = context.read<SessionProvider>();
+      await sessionProvider
           .saveSession(result['data'] as Map<String, dynamic>);
+      // Guardar credenciales para re-autenticación biométrica
+      await sessionProvider.saveCredentials(email, password);
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      );
+      Navigator.of(context).pushReplacementNamed('/dashboard');
     } else {
       final message = (result != null && result['message'] != null)
           ? result['message'] as String

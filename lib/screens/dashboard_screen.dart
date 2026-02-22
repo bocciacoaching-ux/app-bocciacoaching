@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'evaluations_screen.dart';
 import '../widgets/notifications_bottom_sheet.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/profile_menu_button.dart';
 import '../theme/app_colors.dart';
+import '../providers/session_provider.dart';
 
 // Widget para el logo BOCCIA COACHING
 class BocciaLogo extends StatelessWidget {
@@ -563,9 +565,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         const SizedBox(height: 8),
         // ── Saludo ─────────────────────────────────────────────────
-        Text('¡Hola, Oscar! 👋',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold, color: AppColors.black)),
+        Builder(builder: (context) {
+          final firstName =
+              context.watch<SessionProvider>().session?.firstName ?? 'Usuario';
+          return Text('¡Hola, $firstName! 👋',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold, color: AppColors.black));
+        }),
         const SizedBox(height: 4),
         Text('Resumen general de tus atletas y actividades',
             style: Theme.of(context)
@@ -604,7 +610,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.55,
+      childAspectRatio: 1.4,
       children: [
         _statCard(
           icon: Icons.group_outlined,
@@ -671,11 +677,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             child: Icon(icon, color: color, size: 20),
           ),
-          const Spacer(),
+          const SizedBox(height: 8),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: AppColors.black,
             ),
@@ -683,8 +691,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 2),
           Text(
             label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               color: AppColors.textSecondary,
             ),
           ),
@@ -1472,11 +1482,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             child: Icon(icon, color: color, size: 20),
           ),
-          const Spacer(),
+          const SizedBox(height: 8),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: AppColors.neutral5,
             ),
@@ -1484,8 +1496,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 2),
           Text(
             label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               color: AppColors.textSecondary,
             ),
           ),

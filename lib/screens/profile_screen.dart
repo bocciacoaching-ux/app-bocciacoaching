@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/session_provider.dart';
 import '../models/user_session.dart';
+import '../services/biometric_service.dart';
 import '../theme/app_colors.dart';
 import 'change_password_screen.dart';
 
@@ -14,6 +15,54 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String _activeRole = 'Entrenador';
+
+  // ── Biometría ──
+  final BiometricService _biometricService = BiometricService();
+  bool _biometricAvailable = false;
+  bool _biometricEnabled = false;
+  String _biometricLabel = 'Biometría';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBiometricState();
+  }
+
+  Future<void> _loadBiometricState() async {
+    final available = await _biometricService.isBiometricAvailable();
+    final enabled = await _biometricService.isBiometricEnabled();
+    final label = await _biometricService.getBiometricLabel();
+    if (mounted) {
+      setState(() {
+        _biometricAvailable = available;
+        _biometricEnabled = enabled;
+        _biometricLabel = label;
+      });
+    }
+  }
+
+  Future<void> _toggleBiometric(bool value) async {
+    if (value) {
+      // Al activar, verificamos que el usuario puede autenticarse
+      final authenticated = await _biometricService.authenticate(
+        reason: 'Autentícate para activar el desbloqueo con $_biometricLabel',
+      );
+      if (!authenticated) return;
+    }
+    await _biometricService.setBiometricEnabled(value);
+    if (mounted) {
+      setState(() => _biometricEnabled = value);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            value
+                ? '$_biometricLabel activado correctamente'
+                : '$_biometricLabel desactivado',
+          ),
+        ),
+      );
+    }
+  }
 
   /// Devuelve las iniciales del nombre completo (máx. 2 letras).
   static String _initials(UserSession s) {
@@ -212,6 +261,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           // Settings section
           const Text('Configuración', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 12),
+
+          // ── Desbloqueo biométrico ──
+          if (_biometricAvailable)
+            _biometricToggle(),
+          if (_biometricAvailable)
+            const SizedBox(height: 12),
+
           _settingItem(
             title: 'Cambiar contraseña',
             icon: Icons.lock_outline,
@@ -299,6 +355,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const Icon(Icons.check_circle, color: AppColors.primary, size: 24),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _biometricToggle() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromRGBO(0, 0, 0, 0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withAlpha((0.12 * 255).round()),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Center(
+              child: Icon(Icons.fingerprint, color: AppColors.primary, size: 24),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Desbloqueo con $_biometricLabel',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _biometricEnabled ? 'Activado' : 'Desactivado',
+                  style: TextStyle(
+                    color: _biometricEnabled ? AppColors.primary : AppColors.neutral5,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: _biometricEnabled,
+            onChanged: _toggleBiometric,
+            activeColor: AppColors.primary,
+          ),
+        ],
       ),
     );
   }
