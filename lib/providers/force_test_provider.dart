@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/athlete.dart';
 import '../models/force_test_config.dart';
 import '../models/evaluation_throw.dart';
-import '../models/assess_strength.dart';
 import '../models/statistics.dart';
 import '../services/assess_strength_service.dart';
 
@@ -97,7 +96,12 @@ class ForceTestProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final id = await _service.createEvaluation(name, teamId, coachId);
+      final result = await _service.addEvaluation(
+        description: name,
+        teamId: teamId,
+        coachId: coachId,
+      );
+      final id = result != null ? (result['data']?['assessStrengthId'] as int?) : null;
       if (id != null) {
         _assessStrengthId = id;
       } else {
@@ -109,7 +113,14 @@ class ForceTestProvider extends ChangeNotifier {
       await prefs.setInt('assessStrengthId', _assessStrengthId!);
       
       // Attempt to add athletes but don't block if it fails in demo
-      await _service.addAthletesToEvaluation(coachId, _selectedAthletes.map((a) => a.id).toList(), _assessStrengthId!);
+      // Add athletes one by one using the new API signature
+      for (final athleteId in _selectedAthletes.map((a) => a.id)) {
+        await _service.addAthleteToEvaluation(
+          coachId: coachId,
+          athleteId: athleteId,
+          assessStrengthId: _assessStrengthId!,
+        );
+      }
       
       _currentShotIndex = 0;
       _completedThrows = [];
@@ -144,7 +155,16 @@ class ForceTestProvider extends ChangeNotifier {
     notifyListeners();
 
     // En modo demo permitimos avanzar aunque falle el guardado en servidor
-    await _service.saveThrow(evaluationThrow);
+    await _service.addDetailsToEvaluation(
+      boxNumber: evaluationThrow.boxNumber,
+      throwOrder: evaluationThrow.throwOrder,
+      targetDistance: evaluationThrow.targetDistance,
+      scoreObtained: evaluationThrow.scoreObtained.toDouble(),
+      observations: evaluationThrow.observations,
+      status: evaluationThrow.status,
+      athleteId: evaluationThrow.athleteId,
+      assessStrengthId: evaluationThrow.assessStrengthId,
+    );
 
     _completedThrows.add(evaluationThrow);
     if (_currentShotIndex < _testConfig.length - 1) {

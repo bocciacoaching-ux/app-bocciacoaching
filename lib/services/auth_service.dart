@@ -1,23 +1,28 @@
-import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../config/app_config.dart';
 
 class AuthService {
-  /// Simula una llamada de red para autenticar.
-  /// Devuelve true si email y password cumplen una validación simple.
-  Future<bool> signIn(String email, String password) async {
-    await Future.delayed(const Duration(seconds: 1));
-    if (email.isEmpty || password.isEmpty) return false;
-    // Demo: credenciales de ejemplo
-    if (email == 'user@example.com' && password == 'password123') {
-      return true;
+  final String _base = AppConfig.baseUrl;
+
+  // POST /api/User/login
+  Future<Map<String, dynamic>?> signIn(String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_base/User/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
     }
-    // También aceptar cualquier combinación que tenga formato simple de email
-    final emailValid = RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-    if (emailValid.hasMatch(email) && password.length >= 6) return true;
-    return false;
   }
 
   Future<void> signOut() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return;
+    // Limpia la sesión local; extender con llamada al servidor si la API lo requiere.
   }
 }

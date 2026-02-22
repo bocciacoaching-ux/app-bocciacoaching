@@ -54,10 +54,10 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => _loading = true);
     final email = _emailController.text.trim();
     final password = _passwordController.text;
-    final ok = await _auth.signIn(email, password);
+    final result = await _auth.signIn(email, password);
     if (!mounted) return;
     setState(() => _loading = false);
-    if (ok) {
+    if (result != null && result['success'] == true) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const DashboardScreen()),
       );

@@ -7,8 +7,8 @@ class _FakeAuth extends AuthService {
   final bool result;
   _FakeAuth(this.result);
   @override
-  Future<bool> signIn(String email, String password) async {
-    return result;
+  Future<Map<String, dynamic>?> signIn(String email, String password) async {
+    return result ? {'success': true, 'data': {}} : null;
   }
 }
 

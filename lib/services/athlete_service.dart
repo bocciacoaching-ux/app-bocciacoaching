@@ -1,22 +1,66 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/athlete.dart';
+import '../config/app_config.dart';
 
 class AthleteService {
-  static const String baseUrl = "https://api.ejemplo.com";
+  final String _base = AppConfig.baseUrl;
 
-  Future<List<Athlete>> searchAthletes(String query, int teamId) async {
+  // POST /api/User/SearchAthletesForNameAndTeams
+  Future<Map<String, dynamic>?> searchAthletes({
+    String? firstName,
+    required int teamId,
+  }) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/api/athletes/search?name=$query&teamId=$teamId'),
+      final response = await http.post(
+        Uri.parse('$_base/User/SearchAthletesForNameAndTeams'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'firstName': firstName, 'teamId': teamId}),
       );
       if (response.statusCode == 200) {
-        final List data = jsonDecode(response.body);
-        return data.map((item) => Athlete.fromJson(item)).toList();
+        return jsonDecode(response.body) as Map<String, dynamic>;
       }
-      return [];
-    } catch (e) {
-      return [];
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // POST /api/User/AddAthlete
+  Future<Map<String, dynamic>?> addAthlete({
+    String? dni,
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? password,
+    String? address,
+    DateTime? seniority,
+    required bool status,
+    required int coachId,
+    int? teamId,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_base/User/AddAthlete'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'dni': dni,
+          'firstName': firstName,
+          'lastName': lastName,
+          'email': email,
+          'password': password,
+          'address': address,
+          'seniority': seniority?.toIso8601String(),
+          'status': status,
+          'coachId': coachId,
+          'teamId': teamId,
+        }),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
     }
   }
 }

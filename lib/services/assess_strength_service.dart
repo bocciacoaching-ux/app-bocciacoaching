@@ -1,74 +1,181 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/assess_strength.dart';
-import '../models/evaluation_throw.dart';
+import '../config/app_config.dart';
 
 class AssessStrengthService {
-  static const String baseUrl = "https://api.ejemplo.com"; // Replace with real URL
+  final String _base = AppConfig.baseUrl;
 
-  Future<AssessStrength?> getActiveEvaluation(int teamId) async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/api/assess-strength/active/$teamId'));
-      if (response.statusCode == 200) {
-        return AssessStrength.fromJson(jsonDecode(response.body));
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  Future<int?> createEvaluation(String evaluationName, int teamId, int coachId) async {
+  // POST /api/AssessStrength/AddEvaluation
+  Future<Map<String, dynamic>?> addEvaluation({
+    required String description,
+    required int teamId,
+    required int coachId,
+  }) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/assess-strength/add-evaluation'),
+        Uri.parse('$_base/AssessStrength/AddEvaluation'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'evaluationName': evaluationName,
+          'description': description,
           'teamId': teamId,
           'coachId': coachId,
         }),
       );
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        return data['id'];
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
       }
       return null;
-    } catch (e) {
+    } catch (_) {
       return null;
     }
   }
 
-  Future<bool> addAthletesToEvaluation(int coachId, List<int> athleteIds, int assessStrengthId) async {
-    try {
-      // Assuming the API takes a list or we call it for each
-      for (var athleteId in athleteIds) {
-        await http.post(
-          Uri.parse('$baseUrl/api/assess-strength/add-athletes-to-evaluated'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'coachId': coachId,
-            'athleteId': athleteId,
-            'assessStrengthId': assessStrengthId,
-          }),
-        );
-      }
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<bool> saveThrow(EvaluationThrow throwData) async {
+  // POST /api/AssessStrength/AthletesToEvaluated
+  Future<List<dynamic>?> addAthleteToEvaluation({
+    required int coachId,
+    required int athleteId,
+    required int assessStrengthId,
+  }) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/assess-strength/add-details-to-evaluation'),
+        Uri.parse('$_base/AssessStrength/AthletesToEvaluated'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(throwData.toJson()),
+        body: jsonEncode({
+          'coachId': coachId,
+          'athleteId': athleteId,
+          'assessStrengthId': assessStrengthId,
+        }),
       );
-      return response.statusCode == 200 || response.statusCode == 201;
-    } catch (e) {
-      return false;
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as List<dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // POST /api/AssessStrength/AddDeatilsToEvaluation
+  Future<List<dynamic>?> addDetailsToEvaluation({
+    required int boxNumber,
+    required int throwOrder,
+    double? targetDistance,
+    double? scoreObtained,
+    String? observations,
+    required bool status,
+    required int athleteId,
+    required int assessStrengthId,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_base/AssessStrength/AddDeatilsToEvaluation'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'boxNumber': boxNumber,
+          'throwOrder': throwOrder,
+          'targetDistance': targetDistance,
+          'scoreObtained': scoreObtained,
+          'observations': observations,
+          'status': status,
+          'athleteId': athleteId,
+          'assessStrengthId': assessStrengthId,
+        }),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as List<dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // GET /api/AssessStrength/GetActiveEvaluation/{teamId}
+  Future<Map<String, dynamic>?> getActiveEvaluation(int teamId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_base/AssessStrength/GetActiveEvaluation/$teamId'),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // PUT /api/AssessStrength/UpdateState
+  Future<Map<String, dynamic>?> updateState({
+    required int id,
+    required DateTime evaluationDate,
+    String? description,
+    required int teamId,
+    String? state,
+  }) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$_base/AssessStrength/UpdateState'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'id': id,
+          'evaluationDate': evaluationDate.toIso8601String(),
+          'description': description,
+          'teamId': teamId,
+          'state': state,
+        }),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // GET /api/AssessStrength/GetTeamEvaluations/{teamId}
+  Future<Map<String, dynamic>?> getTeamEvaluations(int teamId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_base/AssessStrength/GetTeamEvaluations/$teamId'),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // GET /api/AssessStrength/GetEvaluationStatistics/{assessStrengthId}
+  Future<Map<String, dynamic>?> getEvaluationStatistics(int assessStrengthId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_base/AssessStrength/GetEvaluationStatistics/$assessStrengthId'),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // GET /api/AssessStrength/GetEvaluationDetails/{assessStrengthId}
+  Future<Map<String, dynamic>?> getEvaluationDetails(int assessStrengthId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_base/AssessStrength/GetEvaluationDetails/$assessStrengthId'),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
     }
   }
 }
