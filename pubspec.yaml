@@ -30,8 +30,10 @@ flutter:
 
   assets:
     - assets/images/isologo-vertical.png
+    - assets/images/isologo-vertical-1tinta.png
     - assets/images/isologo-horizontal.png
     - assets/images/icon-iso.png
+    - assets/images/google-logo.svg
     - assets/data/test.force.json
 
 flutter_launcher_icons:

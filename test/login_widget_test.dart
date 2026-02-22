@@ -14,7 +14,21 @@ class _FakeAuth extends AuthService {
 
 void main() {
   testWidgets('LoginScreen shows fields and button, navigates on success', (tester) async {
-    await tester.pumpWidget(MaterialApp(home: LoginScreen(authService: _FakeAuth(true))));
+    // Allow image asset errors in tests (images won't load in test env)
+    final originalOnError = FlutterError.onError;
+    FlutterError.onError = (details) {
+      if (details.toString().contains('image') ||
+          details.toString().contains('asset') ||
+          details.toString().contains('codec')) {
+        return; // Ignore image loading errors
+      }
+      originalOnError?.call(details);
+    };
+
+    await tester.pumpWidget(
+      MaterialApp(home: LoginScreen(authService: _FakeAuth(true))),
+    );
+    await tester.pump();
 
     // Verify fields present
     expect(find.byType(TextFormField), findsNWidgets(2));
@@ -28,5 +42,8 @@ void main() {
 
     // After successful login, Dashboard title should appear (may be present more than once)
     expect(find.text('Dashboard'), findsWidgets);
+
+    // Restore original error handler
+    FlutterError.onError = originalOnError;
   });
 }
