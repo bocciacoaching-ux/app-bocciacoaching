@@ -146,43 +146,146 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Navigator.of(context).pushReplacementNamed('/');
         }
       },
+      color: AppColors.surface,
+      elevation: 4,
+      shadowColor: AppColors.black.withValues(alpha: 0.10),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: AppColors.neutral8),
+      ),
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
+        // ── Encabezado: info del usuario ──────────────────────────────
+        PopupMenuItem<String>(
           enabled: false,
-          value: 'plan',
+          padding: EdgeInsets.zero,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: AppColors.secondary,
+                  child: const Text(
+                    'OB',
+                    style: TextStyle(
+                      color: AppColors.actionSecondaryInverted,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Oscar Barragán',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'oscar.barragan@email.com',
+                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        // ── Plan activo ───────────────────────────────────────────────
+        PopupMenuItem<String>(
+          enabled: false,
+          padding: EdgeInsets.zero,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.primary10,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.card_membership_outlined, size: 16, color: AppColors.primary),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Plan Premium Pro',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const Text(
+                      'Válido hasta 31 dic 2026',
+                      style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        const PopupMenuDivider(height: 12),
+        // ── Mi Perfil ─────────────────────────────────────────────────
+        PopupMenuItem<String>(
+          value: 'profile',
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Row(
             children: [
-              Icon(Icons.card_membership, size: 20),
-              SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Plan Premium Pro', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                  Text('Válido hasta 31 dic 2026', style: TextStyle(fontSize: 10, color: AppColors.neutral5)),
-                ],
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: AppColors.neutral8,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.person_outline, size: 18, color: AppColors.textPrimary),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Mi Perfil',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ],
           ),
         ),
-        const PopupMenuDivider(),
-        const PopupMenuItem<String>(
-          value: 'profile',
-          child: Row(
-            children: [
-              Icon(Icons.person_outline, size: 20),
-              SizedBox(width: 12),
-              Text('Mi Perfil', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-            ],
-          ),
-        ),
-        const PopupMenuDivider(),
+        const PopupMenuDivider(height: 12),
+        // ── Cerrar sesión ─────────────────────────────────────────────
         PopupMenuItem<String>(
           value: 'logout',
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Row(
             children: [
-              Icon(Icons.logout, size: 20, color: AppColors.error),
-              SizedBox(width: 12),
-              Text('Cerrar sesión', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.error)),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: AppColors.errorBg,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.logout, size: 18, color: AppColors.error),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Cerrar sesión',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  color: AppColors.error,
+                ),
+              ),
             ],
           ),
         ),
@@ -190,7 +293,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: CircleAvatar(
         radius: 18,
         backgroundColor: AppColors.secondary,
-        child: const Text('OB', style: TextStyle(color: AppColors.actionSecondaryInverted, fontWeight: FontWeight.bold, fontSize: 14)),
+        child: const Text(
+          'OB',
+          style: TextStyle(
+            color: AppColors.actionSecondaryInverted,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
       ),
     );
   }
