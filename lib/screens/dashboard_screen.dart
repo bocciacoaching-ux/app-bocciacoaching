@@ -507,9 +507,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       setState(() => _selectedIndex = 1);
                       Navigator.of(context).pop();
                     }),
-                    _drawerItem(context, icon: Icons.notifications_none, label: 'Notificaciones', onTap: () {
-                      Navigator.of(context).pushNamed('/notifications');
-                    }),
                     _drawerItem(context, icon: Icons.group_outlined, label: 'Atletas', onTap: () {
                       Navigator.of(context).pop();
                       Navigator.of(context).pushNamed(
@@ -522,9 +519,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       );
                     }),
                     _drawerItem(context, icon: Icons.bar_chart_outlined, label: 'Análisis y estadísticas', onTap: () {}),
-                    _drawerItem(context, icon: Icons.person_outline, label: 'Perfil', onTap: () {
-                      Navigator.of(context).pushNamed('/profile');
-                    }),
                   ],
                 ),
               ),

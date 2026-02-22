@@ -12,6 +12,7 @@ import 'package:boccia_coaching_app/screens/profile_screen.dart';
 import 'package:boccia_coaching_app/screens/evaluations_screen.dart';
 import 'package:boccia_coaching_app/screens/athlete_selection_screen.dart';
 import 'package:boccia_coaching_app/screens/athletes_screen.dart';
+import 'package:boccia_coaching_app/screens/athlete_profile_screen.dart';
 import 'package:boccia_coaching_app/screens/strength_test_screen.dart';
 import 'package:boccia_coaching_app/screens/test_statistics_screen.dart';
 import 'package:boccia_coaching_app/screens/test_force_panel_screen.dart';
@@ -58,6 +59,10 @@ class MyApp extends StatelessWidget {
             teamFlag: args?['teamFlag'] ?? '🇦🇷',
             teamSubtitle: args?['teamSubtitle'] ?? 'Solo Córdoba',
           );
+        },
+        '/athlete-profile': (context) {
+          final athlete = ModalRoute.of(context)?.settings.arguments as Athlete;
+          return AthleteProfileScreen(athlete: athlete);
         },
         '/evaluations': (_) => const EvaluationsScreen(),
         '/force-test-module': (_) => const TestForcePanelScreen(),
