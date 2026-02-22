@@ -569,40 +569,33 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
               left: index == 0 ? 0 : 4,
               right: index == 5 ? 0 : 4,
             ),
-            child: GestureDetector(
-              onTap: () => provider.setSelection(
-                provider.currentSelection?.dx ?? 50,
-                provider.currentSelection?.dy ?? 50,
-                index,
-              ),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                height: 48,
-                decoration: BoxDecoration(
-                  color: isSelected ? color : AppColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: isSelected ? color : AppColors.neutral7,
-                    width: isSelected ? 2 : 1,
-                  ),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: color.withValues(alpha: 0.4),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 48,
+              decoration: BoxDecoration(
+                color: isSelected ? color : AppColors.surface,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: isSelected ? color : AppColors.neutral7,
+                  width: isSelected ? 2 : 1,
                 ),
-                child: Center(
-                  child: Text(
-                    '$index',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? AppColors.white : AppColors.textPrimary,
-                    ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: color.withValues(alpha: 0.4),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Center(
+                child: Text(
+                  '$index',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected ? AppColors.white : AppColors.textPrimary,
                   ),
                 ),
               ),

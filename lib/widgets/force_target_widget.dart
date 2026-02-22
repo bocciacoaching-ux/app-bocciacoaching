@@ -25,12 +25,9 @@ class ForceTargetWidgetState extends State<ForceTargetWidget> {
 
   /// Score zones (all values in relative coordinates 0-100, center at 50,50):
   ///
-  /// Regla: si la pelota TOCA el borde externo de una zona, obtiene el puntaje
-  /// de la zona exterior (una menos).
-  ///
-  /// 5 pts – pelota completamente dentro del círculo rojo (sin tocar borde)
-  /// 4 pts – pelota completamente dentro del círculo blanco (sin tocar borde),
-  ///         incluye tocar borde externo del círculo rojo
+  /// 5 pts – pelota dentro del círculo rojo (incluyendo tocar la línea)
+  /// 4 pts – pelota toca la línea externa del círculo rojo (desde fuera),
+  ///         o completamente dentro del círculo blanco (sin tocar borde)
   /// 3 pts – pelota completamente dentro del cuadrado azul (sin tocar línea),
   ///         incluye tocar borde externo del círculo blanco
   /// 2 pts – pelota toca la línea azul
@@ -61,11 +58,11 @@ class ForceTargetWidgetState extends State<ForceTargetWidget> {
     final ballNearEdgeX = dx.abs() - ballRadius;
     final ballNearEdgeY = dy.abs() - ballRadius;
 
-    // ── 5 pts ── pelota completamente dentro del círculo rojo
-    if (ballFarEdge < redCircleRadius) return 5;
+    // ── 5 pts ── pelota dentro del círculo rojo (incluso tocando la línea)
+    if (ballFarEdge <= redCircleRadius) return 5;
 
-    // ── 4 pts ── pelota completamente dentro del círculo blanco
-    //             (incluye caso de tocar borde externo del rojo)
+    // ── 4 pts ── pelota toca la línea externa del círculo rojo (desde fuera)
+    //             o está completamente dentro del círculo blanco
     if (ballFarEdge < whiteCircleRadius) return 4;
 
     // ── 3 pts ── pelota completamente dentro del cuadrado azul sin tocar la línea
