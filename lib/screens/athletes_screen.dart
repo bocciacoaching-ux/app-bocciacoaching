@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../widgets/notifications_bottom_sheet.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/profile_menu_button.dart';
+import '../widgets/team_selector_chip.dart';
+import '../widgets/team_end_drawer.dart';
 import '../theme/app_colors.dart';
 
 // ---------------------------------------------------------------------------
@@ -79,10 +81,10 @@ Color _statusBg(String status) => _statusColor(status).withAlpha(28);
 // ---------------------------------------------------------------------------
 // Lista de equipos (misma que en dashboard)
 // ---------------------------------------------------------------------------
-const _teams = <Map<String, dynamic>>[
-  {'name': 'Selección de Córdoba', 'country': 'Argentina', 'flag': '🇦🇷', 'subtitle': 'Solo Córdoba', 'athletes': 8},
-  {'name': 'Equipo Bogotá',        'country': 'Colombia',  'flag': '🇨🇴', 'subtitle': 'Solo Bogotá',  'athletes': 6},
-  {'name': 'Equipo Madrid',        'country': 'España',    'flag': '🇪🇸', 'subtitle': 'Solo Madrid',  'athletes': 5},
+const _teams = <TeamOption>[
+  TeamOption(name: 'Selección de Córdoba', country: 'Argentina', flag: '🇦🇷', subtitle: 'Solo Córdoba', athletes: 8),
+  TeamOption(name: 'Equipo Bogotá',        country: 'Colombia',  flag: '🇨🇴', subtitle: 'Solo Bogotá',  athletes: 6),
+  TeamOption(name: 'Equipo Madrid',        country: 'España',    flag: '🇪🇸', subtitle: 'Solo Madrid',  athletes: 5),
 ];
 
 // ---------------------------------------------------------------------------
@@ -149,7 +151,20 @@ class _AthletesScreenState extends State<AthletesScreen> {
         teamName: _selectedTeam,
         teamFlag: _selectedFlag,
       ),
-      endDrawer: _buildTeamEndDrawer(),
+      endDrawer: TeamEndDrawer(
+        teams: _teams,
+        selectedTeam: _selectedTeam,
+        onTeamSelected: (team) {
+          setState(() {
+            _selectedTeam     = team.name;
+            _selectedFlag     = team.flag;
+            _selectedSubtitle = team.subtitle;
+            _search       = '';
+            _filterStatus = null;
+          });
+        },
+        showAdminSection: false,
+      ),
       body: SafeArea(
         top: false,
         bottom: false,
@@ -190,203 +205,17 @@ class _AthletesScreenState extends State<AthletesScreen> {
         icon: const Icon(Icons.menu, color: AppColors.textSecondary),
         onPressed: () => _scaffoldKey.currentState?.openDrawer(),
       ),
-      title: _buildTeamChip(),
+      title: TeamSelectorChip(
+          teamName: _selectedTeam,
+          teamFlag: _selectedFlag,
+          teamSubtitle: _selectedSubtitle,
+          onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
+        ),
       actions: [
         _buildNotificationButton(),
         const ProfileMenuButton(),
         const SizedBox(width: 8),
       ],
-    );
-  }
-
-  Widget _buildTeamChip() {
-    return GestureDetector(
-      onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          border: Border.all(color: AppColors.neutral7),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(_selectedFlag, style: const TextStyle(fontSize: 16)),
-            const SizedBox(width: 6),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 140),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _selectedTeam,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                  ),
-                  Text(
-                    _selectedSubtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 9, color: AppColors.textSecondary),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 4),
-            const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary, size: 18),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── EndDrawer de cambio de equipo (igual al del dashboard) ───────────────
-  Widget _buildTeamEndDrawer() {
-    return Drawer(
-      backgroundColor: AppColors.background,
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              color: AppColors.surface,
-              padding: const EdgeInsets.fromLTRB(20, 20, 8, 20),
-              child: Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary10,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.group_outlined, color: AppColors.primary, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Cambiar equipo',
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.black)),
-                        Text('Selecciona tu equipo activo',
-                            style: TextStyle(fontSize: 11, color: AppColors.neutral2)),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, color: AppColors.neutral2, size: 20),
-                  ),
-                ],
-              ),
-            ),
-            Container(height: 3, color: AppColors.primary),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.only(top: 20, bottom: 16),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                    child: Text(
-                      'EQUIPOS ACTIVOS',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: AppColors.neutral5, letterSpacing: 1.2),
-                    ),
-                  ),
-                  ..._teams.map((team) {
-                    final bool isSelected = _selectedTeam == team['name'];
-                    return InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedTeam     = team['name'] as String;
-                          _selectedFlag     = team['flag'] as String;
-                          _selectedSubtitle = team['subtitle'] as String;
-                          // Resetear búsqueda y filtro al cambiar equipo
-                          _search       = '';
-                          _filterStatus = null;
-                        });
-                        Navigator.of(context).pop();
-                      },
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 4,
-                            height: 72,
-                            color: isSelected ? AppColors.primary : Colors.transparent,
-                          ),
-                          Expanded(
-                            child: Container(
-                              margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: isSelected ? AppColors.surface : Colors.transparent,
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: isSelected
-                                    ? [const BoxShadow(color: AppColors.primary10, blurRadius: 8, offset: Offset(0, 2))]
-                                    : null,
-                              ),
-                              child: Row(
-                                children: [
-                                  Text(team['flag'] as String, style: const TextStyle(fontSize: 26)),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(team['name'] as String,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                                color: isSelected ? AppColors.black : AppColors.neutral2)),
-                                        const SizedBox(height: 2),
-                                        Text(team['country'] as String,
-                                            style: const TextStyle(fontSize: 12, color: AppColors.neutral5)),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? AppColors.primary10
-                                          : AppColors.neutral9,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(Icons.person_outline, size: 12,
-                                            color: isSelected ? AppColors.primary : AppColors.neutral5),
-                                        const SizedBox(width: 3),
-                                        Text('${team['athletes']}',
-                                            style: TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                                color: isSelected ? AppColors.primary : AppColors.neutral5)),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  isSelected
-                                      ? const Icon(Icons.check_circle, color: AppColors.primary, size: 20)
-                                      : const Icon(Icons.radio_button_unchecked, color: AppColors.neutral5, size: 20),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
