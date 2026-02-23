@@ -166,6 +166,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       endDrawer: _buildTeamEndDrawer(),
       body: SafeArea(
         top: false,
+        bottom: false,
         child: _selectedIndex == 1
             ? const EvaluationsBody()
             : _buildMobileLayout(),
@@ -549,8 +550,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildMobileLayout() {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, 8 + bottomPadding),
       child: _isNewUser ? _buildEmptyStateContent() : _buildContent(),
     );
   }

@@ -152,6 +152,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
       endDrawer: _buildTeamEndDrawer(),
       body: SafeArea(
         top: false,
+        bottom: false,
         child: Column(
           children: [
             _buildToolbar(),
@@ -558,8 +559,9 @@ class _AthletesScreenState extends State<AthletesScreen> {
 
   // ── Vista en tarjetas ────────────────────────────────────────────────────
   Widget _buildCardsView() {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomPadding),
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 220,
         mainAxisExtent: 210,
@@ -573,8 +575,9 @@ class _AthletesScreenState extends State<AthletesScreen> {
 
   // ── Vista en tabla ───────────────────────────────────────────────────────
   Widget _buildTableView() {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomPadding),
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.white,

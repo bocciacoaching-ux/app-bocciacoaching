@@ -124,8 +124,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       ),
       body: SafeArea(
         top: false,
+        bottom: false,
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: EdgeInsets.fromLTRB(0, 16, 0, 16 + MediaQuery.of(context).padding.bottom),
           children: [
             // ── Sección: Hoy ──────────────────────────────────────────
             _SectionHeader(label: 'Hoy'),

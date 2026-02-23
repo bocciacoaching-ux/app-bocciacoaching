@@ -120,6 +120,9 @@ abstract final class AppColors {
   /// Fondo de tarjetas / paneles.
   static const Color surface = white;
 
+  /// Fondo del splash screen (blanco cálido que combina con el logo).
+  static const Color splashBackground = white;
+
   /// Borde de inputs.
   static const Color inputBorder = neutral8;
 

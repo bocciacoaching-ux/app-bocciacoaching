@@ -95,6 +95,7 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
       ),
       body: SafeArea(
         top: false,
+        bottom: false,
         child: Column(
         children: [
           // Header
@@ -153,7 +154,7 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
           // Athletes list
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + MediaQuery.of(context).padding.bottom),
               itemCount: filteredAthletes.length,
               itemBuilder: (context, index) {
                 final athlete = filteredAthletes[index];

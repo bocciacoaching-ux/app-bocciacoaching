@@ -49,8 +49,9 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
       ),
       body: SafeArea(
         top: false,
+        bottom: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + MediaQuery.of(context).padding.bottom),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -281,6 +282,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
       ),
       body: SafeArea(
         top: false,
+        bottom: false,
         child: LayoutBuilder(
           builder: (context, constraints) {
           final isWide = constraints.maxWidth > 900;
@@ -301,9 +303,11 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                     ),
                     Expanded(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 16,
+                        padding: EdgeInsets.fromLTRB(
+                          24,
+                          16,
+                          24,
+                          16 + MediaQuery.of(context).padding.bottom,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

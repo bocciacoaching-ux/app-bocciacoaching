@@ -283,8 +283,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
       ),
 
       body: SafeArea(
+        bottom: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + MediaQuery.of(context).padding.bottom),
           child: FadeTransition(
             opacity: _fadeIn,
             child: SlideTransition(

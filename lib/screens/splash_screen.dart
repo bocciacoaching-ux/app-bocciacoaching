@@ -49,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.splashBackground,
       body: Center(
         child: Image.asset(
           'assets/images/isologo-vertical.png',

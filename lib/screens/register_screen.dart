@@ -773,6 +773,7 @@ class _RegisterScreenState extends State<RegisterScreen>
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -926,6 +927,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
 
             const SizedBox(height: 16),
+            SizedBox(height: bottomPadding),
           ],
         ),
       ),
