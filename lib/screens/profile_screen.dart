@@ -5,6 +5,9 @@ import '../models/user_session.dart';
 import '../services/biometric_service.dart';
 import '../theme/app_colors.dart';
 import 'change_password_screen.dart';
+import 'help_support_screen.dart';
+import 'notification_settings_screen.dart';
+import 'privacy_security_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -285,8 +288,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Notificaciones',
             icon: Icons.notifications_outlined,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Función en desarrollo')),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const NotificationSettingsScreen(),
+                ),
               );
             },
           ),
@@ -295,8 +300,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Privacidad y seguridad',
             icon: Icons.privacy_tip_outlined,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Función en desarrollo')),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const PrivacySecurityScreen(),
+                ),
               );
             },
           ),
@@ -305,8 +312,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Ayuda y soporte',
             icon: Icons.help_outline,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Función en desarrollo')),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const HelpSupportScreen(),
+                ),
               );
             },
           ),
