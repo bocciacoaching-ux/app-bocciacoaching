@@ -6,6 +6,7 @@ import '../models/athlete.dart';
 import '../models/force_test_config.dart';
 import '../models/evaluation_throw.dart';
 import '../models/statistics.dart';
+import '../models/active_evaluation.dart';
 import '../services/assess_strength_service.dart';
 
 class ForceTestProvider extends ChangeNotifier {
@@ -59,6 +60,77 @@ class ForceTestProvider extends ChangeNotifier {
   Future<void> _checkActiveEvaluation() async {
     final prefs = await SharedPreferences.getInstance();
     _assessStrengthId = prefs.getInt('assessStrengthId');
+    notifyListeners();
+  }
+
+  /// Consulta la API para verificar si existe una evaluación activa
+  /// para el equipo y coach dados.
+  /// Retorna el [ActiveEvaluation] si existe, o `null` si no hay ninguna.
+  Future<ActiveEvaluation?> checkForActiveEvaluation(int teamId, int coachId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final result = await _service.getActiveEvaluation(teamId, coachId);
+      if (result != null &&
+          result['success'] == true &&
+          result['data'] != null) {
+        final activeEval = ActiveEvaluation.fromJson(
+          result['data'] as Map<String, dynamic>,
+        );
+        _isLoading = false;
+        notifyListeners();
+        return activeEval;
+      }
+    } catch (_) {
+      // Si falla la verificación, se permite continuar sin evaluación activa
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return null;
+  }
+
+  /// Reanuda una evaluación activa existente: restaura el estado del provider
+  /// con los datos de la evaluación activa (atletas, lanzamientos, índice actual).
+  Future<void> resumeEvaluation(ActiveEvaluation activeEval) async {
+    _isLoading = true;
+    notifyListeners();
+
+    _assessStrengthId = activeEval.assessStrengthId;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('assessStrengthId', _assessStrengthId!);
+
+    // Restaurar atletas desde la evaluación activa
+    _selectedAthletes = activeEval.athletes
+        .map((a) => Athlete(id: a.athleteId, name: a.athleteName))
+        .toList();
+
+    // Restaurar lanzamientos completados
+    _completedThrows = activeEval.throws
+        .map((t) => EvaluationThrow(
+              boxNumber: t.boxNumber,
+              throwOrder: t.throwOrder,
+              targetDistance: t.targetDistance,
+              scoreObtained: t.scoreObtained.toInt(),
+              observations: t.observations,
+              status: t.status,
+              athleteId: t.athleteId,
+              assessStrengthId: activeEval.assessStrengthId,
+              coordinateX: 0.0,
+              coordinateY: 0.0,
+            ))
+        .toList();
+
+    // Posicionar el índice en el siguiente lanzamiento pendiente
+    _currentShotIndex = _completedThrows.length < _testConfig.length
+        ? _completedThrows.length
+        : _testConfig.length - 1;
+
+    _resetCurrentShotState();
+
+    _isLoading = false;
     notifyListeners();
   }
 

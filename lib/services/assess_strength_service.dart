@@ -90,11 +90,11 @@ class AssessStrengthService {
     }
   }
 
-  // GET /api/AssessStrength/GetActiveEvaluation/{teamId}
-  Future<Map<String, dynamic>?> getActiveEvaluation(int teamId) async {
+  // GET /api/AssessStrength/GetActiveEvaluation/{teamId}/{coachId}
+  Future<Map<String, dynamic>?> getActiveEvaluation(int teamId, int coachId) async {
     try {
       final response = await http.get(
-        Uri.parse('$_base/AssessStrength/GetActiveEvaluation/$teamId'),
+        Uri.parse('$_base/AssessStrength/GetActiveEvaluation/$teamId/$coachId'),
       );
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;

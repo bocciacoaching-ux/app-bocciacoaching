@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/force_test_provider.dart';
+import '../providers/session_provider.dart';
+import '../providers/team_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/force_target_widget.dart';
 import '../widgets/statistics_panel.dart';
@@ -122,27 +124,10 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: provider.selectedAthletes.isEmpty ||
-                      _evalNameController.text.isEmpty
+                      _evalNameController.text.isEmpty ||
+                      provider.isLoading
                   ? null
-                  : () async {
-                      try {
-                        await provider.startNewEvaluation(
-                          _evalNameController.text,
-                          1,
-                          1,
-                        );
-                      } catch (_) {
-                        if (mounted && context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Iniciando en modo local (API no disponible)',
-                              ),
-                            ),
-                          );
-                        }
-                      }
-                    },
+                  : () => _startNewEvaluation(context, provider),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.white,
@@ -175,6 +160,37 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
         ),
       ),
     );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  ACTIVE EVALUATION CHECK – Validate before creating
+  // ═══════════════════════════════════════════════════════════════════
+
+  Future<void> _startNewEvaluation(
+    BuildContext context,
+    ForceTestProvider provider,
+  ) async {
+    final sessionProvider = context.read<SessionProvider>();
+    final teamProvider = context.read<TeamProvider>();
+
+    final coachId = sessionProvider.session?.userId ?? 1;
+    final teamId = teamProvider.selectedTeam?.teamId ?? 1;
+
+    try {
+      await provider.startNewEvaluation(
+        _evalNameController.text,
+        teamId,
+        coachId,
+      );
+    } catch (_) {
+      if (mounted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Iniciando en modo local (API no disponible)'),
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildAthleteSearch(ForceTestProvider provider) {
