@@ -134,4 +134,22 @@ abstract final class AppColors {
 
   /// Color de texto deshabilitado.
   static const Color textDisabled = neutral6;
+
+  // ──────────────────────────────────────────────────────────────────
+  // Distance tokens (short / medium / long)
+  // Usados en la pantalla de estadísticas para identificar rangos
+  // de distancia de forma consistente.
+  // ──────────────────────────────────────────────────────────────────
+
+  /// Distancia corta – tono primario (azul acero).
+  static const Color distanceShort = primary;
+  static const Color distanceShortBg = primary10;
+
+  /// Distancia media – tono secundario (celeste/teal claro).
+  static const Color distanceMedium = accent5;
+  static const Color distanceMediumBg = accent5x25;
+
+  /// Distancia larga – tono acento índigo.
+  static const Color distanceLong = accent6;
+  static const Color distanceLongBg = accent6x15;
 }

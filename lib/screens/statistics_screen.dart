@@ -242,7 +242,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: AppColors.black.withValues(alpha: 0.04),
+              color: AppColors.neutral8,
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -514,7 +514,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.06),
+            color: AppColors.neutral7,
             blurRadius: 12,
             offset: const Offset(0, 3),
           ),
@@ -713,7 +713,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.06),
+            color: AppColors.neutral7,
             blurRadius: 12,
             offset: const Offset(0, 3),
           ),
@@ -762,7 +762,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.2),
+                    color: AppColors.primary20,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -827,7 +827,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   shortEffectiveness,
                   shortAccuracy,
                   shortThrowAccuracy,
-                  AppColors.success,
+                  AppColors.distanceShort,
+                  AppColors.distanceShortBg,
                 ),
                 const SizedBox(height: 10),
                 _buildDistanceStatRow(
@@ -836,7 +837,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   mediumEffectiveness,
                   mediumAccuracy,
                   mediumThrowAccuracy,
-                  AppColors.warning,
+                  AppColors.distanceMedium,
+                  AppColors.distanceMediumBg,
                 ),
                 const SizedBox(height: 10),
                 _buildDistanceStatRow(
@@ -845,7 +847,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   longEffectiveness,
                   longAccuracy,
                   longThrowAccuracy,
-                  AppColors.error,
+                  AppColors.distanceLong,
+                  AppColors.distanceLongBg,
                 ),
               ],
             ),
@@ -881,7 +884,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   child: CircularProgressIndicator(
                     value: percentage / 100,
                     strokeWidth: 8,
-                    backgroundColor: color.withValues(alpha: 0.15),
+                    backgroundColor: bgColor,
                     valueColor: AlwaysStoppedAnimation<Color>(color),
                     strokeCap: StrokeCap.round,
                   ),
@@ -1001,6 +1004,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     double accuracy,
     double throwAccuracy,
     Color color,
+    Color bgColor,
   ) {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -1035,7 +1039,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: bgColor,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -1110,8 +1114,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     value: accuracy / 100,
                     minHeight: 6,
                     backgroundColor: AppColors.neutral8,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                        color.withValues(alpha: 0.7)),
+                    valueColor: AlwaysStoppedAnimation<Color>(color),
                   ),
                 ),
               ),
@@ -1124,7 +1127,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: color.withValues(alpha: 0.8),
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ),
@@ -1182,7 +1185,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.black.withValues(alpha: 0.04),
+                  color: AppColors.neutral8,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
