@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_colors.dart';
@@ -189,8 +188,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   Widget _buildEvaluationCard(Map<String, dynamic> evaluation) {
     final id = evaluation['id'] ?? evaluation['assessStrengthId'] ?? 0;
-    final description =
-        evaluation['description'] ?? 'Evaluación #$id';
+    final description = evaluation['description'] ?? 'Evaluación #$id';
     final date = evaluation['evaluationDate'] ?? evaluation['createdAt'] ?? '';
     final state = evaluation['state'] ?? 'Completada';
     final teamId = evaluation['teamId'];
@@ -318,8 +316,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             const SizedBox(width: 8),
             // Estado badge
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: stateBgColor,
                 borderRadius: BorderRadius.circular(20),
@@ -423,10 +420,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       );
     }
 
-    final stats = statsProvider.evaluationStats;
+    final statsList = statsProvider.evaluationStatsList;
     final details = statsProvider.evaluationDetails;
 
-    if (stats == null && details == null) {
+    if (statsList.isEmpty && details == null) {
       return _buildErrorState('No hay datos disponibles para esta evaluación.',
           onRetry: () => statsProvider
               .fetchFullEvaluationData(statsProvider.selectedEvaluationId!));
@@ -437,255 +434,89 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Resumen general ──────────────────────────────
-          if (stats != null) ...[
-            _sectionTitle('Resumen General'),
-            const SizedBox(height: 12),
-            _buildStatsOverviewGrid(stats),
+          // ── Info de la evaluación (desde details) ─────────
+          if (details != null) ...[
+            _buildEvaluationInfoHeader(details),
             const SizedBox(height: 24),
           ],
 
-          // ── Estadísticas por distancia ───────────────────
-          if (stats != null) ...[
-            _sectionTitle('Rendimiento por Distancia'),
+          // ── Estadísticas por atleta ──────────────────────
+          if (statsList.isNotEmpty) ...[
+            _sectionTitle('Resumen por Atleta'),
             const SizedBox(height: 12),
-            _buildDistanceCards(stats),
+            ...statsList
+                .map((athleteStats) => _buildAthleteStatsCard(athleteStats)),
             const SizedBox(height: 24),
           ],
 
           // ── Detalles de tiros ────────────────────────────
           if (details != null) ...[
-            _sectionTitle('Detalles de la Evaluación'),
-            const SizedBox(height: 12),
-            _buildDetailsSection(details),
+            _buildThrowsSection(details),
             const SizedBox(height: 24),
           ],
-
-          // ── Datos crudos (debug/fallback) ────────────────
-          if (stats != null) ...[
-            _sectionTitle('Datos Completos'),
-            const SizedBox(height: 12),
-            _buildRawDataCard('Estadísticas', stats),
-          ],
-          if (details != null) ...[
-            const SizedBox(height: 12),
-            _buildRawDataCard('Detalles', details),
-          ],
         ],
       ),
     );
   }
 
   // ════════════════════════════════════════════════════════════════════
-  // WIDGETS DE ESTADÍSTICAS
+  // HEADER DE EVALUACIÓN
   // ════════════════════════════════════════════════════════════════════
 
-  Widget _buildStatsOverviewGrid(Map<String, dynamic> stats) {
-    // Extraer datos - adaptable a la estructura de la API
-    final effectiveness = _extractDouble(stats, 'generalEffectiveness') ??
-        _extractDouble(stats, 'effectiveness') ??
-        _extractDouble(stats, 'efectividad');
-    final precision = _extractDouble(stats, 'precision') ??
-        _extractDouble(stats, 'precisión');
-    final totalThrows = _extractInt(stats, 'totalThrows') ??
-        _extractInt(stats, 'totalTiros') ??
-        _extractInt(stats, 'total');
-    final effectiveThrows = _extractInt(stats, 'effectiveThrows') ??
-        _extractInt(stats, 'tirosEfectivos') ??
-        _extractInt(stats, 'hits');
-    final failedThrows = _extractInt(stats, 'failedThrows') ??
-        _extractInt(stats, 'tirosFallidos') ??
-        _extractInt(stats, 'misses');
-    final avgScore = _extractDouble(stats, 'averageScore') ??
-        _extractDouble(stats, 'promedioScore') ??
-        _extractDouble(stats, 'avgScore');
-
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 1.4,
-      children: [
-        if (effectiveness != null)
-          _statCard(
-            icon: Icons.trending_up_rounded,
-            label: 'Efectividad',
-            value: '${effectiveness.toStringAsFixed(1)}%',
-            color: AppColors.primary,
-            bgColor: AppColors.primary10,
-          ),
-        if (precision != null)
-          _statCard(
-            icon: Icons.gps_fixed_rounded,
-            label: 'Precisión',
-            value: '${precision.toStringAsFixed(1)}%',
-            color: AppColors.accent5,
-            bgColor: AppColors.accent5x25,
-          ),
-        if (totalThrows != null)
-          _statCard(
-            icon: Icons.sports_handball_rounded,
-            label: 'Total Tiros',
-            value: '$totalThrows',
-            color: AppColors.accent3,
-            bgColor: AppColors.accent3x23,
-          ),
-        if (effectiveThrows != null)
-          _statCard(
-            icon: Icons.check_circle_outline,
-            label: 'Tiros Efectivos',
-            value: '$effectiveThrows',
-            color: AppColors.success,
-            bgColor: AppColors.successBg,
-          ),
-        if (failedThrows != null)
-          _statCard(
-            icon: Icons.cancel_outlined,
-            label: 'Tiros Fallidos',
-            value: '$failedThrows',
-            color: AppColors.error,
-            bgColor: AppColors.errorBg,
-          ),
-        if (avgScore != null)
-          _statCard(
-            icon: Icons.star_outline_rounded,
-            label: 'Puntuación Prom.',
-            value: avgScore.toStringAsFixed(2),
-            color: AppColors.accent2,
-            bgColor: AppColors.accent2x10,
-          ),
-      ],
-    );
-  }
-
-  Widget _statCard({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-    required Color bgColor,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.black,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDistanceCards(Map<String, dynamic> stats) {
-    // Intentar extraer datos de distancia de la respuesta
-    final shortStats = stats['shortStats'] ?? stats['shortDistance'];
-    final mediumStats = stats['mediumStats'] ?? stats['mediumDistance'];
-    final longStats = stats['longStats'] ?? stats['longDistance'];
-
-    if (shortStats == null && mediumStats == null && longStats == null) {
-      // Si no hay estructura de distancia, buscar en listas
-      final distances = stats['distances'] ?? stats['distanceStats'];
-      if (distances is List && distances.isNotEmpty) {
-        return Column(
-          children: distances
-              .map<Widget>((d) => _buildDistanceRow(
-                    d as Map<String, dynamic>,
-                    d['label'] ?? d['distance'] ?? 'Distancia',
-                    AppColors.primary,
-                  ))
-              .toList(),
-        );
+  Widget _buildEvaluationInfoHeader(Map<String, dynamic> details) {
+    final description = details['description'] ?? '';
+    final teamName = details['teamName'] ?? '';
+    final coachName = details['coachName'] ?? '';
+    final stateName = details['stateName'] ?? details['state'] ?? '';
+    final dateStr = details['evaluationDate'] ?? '';
+    String formattedDate = '';
+    if (dateStr.isNotEmpty) {
+      try {
+        final d = DateTime.parse(dateStr);
+        formattedDate =
+            '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+      } catch (_) {
+        formattedDate = dateStr;
       }
-
-      return _buildNoDataCard('No hay datos de distancia disponibles.');
     }
 
-    return Column(
-      children: [
-        if (shortStats != null)
-          _buildDistanceRow(
-            shortStats is Map<String, dynamic> ? shortStats : {},
-            'Corta',
-            AppColors.success,
-          ),
-        if (mediumStats != null)
-          _buildDistanceRow(
-            mediumStats is Map<String, dynamic> ? mediumStats : {},
-            'Media',
-            AppColors.warning,
-          ),
-        if (longStats != null)
-          _buildDistanceRow(
-            longStats is Map<String, dynamic> ? longStats : {},
-            'Larga',
-            AppColors.error,
-          ),
-      ],
-    );
-  }
+    final athletes = details['athletes'] as List<dynamic>? ?? [];
 
-  Widget _buildDistanceRow(
-      Map<String, dynamic> data, String label, Color color) {
-    final hits = _extractInt(data, 'hits') ?? _extractInt(data, 'aciertos') ?? 0;
-    final total = _extractInt(data, 'total') ?? _extractInt(data, 'totalTiros') ?? 0;
-    final effectiveness = total > 0 ? (hits / total) * 100 : 0.0;
-    final totalPoints =
-        _extractInt(data, 'totalPoints') ?? _extractInt(data, 'puntos') ?? 0;
+    // State badge colors
+    Color stateColor;
+    Color stateBgColor;
+    IconData stateIcon;
+    switch (stateName.toString().toLowerCase()) {
+      case 'activa':
+      case 'active':
+      case 'en curso':
+        stateColor = AppColors.warning;
+        stateBgColor = AppColors.warningBg;
+        stateIcon = Icons.timer_outlined;
+        break;
+      case 'completada':
+      case 'completed':
+      case 'finalizada':
+        stateColor = AppColors.success;
+        stateBgColor = AppColors.successBg;
+        stateIcon = Icons.check_circle_outline;
+        break;
+      default:
+        stateColor = AppColors.info;
+        stateBgColor = AppColors.infoBg;
+        stateIcon = Icons.info_outline;
+    }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: AppColors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -695,8 +526,497 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           Row(
             children: [
               Container(
-                width: 8,
-                height: 8,
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.primary10,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.assessment_rounded,
+                    color: AppColors.primary, size: 24),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      description.isNotEmpty
+                          ? description
+                          : 'Evaluación de Fuerza',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.black,
+                      ),
+                    ),
+                    if (formattedDate.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_today_outlined,
+                              size: 12, color: AppColors.textSecondary),
+                          const SizedBox(width: 4),
+                          Text(
+                            formattedDate,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: stateBgColor,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(stateIcon, size: 13, color: stateColor),
+                    const SizedBox(width: 4),
+                    Text(
+                      stateName,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: stateColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(color: AppColors.neutral8, height: 1),
+          const SizedBox(height: 16),
+          // Info row: Equipo + Entrenador
+          Row(
+            children: [
+              Expanded(
+                child:
+                    _headerInfoChip(Icons.group_outlined, 'Equipo', teamName),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _headerInfoChip(
+                    Icons.person_outline, 'Entrenador', coachName),
+              ),
+            ],
+          ),
+          if (athletes.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _headerInfoChip(
+              Icons.sports_rounded,
+              'Atletas',
+              athletes
+                  .map((a) => a['athleteName'] ?? '')
+                  .where((n) => n.isNotEmpty)
+                  .join(', '),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _headerInfoChip(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: AppColors.primary),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value.isNotEmpty ? value : '—',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // TARJETA DE ESTADÍSTICAS POR ATLETA
+  // ════════════════════════════════════════════════════════════════════
+
+  Widget _buildAthleteStatsCard(Map<String, dynamic> stats) {
+    final athleteName = stats['athleteName'] ?? 'Atleta';
+    final effectiveness =
+        ((stats['effectivenessPercentage'] as num?)?.toDouble() ?? 0) * 100;
+    final accuracy =
+        ((stats['accuracyPercentage'] as num?)?.toDouble() ?? 0) * 100;
+    final effectiveThrow = (stats['effectiveThrow'] as num?)?.toInt() ?? 0;
+    final failedThrow = (stats['failedThrow'] as num?)?.toInt() ?? 0;
+    final totalThrows = effectiveThrow + failedThrow;
+
+    final shortThrow = (stats['shortThrow'] as num?)?.toInt() ?? 0;
+    final mediumThrow = (stats['mediumThrow'] as num?)?.toInt() ?? 0;
+    final longThrow = (stats['longThrow'] as num?)?.toInt() ?? 0;
+
+    final shortEffectiveness =
+        ((stats['shortEffectivenessPercentage'] as num?)?.toDouble() ?? 0) *
+            100;
+    final mediumEffectiveness =
+        ((stats['mediumEffectivenessPercentage'] as num?)?.toDouble() ?? 0) *
+            100;
+    final longEffectiveness =
+        ((stats['longEffectivenessPercentage'] as num?)?.toDouble() ?? 0) * 100;
+
+    final shortAccuracy =
+        ((stats['shortAccuracyPercentage'] as num?)?.toDouble() ?? 0) * 100;
+    final mediumAccuracy =
+        ((stats['mediumAccuracyPercentage'] as num?)?.toDouble() ?? 0) * 100;
+    final longAccuracy =
+        ((stats['longAccuracyPercentage'] as num?)?.toDouble() ?? 0) * 100;
+
+    final shortThrowAccuracy =
+        (stats['shortThrowAccuracy'] as num?)?.toDouble() ?? 0;
+    final mediumThrowAccuracy =
+        (stats['mediumThrowAccuracy'] as num?)?.toDouble() ?? 0;
+    final longThrowAccuracy =
+        (stats['longThrowAccuracy'] as num?)?.toDouble() ?? 0;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Header del atleta ─────────────────────────────
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppColors.primary, AppColors.actionPrimaryActive],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppColors.primary20,
+                  child: Text(
+                    _getInitials(athleteName),
+                    style: const TextStyle(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    athleteName,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.white,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '$totalThrows tiros',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Indicadores principales ──────────────────
+                Row(
+                  children: [
+                    Expanded(
+                      child: _circularIndicator(
+                        'Efectividad',
+                        effectiveness,
+                        AppColors.primary,
+                        AppColors.primary10,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _circularIndicator(
+                        'Precisión',
+                        accuracy,
+                        AppColors.accent5,
+                        AppColors.accent5x25,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // ── Tiros efectivos vs fallidos ──────────────
+                _buildThrowsSummaryRow(effectiveThrow, failedThrow),
+                const SizedBox(height: 20),
+
+                // ── Rendimiento por distancia ────────────────
+                const Text(
+                  'Rendimiento por Distancia',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.black,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildDistanceStatRow(
+                  'Corta',
+                  shortThrow,
+                  shortEffectiveness,
+                  shortAccuracy,
+                  shortThrowAccuracy,
+                  AppColors.success,
+                ),
+                const SizedBox(height: 10),
+                _buildDistanceStatRow(
+                  'Media',
+                  mediumThrow,
+                  mediumEffectiveness,
+                  mediumAccuracy,
+                  mediumThrowAccuracy,
+                  AppColors.warning,
+                ),
+                const SizedBox(height: 10),
+                _buildDistanceStatRow(
+                  'Larga',
+                  longThrow,
+                  longEffectiveness,
+                  longAccuracy,
+                  longThrowAccuracy,
+                  AppColors.error,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // WIDGETS DE INDICADORES
+  // ════════════════════════════════════════════════════════════════════
+
+  Widget _circularIndicator(
+      String label, double percentage, Color color, Color bgColor) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        children: [
+          SizedBox(
+            width: 80,
+            height: 80,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: CircularProgressIndicator(
+                    value: percentage / 100,
+                    strokeWidth: 8,
+                    backgroundColor: color.withValues(alpha: 0.15),
+                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                    strokeCap: StrokeCap.round,
+                  ),
+                ),
+                Text(
+                  '${percentage.toStringAsFixed(1)}%',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildThrowsSummaryRow(int effective, int failed) {
+    final total = effective + failed;
+    final effectivePercent = total > 0 ? effective / total : 0.0;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.neutral9,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _throwCountChip(
+                  Icons.check_circle_rounded,
+                  'Efectivos',
+                  effective,
+                  AppColors.success,
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 40,
+                color: AppColors.neutral7,
+              ),
+              Expanded(
+                child: _throwCountChip(
+                  Icons.cancel_rounded,
+                  'Fallidos',
+                  failed,
+                  AppColors.error,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: effectivePercent,
+              minHeight: 8,
+              backgroundColor: AppColors.errorBg,
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(AppColors.success),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _throwCountChip(IconData icon, String label, int count, Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, size: 20, color: color),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$count',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDistanceStatRow(
+    String label,
+    int throws,
+    double effectiveness,
+    double accuracy,
+    double throwAccuracy,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.neutral8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 10,
+                height: 10,
                 decoration: BoxDecoration(
                   color: color,
                   shape: BoxShape.circle,
@@ -706,158 +1026,235 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               Text(
                 'Distancia $label',
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
               ),
               const Spacer(),
-              Text(
-                '${effectiveness.toStringAsFixed(1)}%',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: color,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Barra de progreso
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: effectiveness / 100,
-              minHeight: 6,
-              backgroundColor: AppColors.neutral8,
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _miniStat('Aciertos', '$hits/$total'),
-              _miniStat('Puntos', '$totalPoints'),
-              _miniStat('Efect.', '${effectiveness.toStringAsFixed(1)}%'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _miniStat(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 10,
-            color: AppColors.textSecondary,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDetailsSection(Map<String, dynamic> details) {
-    // Intentar extraer atletas/detalles de tiros
-    final athletes =
-        details['athletes'] ?? details['atletas'] ?? details['data'];
-
-    if (athletes is List && athletes.isNotEmpty) {
-      return Column(
-        children: athletes.map<Widget>((athlete) {
-          final athleteData = athlete as Map<String, dynamic>;
-          return _buildAthleteDetailCard(athleteData);
-        }).toList(),
-      );
-    }
-
-    // Si los detalles tienen tiros directamente
-    final throws =
-        details['throws'] ?? details['tiros'] ?? details['details'];
-    if (throws is List && throws.isNotEmpty) {
-      return _buildThrowsTable(throws);
-    }
-
-    // Mostrar los datos disponibles como tarjeta informativa
-    return _buildInfoCard(details);
-  }
-
-  Widget _buildAthleteDetailCard(Map<String, dynamic> athleteData) {
-    final name = athleteData['athleteName'] ??
-        athleteData['nombre'] ??
-        athleteData['name'] ??
-        'Atleta';
-    final throws = athleteData['throws'] ??
-        athleteData['tiros'] ??
-        athleteData['details'];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: AppColors.secondary,
                 child: Text(
-                  _getInitials(name),
-                  style: const TextStyle(
-                    color: AppColors.actionSecondaryInverted,
-                    fontWeight: FontWeight.bold,
+                  '$throws tiros',
+                  style: TextStyle(
                     fontSize: 11,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.bold,
+                    color: color,
                   ),
                 ),
               ),
             ],
           ),
-          if (throws is List && throws.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            const Divider(color: AppColors.neutral8),
-            const SizedBox(height: 8),
-            _buildThrowsTable(throws),
+          const SizedBox(height: 12),
+          // Barra de efectividad
+          Row(
+            children: [
+              const SizedBox(
+                width: 75,
+                child: Text(
+                  'Efectividad',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: LinearProgressIndicator(
+                    value: effectiveness / 100,
+                    minHeight: 6,
+                    backgroundColor: AppColors.neutral8,
+                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 48,
+                child: Text(
+                  '${effectiveness.toStringAsFixed(1)}%',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          // Barra de precisión
+          Row(
+            children: [
+              const SizedBox(
+                width: 75,
+                child: Text(
+                  'Precisión',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: LinearProgressIndicator(
+                    value: accuracy / 100,
+                    minHeight: 6,
+                    backgroundColor: AppColors.neutral8,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        color.withValues(alpha: 0.7)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 48,
+                child: Text(
+                  '${accuracy.toStringAsFixed(1)}%',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: color.withValues(alpha: 0.8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (throwAccuracy > 0) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const SizedBox(width: 75),
+                Expanded(
+                  child: Text(
+                    'Puntaje prom: ${throwAccuracy.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ],
       ),
     );
   }
+
+  // ════════════════════════════════════════════════════════════════════
+  // SECCIÓN DE TIROS (desde GetEvaluationDetails)
+  // ════════════════════════════════════════════════════════════════════
+
+  Widget _buildThrowsSection(Map<String, dynamic> details) {
+    final throws = details['throws'] as List<dynamic>? ?? [];
+
+    if (throws.isEmpty) return const SizedBox.shrink();
+
+    // Agrupar por atleta
+    final Map<String, List<Map<String, dynamic>>> throwsByAthlete = {};
+    for (final t in throws) {
+      final data = t as Map<String, dynamic>;
+      final name = data['athleteName'] ?? 'Atleta';
+      throwsByAthlete.putIfAbsent(name, () => []).add(data);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle('Detalle de Lanzamientos'),
+        const SizedBox(height: 12),
+        ...throwsByAthlete.entries.map((entry) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.black.withValues(alpha: 0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header del atleta
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundColor: AppColors.secondary,
+                        child: Text(
+                          _getInitials(entry.key),
+                          style: const TextStyle(
+                            color: AppColors.actionSecondaryInverted,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          entry.key,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary10,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '${entry.value.length} tiros',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(color: AppColors.neutral8, height: 1),
+                // Tabla de tiros
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
+                  child: _buildThrowsTable(entry.value),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // TABLA DE TIROS
+  // ════════════════════════════════════════════════════════════════════
 
   Widget _buildThrowsTable(List<dynamic> throws) {
     return Table(
@@ -869,6 +1266,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         1: FlexColumnWidth(1),
         2: FlexColumnWidth(1.2),
         3: FlexColumnWidth(1),
+        4: FlexColumnWidth(1),
       },
       children: [
         // Header
@@ -882,135 +1280,30 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             _TableHeader('Tiro'),
             _TableHeader('Distancia'),
             _TableHeader('Score'),
+            _TableHeader('Estado'),
           ],
         ),
         // Rows
         ...throws.map((t) {
           final throwData = t as Map<String, dynamic>;
+          final score = throwData['scoreObtained'];
+          final status = throwData['status'];
           return TableRow(
             children: [
+              _TableCell('${throwData['boxNumber'] ?? '-'}'),
+              _TableCell('${throwData['throwOrder'] ?? '-'}'),
+              _TableCell('${throwData['targetDistance'] ?? '-'}'),
               _TableCell(
-                  '${throwData['boxNumber'] ?? throwData['cajon'] ?? '-'}'),
+                '${score ?? '-'}',
+                color: _getScoreColor(score),
+              ),
               _TableCell(
-                  '${throwData['throwOrder'] ?? throwData['orden'] ?? '-'}'),
-              _TableCell(
-                  '${throwData['targetDistance'] ?? throwData['distancia'] ?? '-'}'),
-              _TableCell(
-                '${throwData['scoreObtained'] ?? throwData['score'] ?? '-'}',
-                color: _getScoreColor(throwData['scoreObtained'] ??
-                    throwData['score']),
+                status == true ? '✓' : '✗',
+                color: status == true ? AppColors.success : AppColors.error,
               ),
             ],
           );
         }),
-      ],
-    );
-  }
-
-  Widget _buildInfoCard(Map<String, dynamic> data) {
-    final entries = data.entries.where((e) =>
-        e.value != null &&
-        e.value is! List &&
-        e.value is! Map);
-
-    if (entries.isEmpty) {
-      return _buildNoDataCard('No hay detalles disponibles.');
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: entries
-            .map((e) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          _formatKey(e.key),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Flexible(
-                        child: Text(
-                          '${e.value}',
-                          textAlign: TextAlign.end,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ))
-            .toList(),
-      ),
-    );
-  }
-
-  Widget _buildRawDataCard(String title, Map<String, dynamic> data) {
-    return ExpansionTile(
-      tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-      childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: AppColors.neutral8),
-      ),
-      collapsedShape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: AppColors.neutral8),
-      ),
-      backgroundColor: AppColors.surface,
-      collapsedBackgroundColor: AppColors.surface,
-      title: Row(
-        children: [
-          Icon(Icons.data_object, size: 18, color: AppColors.primary),
-          const SizedBox(width: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
-        ],
-      ),
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.neutral9,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: SelectableText(
-            _prettyJson(data),
-            style: const TextStyle(
-              fontSize: 11,
-              fontFamily: 'monospace',
-              color: AppColors.textPrimary,
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -1060,8 +1353,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed('/evaluations'),
+              onPressed: () => Navigator.of(context).pushNamed('/evaluations'),
               icon: const Icon(Icons.add, size: 18),
               label: const Text('Nueva Evaluación'),
               style: ElevatedButton.styleFrom(
@@ -1140,32 +1432,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  Widget _buildNoDataCard(String message) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.neutral8),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.info_outline, color: AppColors.neutral5, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // ════════════════════════════════════════════════════════════════════
   // HELPERS
   // ════════════════════════════════════════════════════════════════════
@@ -1195,36 +1461,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     if (val >= 4) return AppColors.success;
     if (val >= 2) return AppColors.warning;
     return AppColors.error;
-  }
-
-  String _formatKey(String key) {
-    // camelCase → Title Case
-    final result = key.replaceAllMapped(
-      RegExp(r'([a-z])([A-Z])'),
-      (match) => '${match.group(1)} ${match.group(2)}',
-    );
-    return result[0].toUpperCase() + result.substring(1);
-  }
-
-  String _prettyJson(Map<String, dynamic> json) {
-    final encoder = const JsonEncoder.withIndent('  ');
-    return encoder.convert(json);
-  }
-
-  double? _extractDouble(Map<String, dynamic> map, String key) {
-    final val = map[key];
-    if (val is double) return val;
-    if (val is int) return val.toDouble();
-    if (val is String) return double.tryParse(val);
-    return null;
-  }
-
-  int? _extractInt(Map<String, dynamic> map, String key) {
-    final val = map[key];
-    if (val is int) return val;
-    if (val is double) return val.toInt();
-    if (val is String) return int.tryParse(val);
-    return null;
   }
 }
 

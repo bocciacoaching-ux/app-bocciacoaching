@@ -56,7 +56,8 @@ class AppDrawer extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, color: AppColors.neutral4, size: 22),
+                    icon: const Icon(Icons.close,
+                        color: AppColors.neutral4, size: 22),
                     tooltip: 'Cerrar menú',
                   ),
                 ],
@@ -85,8 +86,8 @@ class AppDrawer extends StatelessWidget {
                         if (onHomeSelected != null) {
                           onHomeSelected!();
                         } else {
-                          Navigator.of(context)
-                              .pushNamedAndRemoveUntil('/dashboard', (r) => false);
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                              '/dashboard', (r) => false);
                         }
                       },
                     ),
@@ -101,8 +102,7 @@ class AppDrawer extends StatelessWidget {
                         if (onEvaluationsSelected != null) {
                           onEvaluationsSelected!();
                         } else {
-                          Navigator.of(context)
-                              .pushNamedAndRemoveUntil('/dashboard', (r) => false);
+                          Navigator.of(context).pushNamed('/evaluations');
                         }
                       },
                     ),
@@ -117,7 +117,10 @@ class AppDrawer extends StatelessWidget {
                         if (activeRoute != AppDrawerRoute.atletas) {
                           Navigator.of(context).pushNamed(
                             '/athletes',
-                            arguments: {'teamName': teamName, 'teamFlag': teamFlag},
+                            arguments: {
+                              'teamName': teamName,
+                              'teamFlag': teamFlag
+                            },
                           );
                         }
                       },
@@ -160,14 +163,17 @@ class AppDrawer extends StatelessWidget {
                 final parts = fullName.trim().split(RegExp(r'\s+'));
                 final initials = parts.length >= 2
                     ? '${parts.first[0]}${parts.last[0]}'.toUpperCase()
-                    : fullName.substring(0, fullName.length.clamp(0, 2)).toUpperCase();
+                    : fullName
+                        .substring(0, fullName.length.clamp(0, 2))
+                        .toUpperCase();
 
                 return Container(
                   decoration: const BoxDecoration(
                     color: AppColors.white,
                     border: Border(top: BorderSide(color: AppColors.neutral8)),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10),
                     onTap: () {
@@ -179,10 +185,12 @@ class AppDrawer extends StatelessWidget {
                         CircleAvatar(
                           radius: 20,
                           backgroundColor: AppColors.secondary,
-                          backgroundImage: (session?.image != null && session!.image!.isNotEmpty)
+                          backgroundImage: (session?.image != null &&
+                                  session!.image!.isNotEmpty)
                               ? NetworkImage(session.image!)
                               : null,
-                          child: (session?.image == null || session!.image!.isEmpty)
+                          child: (session?.image == null ||
+                                  session!.image!.isEmpty)
                               ? Text(
                                   initials,
                                   style: const TextStyle(
@@ -211,12 +219,15 @@ class AppDrawer extends StatelessWidget {
                               if (rolLabel.isNotEmpty)
                                 Text(
                                   '$rolLabel · Plan Premium',
-                                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                  style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.textSecondary),
                                 ),
                             ],
                           ),
                         ),
-                        const Icon(Icons.arrow_forward_ios, size: 13, color: AppColors.neutral5),
+                        const Icon(Icons.arrow_forward_ios,
+                            size: 13, color: AppColors.neutral5),
                       ],
                     ),
                   ),
@@ -257,7 +268,8 @@ class AppDrawer extends StatelessWidget {
   }) {
     final Color iconColor = active ? AppColors.primary : AppColors.neutral4;
     final Color textColor = active ? AppColors.primary : AppColors.neutral2;
-    final IconData displayIcon = active && activeIcon != null ? activeIcon : icon;
+    final IconData displayIcon =
+        active && activeIcon != null ? activeIcon : icon;
 
     return InkWell(
       onTap: onTap ?? () => Navigator.of(context).pop(),
@@ -326,7 +338,8 @@ class AppDrawer extends StatelessWidget {
             ] else if (!active) ...[
               const Padding(
                 padding: EdgeInsets.only(right: 14),
-                child: Icon(Icons.arrow_forward_ios, size: 12, color: AppColors.neutral6),
+                child: Icon(Icons.arrow_forward_ios,
+                    size: 12, color: AppColors.neutral6),
               ),
             ] else ...[
               Padding(

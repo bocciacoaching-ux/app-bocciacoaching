@@ -19,10 +19,13 @@ class StatisticsProvider extends ChangeNotifier {
 
   // ── Estado de estadísticas de una evaluación ──────────────────────
   Map<String, dynamic>? _evaluationStats;
+  List<Map<String, dynamic>> _evaluationStatsList = [];
   StatsLoadingStatus _statsStatus = StatsLoadingStatus.idle;
   String? _statsError;
 
   Map<String, dynamic>? get evaluationStats => _evaluationStats;
+  List<Map<String, dynamic>> get evaluationStatsList =>
+      List.unmodifiable(_evaluationStatsList);
   StatsLoadingStatus get statsStatus => _statsStatus;
   String? get statsError => _statsError;
   bool get isLoadingStats => _statsStatus == StatsLoadingStatus.loading;
@@ -45,6 +48,7 @@ class StatisticsProvider extends ChangeNotifier {
   void clearSelectedEvaluation() {
     _selectedEvaluationId = null;
     _evaluationStats = null;
+    _evaluationStatsList = [];
     _evaluationDetails = null;
     _statsStatus = StatsLoadingStatus.idle;
     _detailsStatus = StatsLoadingStatus.idle;
@@ -70,8 +74,7 @@ class StatisticsProvider extends ChangeNotifier {
         // La API puede devolver una lista en "data" o directamente
         final data = result['data'];
         if (data is List) {
-          _evaluations =
-              data.map((e) => e as Map<String, dynamic>).toList();
+          _evaluations = data.map((e) => e as Map<String, dynamic>).toList();
         } else {
           _evaluations = [];
         }
@@ -93,16 +96,28 @@ class StatisticsProvider extends ChangeNotifier {
     _selectedEvaluationId = assessStrengthId;
     _statsStatus = StatsLoadingStatus.loading;
     _statsError = null;
+    _evaluationStatsList = [];
     notifyListeners();
 
     try {
-      final result =
-          await _service.getEvaluationStatistics(assessStrengthId);
+      final result = await _service.getEvaluationStatistics(assessStrengthId);
 
       if (result != null) {
-        _evaluationStats = result['data'] is Map<String, dynamic>
-            ? result['data'] as Map<String, dynamic>
-            : result;
+        final data = result['data'];
+        if (data is List) {
+          _evaluationStatsList =
+              data.map((e) => e as Map<String, dynamic>).toList();
+          // Keep first item as the general stats map for backward compat
+          if (_evaluationStatsList.isNotEmpty) {
+            _evaluationStats = _evaluationStatsList.first;
+          }
+        } else if (data is Map<String, dynamic>) {
+          _evaluationStats = data;
+          _evaluationStatsList = [data];
+        } else {
+          _evaluationStats = result;
+          _evaluationStatsList = [result];
+        }
         _statsStatus = StatsLoadingStatus.success;
       } else {
         _statsError = 'No se pudieron cargar las estadísticas.';
@@ -123,8 +138,7 @@ class StatisticsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final result =
-          await _service.getEvaluationDetails(assessStrengthId);
+      final result = await _service.getEvaluationDetails(assessStrengthId);
 
       if (result != null) {
         _evaluationDetails = result['data'] is Map<String, dynamic>
@@ -157,6 +171,7 @@ class StatisticsProvider extends ChangeNotifier {
     _evaluationsStatus = StatsLoadingStatus.idle;
     _evaluationsError = null;
     _evaluationStats = null;
+    _evaluationStatsList = [];
     _statsStatus = StatsLoadingStatus.idle;
     _statsError = null;
     _evaluationDetails = null;
