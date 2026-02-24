@@ -236,6 +236,8 @@ class ForceTestProvider extends ChangeNotifier {
       status: evaluationThrow.status,
       athleteId: evaluationThrow.athleteId,
       assessStrengthId: evaluationThrow.assessStrengthId,
+      coordinateX: evaluationThrow.coordinateX,
+      coordinateY: evaluationThrow.coordinateY,
     );
 
     _completedThrows.add(evaluationThrow);

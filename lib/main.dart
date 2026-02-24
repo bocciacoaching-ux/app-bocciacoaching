@@ -20,6 +20,8 @@ import 'package:boccia_coaching_app/screens/strength_test_screen.dart';
 import 'package:boccia_coaching_app/screens/test_statistics_screen.dart';
 import 'package:boccia_coaching_app/screens/test_force_panel_screen.dart';
 import 'package:boccia_coaching_app/screens/biometric_lock_screen.dart';
+import 'package:boccia_coaching_app/screens/statistics_screen.dart';
+import 'package:boccia_coaching_app/providers/statistics_provider.dart';
 
 void main() {
   runApp(
@@ -28,6 +30,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => ForceTestProvider()),
         ChangeNotifierProvider(create: (_) => SessionProvider()),
         ChangeNotifierProvider(create: (_) => TeamProvider()),
+        ChangeNotifierProvider(create: (_) => StatisticsProvider()),
       ],
       child: const MyApp(),
     ),
@@ -72,6 +75,7 @@ class MyApp extends StatelessWidget {
           return AthleteProfileScreen(athlete: athlete);
         },
         '/evaluations': (_) => const EvaluationsScreen(),
+        '/statistics': (_) => const StatisticsScreen(),
         '/force-test-module': (_) => const TestForcePanelScreen(),
         '/athlete-selection': (context) {
           final evaluationType = ModalRoute.of(context)?.settings.arguments as String?;

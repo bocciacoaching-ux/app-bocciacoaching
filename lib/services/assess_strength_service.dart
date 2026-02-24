@@ -65,6 +65,8 @@ class AssessStrengthService {
     required bool status,
     required int athleteId,
     required int assessStrengthId,
+    double? coordinateX,
+    double? coordinateY,
   }) async {
     try {
       final response = await http.post(
@@ -79,6 +81,8 @@ class AssessStrengthService {
           'status': status,
           'athleteId': athleteId,
           'assessStrengthId': assessStrengthId,
+          'coordinateX': coordinateX,
+          'coordinateY': coordinateY,
         }),
       );
       if (response.statusCode == 200) {

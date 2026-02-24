@@ -132,8 +132,12 @@ class AppDrawer extends StatelessWidget {
                       activeIcon: Icons.bar_chart,
                       label: 'Estadísticas',
                       active: activeRoute == AppDrawerRoute.estadisticas,
-                      badge: 'Próximo',
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        if (activeRoute != AppDrawerRoute.estadisticas) {
+                          Navigator.of(context).pushNamed('/statistics');
+                        }
+                      },
                     ),
                   ],
                 ),
