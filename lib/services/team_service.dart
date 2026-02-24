@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
+import '../models/team.dart';
+import '../models/team_member.dart';
 
 class TeamService {
   final String _base = AppConfig.baseUrl;
@@ -73,26 +75,20 @@ class TeamService {
     }
   }
 
-  // POST /api/Team/GetTeamsForUser
-  Future<List<dynamic>?> getTeamsForUser({
-    String? nameTeam,
-    String? description,
-    required int coachId,
-    String? image,
-  }) async {
+  // GET /api/Team/GetTeamsForUser/{coachId}
+  Future<List<Team>?> getTeamsForUser({required int coachId}) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_base/Team/GetTeamsForUser'),
+      final response = await http.get(
+        Uri.parse('$_base/Team/GetTeamsForUser/$coachId'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'nameTeam': nameTeam,
-          'description': description,
-          'coachId': coachId,
-          'image': image,
-        }),
       );
       if (response.statusCode == 200) {
-        return jsonDecode(response.body) as List<dynamic>;
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['data'] is List) {
+          return (body['data'] as List)
+              .map((e) => Team.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
       }
       return null;
     } catch (_) {
@@ -101,7 +97,7 @@ class TeamService {
   }
 
   // POST /api/Team/GetUsersForTeam
-  Future<Map<String, dynamic>?> getUsersForTeam({
+  Future<List<TeamMember>?> getUsersForTeam({
     required int teamId,
     required int rolId,
   }) async {
@@ -112,7 +108,12 @@ class TeamService {
         body: jsonEncode({'teamId': teamId, 'rolId': rolId}),
       );
       if (response.statusCode == 200) {
-        return jsonDecode(response.body) as Map<String, dynamic>;
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['data'] is List) {
+          return (body['data'] as List)
+              .map((e) => TeamMember.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
       }
       return null;
     } catch (_) {

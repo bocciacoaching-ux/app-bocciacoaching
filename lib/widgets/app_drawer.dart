@@ -26,8 +26,8 @@ class AppDrawer extends StatelessWidget {
   const AppDrawer({
     super.key,
     required this.activeRoute,
-    this.teamName = 'Selección de Córdoba',
-    this.teamFlag = '🇦🇷',
+    this.teamName = 'Sin equipo',
+    this.teamFlag = '',
     this.onHomeSelected,
     this.onEvaluationsSelected,
   });

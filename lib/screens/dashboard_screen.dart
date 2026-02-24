@@ -8,6 +8,7 @@ import '../widgets/team_selector_chip.dart';
 import '../widgets/team_end_drawer.dart';
 import '../theme/app_colors.dart';
 import '../providers/session_provider.dart';
+import '../providers/team_provider.dart';
 
 // Widget para el logo BOCCIA COACHING
 class BocciaLogo extends StatelessWidget {
@@ -40,36 +41,16 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _notificationCount = 3;
-  String _selectedTeam = 'Selección de Córdoba';
-  String _selectedFlag = '🇦🇷';
-  String _selectedSubtitle = 'Solo Córdoba';
 
   // 0 = Inicio (Dashboard), 1 = Entrenamiento (Evaluaciones)
   int _selectedIndex = 0;
 
-  final List<TeamOption> _teams = [
-    TeamOption(
-      name: 'Selección de Córdoba',
-      country: 'Argentina',
-      flag: '🇦🇷',
-      subtitle: 'Solo Córdoba',
-      athletes: 8,
-    ),
-    TeamOption(
-      name: 'Equipo Bogotá',
-      country: 'Colombia',
-      flag: '🇨🇴',
-      subtitle: 'Solo Bogotá',
-      athletes: 6,
-    ),
-    TeamOption(
-      name: 'Equipo Madrid',
-      country: 'España',
-      flag: '🇪🇸',
-      subtitle: 'Solo Madrid',
-      athletes: 5,
-    ),
-  ];
+  // Helpers para obtener datos del equipo seleccionado desde el provider.
+  String get _selectedTeam =>
+      context.read<TeamProvider>().selectedTeam?.nameTeam ?? 'Sin equipo';
+  String get _selectedFlag => '';
+  String get _selectedSubtitle =>
+      context.read<TeamProvider>().selectedTeam?.country ?? '';
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -142,7 +123,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadTeams());
+  }
+
+  Future<void> _loadTeams() async {
+    final session = context.read<SessionProvider>().session;
+    if (session == null) return;
+    final teamProvider = context.read<TeamProvider>();
+    if (teamProvider.teams.isEmpty) {
+      await teamProvider.fetchTeams(session.userId);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final teamProvider = context.watch<TeamProvider>();
+    final selected = teamProvider.selectedTeam;
+    final selectedName = selected?.nameTeam ?? 'Sin equipo';
+    final selectedCountry = selected?.country ?? '';
+
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.background,
@@ -150,9 +151,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: AppColors.surface,
         elevation: 0,
         title: TeamSelectorChip(
-          teamName: _selectedTeam,
-          teamFlag: _selectedFlag,
-          teamSubtitle: _selectedSubtitle,
+          teamName: selectedName,
+          teamFlag: '',
+          teamSubtitle: selectedCountry,
           onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
         ),
         actions: [
@@ -165,20 +166,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         activeRoute: _selectedIndex == 1
             ? AppDrawerRoute.evaluaciones
             : AppDrawerRoute.inicio,
-        teamName: _selectedTeam,
-        teamFlag: _selectedFlag,
+        teamName: selectedName,
+        teamFlag: '',
         onHomeSelected: () => setState(() => _selectedIndex = 0),
         onEvaluationsSelected: () => setState(() => _selectedIndex = 1),
       ),
       endDrawer: TeamEndDrawer(
-        teams: _teams,
-        selectedTeam: _selectedTeam,
         onTeamSelected: (team) {
-          setState(() {
-            _selectedTeam = team.name;
-            _selectedFlag = team.flag;
-            _selectedSubtitle = team.subtitle;
-          });
+          teamProvider.selectTeam(team);
         },
       ),
       body: SafeArea(

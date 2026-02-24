@@ -52,7 +52,7 @@ class AthleteProfileScreen extends StatelessWidget {
 
   // ── SliverAppBar con avatar grande ──────────────────────────────────────
   Widget _buildSliverAppBar(BuildContext context) {
-    final initials = athlete.name.split(' ').map((w) => w[0]).take(2).join();
+    final initials = athlete.name.split(' ').where((w) => w.isNotEmpty).map((w) => w[0]).take(2).join();
     final statusColor = _getStatusColor(athlete.status);
 
     return SliverAppBar(

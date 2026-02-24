@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/team_member.dart';
 import '../widgets/notifications_bottom_sheet.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/profile_menu_button.dart';
 import '../widgets/team_selector_chip.dart';
 import '../widgets/team_end_drawer.dart';
 import '../theme/app_colors.dart';
+import '../providers/team_provider.dart';
 
 // ---------------------------------------------------------------------------
-// Modelo de atleta (datos de ejemplo; reemplazar por provider/servicio real)
+// Modelo UI de atleta (construido a partir de TeamMember de la API)
 // ---------------------------------------------------------------------------
 class Athlete {
   final String id;
@@ -16,51 +19,36 @@ class Athlete {
   final String nationality;
   final String flag;
   final int age;
-  final String position; // posición en cancha
-  final String status; // 'Activo' | 'Lesionado' | 'Inactivo'
+  final String position;
+  final String status; // 'Activo' | 'Inactivo'
   final double avgScore;
+  final String? image;
 
   const Athlete({
     required this.id,
     required this.name,
     required this.classification,
     required this.nationality,
-    required this.flag,
-    required this.age,
-    required this.position,
+    this.flag = '',
+    this.age = 0,
+    this.position = '',
     required this.status,
-    required this.avgScore,
+    this.avgScore = 0.0,
+    this.image,
   });
-}
 
-// Datos por equipo
-const _teamAthletes = <String, List<Athlete>>{
-  'Selección de Córdoba': [
-    Athlete(id: '1', name: 'María González',    classification: 'BC2', nationality: 'Argentina', flag: '🇦🇷', age: 24, position: 'Lanzadora',  status: 'Activo',    avgScore: 8.4),
-    Athlete(id: '2', name: 'Juan Pérez',         classification: 'BC1', nationality: 'Argentina', flag: '🇦🇷', age: 30, position: 'Defensa',     status: 'Activo',    avgScore: 7.9),
-    Athlete(id: '3', name: 'Carlos Jiménez',     classification: 'BC3', nationality: 'Argentina', flag: '🇦🇷', age: 27, position: 'Lanzador',    status: 'Lesionado', avgScore: 9.1),
-    Athlete(id: '4', name: 'Lucía Rodríguez',    classification: 'BC4', nationality: 'Argentina', flag: '🇦🇷', age: 22, position: 'Mixta',       status: 'Activo',    avgScore: 8.0),
-    Athlete(id: '5', name: 'Santiago López',     classification: 'BC2', nationality: 'Argentina', flag: '🇦🇷', age: 35, position: 'Capitán',     status: 'Activo',    avgScore: 8.7),
-    Athlete(id: '6', name: 'Valentina Ruiz',     classification: 'BC1', nationality: 'Argentina', flag: '🇦🇷', age: 28, position: 'Lanzadora',   status: 'Inactivo',  avgScore: 6.5),
-    Athlete(id: '7', name: 'Matías Fernández',   classification: 'BC3', nationality: 'Argentina', flag: '🇦🇷', age: 31, position: 'Lanzador',    status: 'Activo',    avgScore: 8.2),
-    Athlete(id: '8', name: 'Camila Torres',      classification: 'BC4', nationality: 'Argentina', flag: '🇦🇷', age: 25, position: 'Defensa',     status: 'Activo',    avgScore: 7.6),
-  ],
-  'Equipo Bogotá': [
-    Athlete(id: '9',  name: 'Andrés Morales',    classification: 'BC1', nationality: 'Colombia',  flag: '🇨🇴', age: 26, position: 'Lanzador',    status: 'Activo',    avgScore: 8.1),
-    Athlete(id: '10', name: 'Daniela Vargas',    classification: 'BC2', nationality: 'Colombia',  flag: '🇨🇴', age: 23, position: 'Mixta',       status: 'Activo',    avgScore: 7.8),
-    Athlete(id: '11', name: 'Felipe Castro',     classification: 'BC3', nationality: 'Colombia',  flag: '🇨🇴', age: 29, position: 'Defensa',     status: 'Lesionado', avgScore: 8.9),
-    Athlete(id: '12', name: 'Laura Ospina',      classification: 'BC4', nationality: 'Colombia',  flag: '🇨🇴', age: 21, position: 'Lanzadora',   status: 'Activo',    avgScore: 7.3),
-    Athlete(id: '13', name: 'Miguel Ángel Ríos', classification: 'BC2', nationality: 'Colombia',  flag: '🇨🇴', age: 34, position: 'Capitán',     status: 'Activo',    avgScore: 8.6),
-    Athlete(id: '14', name: 'Isabela Gómez',     classification: 'BC1', nationality: 'Colombia',  flag: '🇨🇴', age: 27, position: 'Lanzadora',   status: 'Inactivo',  avgScore: 6.9),
-  ],
-  'Equipo Madrid': [
-    Athlete(id: '15', name: 'Pablo Martínez',    classification: 'BC2', nationality: 'España',    flag: '🇪🇸', age: 32, position: 'Capitán',     status: 'Activo',    avgScore: 8.8),
-    Athlete(id: '16', name: 'Elena Sánchez',     classification: 'BC3', nationality: 'España',    flag: '🇪🇸', age: 24, position: 'Lanzadora',   status: 'Activo',    avgScore: 8.3),
-    Athlete(id: '17', name: 'Álvaro García',     classification: 'BC1', nationality: 'España',    flag: '🇪🇸', age: 28, position: 'Defensa',     status: 'Lesionado', avgScore: 7.5),
-    Athlete(id: '18', name: 'Nuria López',       classification: 'BC4', nationality: 'España',    flag: '🇪🇸', age: 22, position: 'Mixta',       status: 'Activo',    avgScore: 7.1),
-    Athlete(id: '19', name: 'Javier Fernández',  classification: 'BC2', nationality: 'España',    flag: '🇪🇸', age: 30, position: 'Lanzador',    status: 'Activo',    avgScore: 8.0),
-  ],
-};
+  /// Crea un [Athlete] a partir de un [TeamMember] de la API.
+  factory Athlete.fromTeamMember(TeamMember m) {
+    return Athlete(
+      id: m.userId.toString(),
+      name: m.fullName,
+      classification: m.category ?? '',
+      nationality: m.country ?? '',
+      status: m.statusLabel,
+      image: m.image,
+    );
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Colores de estado
@@ -77,15 +65,6 @@ Color _statusColor(String status) {
 }
 
 Color _statusBg(String status) => _statusColor(status).withAlpha(28);
-
-// ---------------------------------------------------------------------------
-// Lista de equipos (misma que en dashboard)
-// ---------------------------------------------------------------------------
-const _teams = <TeamOption>[
-  TeamOption(name: 'Selección de Córdoba', country: 'Argentina', flag: '🇦🇷', subtitle: 'Solo Córdoba', athletes: 8),
-  TeamOption(name: 'Equipo Bogotá',        country: 'Colombia',  flag: '🇨🇴', subtitle: 'Solo Bogotá',  athletes: 6),
-  TeamOption(name: 'Equipo Madrid',        country: 'España',    flag: '🇪🇸', subtitle: 'Solo Madrid',  athletes: 5),
-];
 
 // ---------------------------------------------------------------------------
 // Pantalla principal
@@ -127,10 +106,20 @@ class _AthletesScreenState extends State<AthletesScreen> {
     _selectedTeam    = widget.teamName;
     _selectedFlag    = widget.teamFlag;
     _selectedSubtitle = widget.teamSubtitle;
+
+    // Si aún no se han cargado los miembros, cargarlos del equipo seleccionado.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final tp = context.read<TeamProvider>();
+      if (tp.selectedTeam != null && tp.members.isEmpty && !tp.isMembersLoading) {
+        tp.fetchMembers(tp.selectedTeam!.teamId);
+      }
+    });
   }
 
+  /// Convierte los miembros del provider en la lista UI [Athlete] filtrada.
   List<Athlete> get _filtered {
-    final all = _teamAthletes[_selectedTeam] ?? [];
+    final tp = context.read<TeamProvider>();
+    final all = tp.members.map(Athlete.fromTeamMember).toList();
     return all.where((a) {
       final matchSearch = _search.isEmpty ||
           a.name.toLowerCase().contains(_search.toLowerCase()) ||
@@ -142,6 +131,8 @@ class _AthletesScreenState extends State<AthletesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final teamProvider = context.watch<TeamProvider>();
+
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.background,
@@ -152,13 +143,12 @@ class _AthletesScreenState extends State<AthletesScreen> {
         teamFlag: _selectedFlag,
       ),
       endDrawer: TeamEndDrawer(
-        teams: _teams,
-        selectedTeam: _selectedTeam,
         onTeamSelected: (team) {
+          context.read<TeamProvider>().selectTeam(team);
           setState(() {
-            _selectedTeam     = team.name;
-            _selectedFlag     = team.flag;
-            _selectedSubtitle = team.subtitle;
+            _selectedTeam     = team.nameTeam;
+            _selectedFlag     = '';
+            _selectedSubtitle = team.country ?? '';
             _search       = '';
             _filterStatus = null;
           });
@@ -172,11 +162,17 @@ class _AthletesScreenState extends State<AthletesScreen> {
           children: [
             _buildToolbar(),
             Expanded(
-              child: _filtered.isEmpty
-                  ? _buildEmpty()
-                  : _viewMode == _ViewMode.cards
-                      ? _buildCardsView()
-                      : _buildTableView(),
+              child: teamProvider.isMembersLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(color: AppColors.primary),
+                    )
+                  : teamProvider.hasMembersError
+                      ? _buildMembersError(teamProvider)
+                      : _filtered.isEmpty
+                          ? _buildEmpty()
+                          : _viewMode == _ViewMode.cards
+                              ? _buildCardsView()
+                              : _buildTableView(),
             ),
           ],
         ),
@@ -191,6 +187,50 @@ class _AthletesScreenState extends State<AthletesScreen> {
         foregroundColor: AppColors.actionPrimaryInverted,
         icon: const Icon(Icons.person_add_outlined),
         label: const Text('Agregar atleta', style: TextStyle(fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+
+  Widget _buildMembersError(TeamProvider tp) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: const BoxDecoration(
+                color: AppColors.errorBg,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.wifi_off_rounded, size: 32, color: AppColors.error),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              tp.membersErrorMessage ?? 'No se pudieron cargar los atletas.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () {
+                final selected = tp.selectedTeam;
+                if (selected != null) tp.fetchMembers(selected.teamId);
+              },
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Reintentar', style: TextStyle(fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                elevation: 0,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -471,7 +511,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
       radius: 15,
       backgroundColor: AppColors.primary10,
       child: Text(
-        a.name.split(' ').map((w) => w[0]).take(2).join(),
+        a.name.split(' ').where((w) => w.isNotEmpty).map((w) => w[0]).take(2).join(),
         style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary),
       ),
     );
@@ -529,7 +569,7 @@ class _AthleteCard extends StatelessWidget {
               radius: 28,
               backgroundColor: AppColors.primary10,
               child: Text(
-                athlete.name.split(' ').map((w) => w[0]).take(2).join(),
+                athlete.name.split(' ').where((w) => w.isNotEmpty).map((w) => w[0]).take(2).join(),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

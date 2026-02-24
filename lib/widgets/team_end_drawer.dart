@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/team.dart';
+import '../providers/team_provider.dart';
 import '../theme/app_colors.dart';
 
-/// Modelo de datos para un equipo en el selector.
+/// Modelo de datos para un equipo en el selector (legacy / datos estáticos).
 class TeamOption {
   final String name;
   final String country;
@@ -20,30 +23,30 @@ class TeamOption {
 
 /// End-drawer de cambio de equipo, compartido por todas las pantallas.
 ///
+/// Obtiene los equipos directamente del [TeamProvider] (datos reales de la API).
+///
 /// Parámetros:
-/// - [teams]           → lista de equipos disponibles.
-/// - [selectedTeam]    → nombre del equipo actualmente activo.
-/// - [onTeamSelected]  → callback con el [TeamOption] seleccionado;
+/// - [onTeamSelected]  → callback con el [Team] seleccionado;
 ///                       cierra el drawer automáticamente.
 /// - [showAdminSection]→ si es `true` muestra la sección "Administración"
 ///                       con las opciones de crear y administrar equipos.
 ///                       Por defecto es `true`.
 class TeamEndDrawer extends StatelessWidget {
-  final List<TeamOption> teams;
-  final String selectedTeam;
-  final ValueChanged<TeamOption> onTeamSelected;
+  final ValueChanged<Team> onTeamSelected;
   final bool showAdminSection;
 
   const TeamEndDrawer({
     super.key,
-    required this.teams,
-    required this.selectedTeam,
     required this.onTeamSelected,
     this.showAdminSection = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    final teamProvider = context.watch<TeamProvider>();
+    final teams = teamProvider.teams;
+    final selectedTeam = teamProvider.selectedTeam;
+
     return Drawer(
       backgroundColor: AppColors.background,
       child: SafeArea(
@@ -101,65 +104,116 @@ class TeamEndDrawer extends StatelessWidget {
 
             // ── Lista ─────────────────────────────────────────────────
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.only(top: 20, bottom: 16),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                    child: Text(
-                      'EQUIPOS ACTIVOS',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11,
-                        color: AppColors.neutral5,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ),
-                  ...teams.map((team) => _TeamItem(
-                        team: team,
-                        isSelected: selectedTeam == team.name,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          onTeamSelected(team);
-                        },
-                      )),
-                  if (showAdminSection) ...[
-                    const SizedBox(height: 24),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                      child: Text(
-                        'ADMINISTRACIÓN',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 11,
-                          color: AppColors.neutral5,
-                          letterSpacing: 1.2,
+              child: teamProvider.isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(color: AppColors.primary),
+                    )
+                  : teams.isEmpty
+                      ? _buildEmptyTeams()
+                      : ListView(
+                          padding: const EdgeInsets.only(top: 20, bottom: 16),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                              child: Text(
+                                'EQUIPOS ACTIVOS',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                  color: AppColors.neutral5,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ),
+                            ...teams.map((team) => _TeamItem(
+                                  team: team,
+                                  isSelected: selectedTeam?.teamId == team.teamId,
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                    onTeamSelected(team);
+                                  },
+                                )),
+                            if (showAdminSection) ...[
+                              const SizedBox(height: 24),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                                child: Text(
+                                  'ADMINISTRACIÓN',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                    color: AppColors.neutral5,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ),
+                              _AdminItem(
+                                icon: Icons.add_circle_outline,
+                                label: 'Crear nuevo equipo',
+                                onTap: () {
+                                  Navigator.of(context).pop();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Función de crear equipo en desarrollo'),
+                                    ),
+                                  );
+                                },
+                              ),
+                              _AdminItem(
+                                icon: Icons.settings_outlined,
+                                label: 'Administrar equipos',
+                                onTap: () {
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pushNamed('/teams');
+                                },
+                              ),
+                            ],
+                          ],
                         ),
-                      ),
-                    ),
-                    _AdminItem(
-                      icon: Icons.add_circle_outline,
-                      label: 'Crear nuevo equipo',
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Función de crear equipo en desarrollo'),
-                          ),
-                        );
-                      },
-                    ),
-                    _AdminItem(
-                      icon: Icons.settings_outlined,
-                      label: 'Administrar equipos',
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pushNamed('/teams');
-                      },
-                    ),
-                  ],
-                ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyTeams() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: const BoxDecoration(
+                color: AppColors.primary10,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.group_off_rounded,
+                size: 34,
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Sin equipos',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Aún no tienes equipos asignados.\nCrea uno para empezar.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 13,
+                height: 1.5,
               ),
             ),
           ],
@@ -171,7 +225,7 @@ class TeamEndDrawer extends StatelessWidget {
 
 // ── Ítem de equipo ─────────────────────────────────────────────────────────
 class _TeamItem extends StatelessWidget {
-  final TeamOption team;
+  final Team team;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -212,14 +266,17 @@ class _TeamItem extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Text(team.flag, style: const TextStyle(fontSize: 26)),
+                  // Avatar del equipo
+                  _buildAvatar(),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          team.name,
+                          team.nameTeam,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
@@ -228,7 +285,11 @@ class _TeamItem extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          team.country,
+                          [team.country, team.region]
+                              .where((s) => s != null && s.isNotEmpty)
+                              .join(' · '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontSize: 12, color: AppColors.neutral5),
                         ),
                       ],
@@ -251,7 +312,7 @@ class _TeamItem extends StatelessWidget {
                         ),
                         const SizedBox(width: 3),
                         Text(
-                          '${team.athletes}',
+                          '${team.memberCount}',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -270,6 +331,46 @@ class _TeamItem extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar() {
+    if (team.image != null && team.image!.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: Image.network(
+          team.image!,
+          width: 36,
+          height: 36,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _fallbackAvatar(),
+        ),
+      );
+    }
+    return _fallbackAvatar();
+  }
+
+  Widget _fallbackAvatar() {
+    final initial = team.nameTeam.isNotEmpty
+        ? team.nameTeam[0].toUpperCase()
+        : '?';
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: isSelected ? AppColors.primary10 : AppColors.neutral9,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Center(
+        child: Text(
+          initial,
+          style: TextStyle(
+            color: isSelected ? AppColors.primary : AppColors.neutral5,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
       ),
     );
   }

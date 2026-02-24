@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:boccia_coaching_app/providers/force_test_provider.dart';
 import 'package:boccia_coaching_app/providers/session_provider.dart';
+import 'package:boccia_coaching_app/providers/team_provider.dart';
 import 'package:boccia_coaching_app/theme/app_colors.dart';
 import 'package:boccia_coaching_app/screens/splash_screen.dart';
 import 'package:boccia_coaching_app/screens/login_screen.dart';
@@ -26,6 +27,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => ForceTestProvider()),
         ChangeNotifierProvider(create: (_) => SessionProvider()),
+        ChangeNotifierProvider(create: (_) => TeamProvider()),
       ],
       child: const MyApp(),
     ),
@@ -60,9 +62,9 @@ class MyApp extends StatelessWidget {
         '/athletes': (context) {
           final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
           return AthletesScreen(
-            teamName: args?['teamName'] ?? 'Selección de Córdoba',
-            teamFlag: args?['teamFlag'] ?? '🇦🇷',
-            teamSubtitle: args?['teamSubtitle'] ?? 'Solo Córdoba',
+            teamName: args?['teamName'] ?? 'Sin equipo',
+            teamFlag: args?['teamFlag'] ?? '',
+            teamSubtitle: args?['teamSubtitle'] ?? '',
           );
         },
         '/athlete-profile': (context) {
