@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../data/providers/session_provider.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/navigation_helper.dart';
 
 /// Rutas que tienen entrada en el menú lateral.
 enum AppDrawerRoute { inicio, evaluaciones, atletas, estadisticas }
@@ -68,82 +69,99 @@ class AppDrawer extends StatelessWidget {
 
             // ── Navegación principal ────────────────────────────────────
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(top: 16, bottom: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // — Sección principal
-                    _sectionLabel('PRINCIPAL'),
-                    _item(
-                      context,
-                      icon: Icons.home_outlined,
-                      activeIcon: Icons.home,
-                      label: 'Inicio',
-                      active: activeRoute == AppDrawerRoute.inicio,
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        if (onHomeSelected != null) {
-                          onHomeSelected!();
-                        } else {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                              '/dashboard', (r) => false);
-                        }
-                      },
-                    ),
-                    _item(
-                      context,
-                      icon: Icons.assignment_outlined,
-                      activeIcon: Icons.assignment,
-                      label: 'Evaluaciones',
-                      active: activeRoute == AppDrawerRoute.evaluaciones,
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        if (onEvaluationsSelected != null) {
-                          onEvaluationsSelected!();
-                        } else {
-                          Navigator.of(context).pushNamed('/evaluations');
-                        }
-                      },
-                    ),
-                    _item(
-                      context,
-                      icon: Icons.group_outlined,
-                      activeIcon: Icons.group,
-                      label: 'Atletas',
-                      active: activeRoute == AppDrawerRoute.atletas,
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        if (activeRoute != AppDrawerRoute.atletas) {
-                          Navigator.of(context).pushNamed(
-                            '/athletes',
-                            arguments: {
-                              'teamName': teamName,
-                              'teamFlag': teamFlag
-                            },
-                          );
-                        }
-                      },
-                    ),
+              child: Builder(
+                builder: (ctx) {
+                  final session = ctx.watch<SessionProvider>().session;
+                  final isAthlete = session?.isAthlete ?? false;
 
-                    const SizedBox(height: 8),
-                    // — Sección análisis
-                    _sectionLabel('ANÁLISIS'),
-                    _item(
-                      context,
-                      icon: Icons.bar_chart_outlined,
-                      activeIcon: Icons.bar_chart,
-                      label: 'Estadísticas',
-                      active: activeRoute == AppDrawerRoute.estadisticas,
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        if (activeRoute != AppDrawerRoute.estadisticas) {
-                          Navigator.of(context).pushNamed('/statistics');
-                        }
-                      },
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.only(top: 16, bottom: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // — Sección principal
+                        _sectionLabel('PRINCIPAL'),
+                        _item(
+                          context,
+                          icon: Icons.home_outlined,
+                          activeIcon: Icons.home,
+                          label: 'Inicio',
+                          active: activeRoute == AppDrawerRoute.inicio,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            if (onHomeSelected != null) {
+                              onHomeSelected!();
+                            } else {
+                              final route =
+                                  NavigationHelper.dashboardRoute(context);
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  route, (r) => false);
+                            }
+                          },
+                        ),
+                        _item(
+                          context,
+                          icon: Icons.assignment_outlined,
+                          activeIcon: Icons.assignment,
+                          label: isAthlete
+                              ? 'Mis Evaluaciones'
+                              : 'Evaluaciones',
+                          active: activeRoute == AppDrawerRoute.evaluaciones,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            if (onEvaluationsSelected != null) {
+                              onEvaluationsSelected!();
+                            } else {
+                              Navigator.of(context)
+                                  .pushNamed('/evaluations');
+                            }
+                          },
+                        ),
+                        // Solo coach puede ver "Atletas"
+                        if (!isAthlete)
+                          _item(
+                            context,
+                            icon: Icons.group_outlined,
+                            activeIcon: Icons.group,
+                            label: 'Atletas',
+                            active: activeRoute == AppDrawerRoute.atletas,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              if (activeRoute != AppDrawerRoute.atletas) {
+                                Navigator.of(context).pushNamed(
+                                  '/athletes',
+                                  arguments: {
+                                    'teamName': teamName,
+                                    'teamFlag': teamFlag
+                                  },
+                                );
+                              }
+                            },
+                          ),
+
+                        const SizedBox(height: 8),
+                        // — Sección análisis
+                        _sectionLabel('ANÁLISIS'),
+                        _item(
+                          context,
+                          icon: Icons.bar_chart_outlined,
+                          activeIcon: Icons.bar_chart,
+                          label: isAthlete
+                              ? 'Mis Estadísticas'
+                              : 'Estadísticas',
+                          active: activeRoute == AppDrawerRoute.estadisticas,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            if (activeRoute != AppDrawerRoute.estadisticas) {
+                              Navigator.of(context)
+                                  .pushNamed('/statistics');
+                            }
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
 

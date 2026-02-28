@@ -4,6 +4,7 @@ import '../../../data/providers/session_provider.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/biometric_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/navigation_helper.dart';
 
 /// Pantalla de bloqueo biométrico.
 /// Se muestra al abrir la app o al volver del segundo plano
@@ -81,7 +82,7 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> {
       await sessionProvider
           .saveSession(result['data'] as Map<String, dynamic>);
       if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed('/dashboard');
+      NavigationHelper.goToDashboard(context);
     } else {
       // Credenciales caducadas o error → mostrar mensaje y opción de ir al login
       final message = (result != null && result['message'] != null)

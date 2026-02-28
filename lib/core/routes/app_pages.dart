@@ -1,26 +1,31 @@
 import 'package:get/get.dart';
 import 'app_routes.dart';
 
-// ── Módulo Auth (pantallas reales) ─────────────────────────────────
+// ── Módulo Auth ────────────────────────────────────────────────────
 import '../../modules/auth/views/splash_screen.dart';
 import '../../modules/auth/views/login_screen.dart';
 import '../../modules/auth/views/register_screen.dart';
 import '../../modules/auth/views/biometric_lock_screen.dart';
 
-// ── Módulo Home (pantallas reales) ─────────────────────────────────
-import '../../modules/home/views/home_screen.dart';
-import '../../modules/home/views/dashboard_screen.dart';
-import '../../modules/home/views/notifications_screen.dart';
-import '../../modules/home/views/teams_screen.dart';
-import '../../modules/home/views/athletes_screen.dart';
-import '../../modules/home/views/athlete_profile_screen.dart';
-import '../../modules/home/views/athlete_selection_screen.dart';
-import '../../modules/home/views/profile_screen.dart';
-import '../../modules/home/views/evaluations_screen.dart';
-import '../../modules/home/views/statistics_screen.dart';
-import '../../modules/home/views/test_force_panel_screen.dart';
-import '../../modules/home/views/strength_test_screen.dart';
-import '../../modules/home/views/test_statistics_screen.dart';
+// ── Módulo Coach (pantallas exclusivas del entrenador) ─────────────
+import '../../modules/coach/views/dashboard_screen.dart';
+import '../../modules/coach/views/athletes_screen.dart';
+import '../../modules/coach/views/athlete_profile_screen.dart';
+import '../../modules/coach/views/athlete_selection_screen.dart';
+import '../../modules/coach/views/teams_screen.dart';
+
+// ── Módulo Athlete (pantallas exclusivas del deportista) ───────────
+import '../../modules/athlete/views/athlete_dashboard_screen.dart';
+
+// ── Módulo Shared (pantallas compartidas por ambos roles) ──────────
+import '../../modules/shared/views/home_screen.dart';
+import '../../modules/shared/views/notifications_screen.dart';
+import '../../modules/shared/views/profile_screen.dart';
+import '../../modules/shared/views/evaluations_screen.dart';
+import '../../modules/shared/views/statistics_screen.dart';
+import '../../modules/shared/views/test_force_panel_screen.dart';
+import '../../modules/shared/views/strength_test_screen.dart';
+import '../../modules/shared/views/test_statistics_screen.dart';
 
 /// Páginas de la aplicación registradas con GetX.
 /// Usa las pantallas originales (*_screen.dart) para mantener la funcionalidad.
@@ -52,6 +57,10 @@ abstract final class AppPages {
     GetPage(
       name: AppRoutes.dashboard,
       page: () => const DashboardScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.athleteDashboard,
+      page: () => const AthleteDashboardScreen(),
     ),
     GetPage(
       name: AppRoutes.notifications,

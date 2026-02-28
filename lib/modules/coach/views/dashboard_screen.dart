@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'evaluations_screen.dart';
+import '../../shared/views/evaluations_screen.dart';
 import '../../../shared/widgets/notifications_bottom_sheet.dart';
 import '../../../shared/widgets/app_drawer.dart';
 import '../../../shared/widgets/profile_menu_button.dart';

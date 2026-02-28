@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../core/services/biometric_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/navigation_helper.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -38,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.of(context).pushReplacementNamed('/biometric-lock');
       } else {
         // Ir directamente al dashboard
-        Navigator.of(context).pushReplacementNamed('/dashboard');
+        NavigationHelper.goToDashboard(context);
       }
     } else {
       // Sin sesión → ir al login

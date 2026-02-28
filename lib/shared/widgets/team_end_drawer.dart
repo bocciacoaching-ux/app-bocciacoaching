@@ -31,14 +31,18 @@ class TeamOption {
 /// - [showAdminSection]→ si es `true` muestra la sección "Administración"
 ///                       con las opciones de crear y administrar equipos.
 ///                       Por defecto es `true`.
+/// - [onLeaveTeam]     → callback que se ejecuta cuando un atleta pulsa
+///                       "Abandonar equipo". Si es `null` no se muestra.
 class TeamEndDrawer extends StatelessWidget {
   final ValueChanged<Team> onTeamSelected;
   final bool showAdminSection;
+  final VoidCallback? onLeaveTeam;
 
   const TeamEndDrawer({
     super.key,
     required this.onTeamSelected,
     this.showAdminSection = true,
+    this.onLeaveTeam,
   });
 
   @override
@@ -168,11 +172,81 @@ class TeamEndDrawer extends StatelessWidget {
                                 },
                               ),
                             ],
+                            // ── Opciones de atleta (abandonar equipo) ──
+                            if (!showAdminSection && selectedTeam != null) ...[
+                              const SizedBox(height: 24),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                                child: Text(
+                                  'OPCIONES',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                    color: AppColors.neutral5,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ),
+                              _AdminItem(
+                                icon: Icons.exit_to_app_rounded,
+                                label: 'Abandonar equipo',
+                                isDanger: true,
+                                onTap: () {
+                                  Navigator.of(context).pop();
+                                  if (onLeaveTeam != null) {
+                                    onLeaveTeam!();
+                                  } else {
+                                    _showLeaveTeamDialog(
+                                        context, selectedTeam);
+                                  }
+                                },
+                              ),
+                            ],
                           ],
                         ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showLeaveTeamDialog(BuildContext context, Team team) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Abandonar equipo',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        content: Text(
+          '¿Estás seguro de que deseas abandonar el equipo '
+          '"${team.nameTeam}"? Esta acción no se puede deshacer.',
+          style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.error,
+            ),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              // TODO: Llamar al endpoint de la API para abandonar el equipo.
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                      'Has abandonado el equipo "${team.nameTeam}"'),
+                ),
+              );
+            },
+            child: const Text('Abandonar'),
+          ),
+        ],
       ),
     );
   }
@@ -381,15 +455,21 @@ class _AdminItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final bool isDanger;
 
   const _AdminItem({
     required this.icon,
     required this.label,
     required this.onTap,
+    this.isDanger = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final Color accentColor = isDanger ? AppColors.error : AppColors.primary;
+    final Color bgColor =
+        isDanger ? AppColors.errorBg : AppColors.primary10;
+
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -412,25 +492,25 @@ class _AdminItem extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppColors.primary10,
+                color: bgColor,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Center(
-                child: Icon(icon, color: AppColors.primary, size: 20),
+                child: Icon(icon, color: accentColor, size: 20),
               ),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
-                  color: AppColors.neutral2,
+                  color: isDanger ? AppColors.error : AppColors.neutral2,
                 ),
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, size: 13, color: AppColors.primary),
+            Icon(Icons.arrow_forward_ios, size: 13, color: accentColor),
           ],
         ),
       ),

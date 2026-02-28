@@ -7,6 +7,7 @@ abstract final class AppRoutes {
   static const String biometricLock = '/biometric-lock';
   static const String home = '/home';
   static const String dashboard = '/dashboard';
+  static const String athleteDashboard = '/athlete-dashboard';
   static const String notifications = '/notifications';
   static const String teams = '/teams';
   static const String athletes = '/athletes';

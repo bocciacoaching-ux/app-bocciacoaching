@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/navigation_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService? authService;
@@ -69,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen>
       // Guardar credenciales para re-autenticación biométrica
       await sessionProvider.saveCredentials(email, password);
       if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed('/dashboard');
+      NavigationHelper.goToDashboard(context);
     } else {
       final message = (result != null && result['message'] != null)
           ? result['message'] as String

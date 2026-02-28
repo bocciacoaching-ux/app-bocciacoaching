@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/navigation_helper.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -730,7 +731,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           onNext: (_selectedRegion != null &&
                   _selectedRole != null &&
                   _selectedCategory != null)
-              ? () => Navigator.of(context).pushReplacementNamed('/dashboard')
+              ? () => NavigationHelper.goToDashboard(context)
               : null,
         ),
       ],
