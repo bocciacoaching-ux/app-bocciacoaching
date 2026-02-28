@@ -35,6 +35,25 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+
+            // ── Optimización de tamaño ─────────────────────────────
+            isMinifyEnabled = true       // Habilita R8 (ofuscación + tree-shaking)
+            isShrinkResources = true     // Elimina recursos Android no usados
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
+    // Genera APKs separados por arquitectura (arm64, arm, x86_64).
+    // Cada una pesa ~40-60 % menos que la APK universal.
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86_64")
+            isUniversalApk = false
         }
     }
 }
