@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../data/providers/session_provider.dart';
 import '../../data/models/user_session.dart';
 import '../../core/theme/app_colors.dart';
+import 'app_dialog.dart';
 
 /// Botón de menú de perfil compartido por todas las pantallas.
 ///
@@ -10,10 +11,15 @@ import '../../core/theme/app_colors.dart';
 /// - Encabezado con avatar, nombre y email del usuario (datos reales de sesión).
 /// - Badge del plan activo.
 /// - Opción «Mi Perfil» → navega a /profile.
-/// - Opción «Cerrar sesión» → limpia sesión y navega a /.
-class ProfileMenuButton extends StatelessWidget {
+/// - Opción «Cerrar sesión» → muestra confirmación y limpia sesión.
+class ProfileMenuButton extends StatefulWidget {
   const ProfileMenuButton({super.key});
 
+  @override
+  State<ProfileMenuButton> createState() => _ProfileMenuButtonState();
+}
+
+class _ProfileMenuButtonState extends State<ProfileMenuButton> {
   /// Calcula las iniciales a partir del nombre completo (máx. 2 letras).
   static String _initials(UserSession s) {
     final parts = s.fullName.trim().split(RegExp(r'\s+'));
@@ -21,6 +27,24 @@ class ProfileMenuButton extends StatelessWidget {
       return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
     }
     return s.fullName.substring(0, s.fullName.length.clamp(0, 2)).toUpperCase();
+  }
+
+  Future<void> _onSelected(String value) async {
+    if (value == 'profile') {
+      Navigator.of(context).pushNamed('/profile');
+    } else if (value == 'logout') {
+      final confirmed = await AppDialog.destructive(
+        context,
+        title: 'Cerrar sesión',
+        message: '¿Estás seguro de que deseas cerrar sesión?',
+        confirmLabel: 'Cerrar sesión',
+        icon: Icons.logout_rounded,
+      );
+      if (!confirmed || !mounted) return;
+      await context.read<SessionProvider>().clearSession();
+      if (!mounted) return;
+      Navigator.of(context).pushReplacementNamed('/');
+    }
   }
 
   @override
@@ -31,16 +55,7 @@ class ProfileMenuButton extends StatelessWidget {
     final email = session?.email ?? '';
 
     return PopupMenuButton<String>(
-      onSelected: (value) async {
-        if (value == 'profile') {
-          Navigator.of(context).pushNamed('/profile');
-        } else if (value == 'logout') {
-          await context.read<SessionProvider>().clearSession();
-          if (context.mounted) {
-            Navigator.of(context).pushReplacementNamed('/');
-          }
-        }
-      },
+      onSelected: _onSelected,
       color: AppColors.surface,
       elevation: 4,
       shadowColor: AppColors.black.withValues(alpha: 0.10),

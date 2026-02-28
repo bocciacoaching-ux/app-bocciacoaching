@@ -5,6 +5,8 @@ import '../../../data/providers/force_test_provider.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/info_card.dart';
 
 /// Widget reutilizable con el contenido de evaluaciones (sin Scaffold),
 /// para poder embeberse dentro del DashboardScreen.
@@ -52,11 +54,21 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
         _checking = false;
       });
     } else {
-      // No hay evaluación activa → navegar al setup normalmente
+      // No hay evaluación activa → confirmar antes de navegar al setup
       setState(() {
         _activeEval = null;
         _checking = false;
       });
+      if (!mounted) return;
+      final confirmed = await AppDialog.confirm(
+        context,
+        title: 'Nueva evaluación',
+        message:
+            '¿Deseas iniciar una nueva evaluación de fuerza? Asegúrate de tener a los atletas listos.',
+        confirmLabel: 'Iniciar',
+        icon: Icons.assignment_add,
+      );
+      if (!confirmed || !mounted) return;
       await provider.resetForNewEvaluation();
       if (!mounted) return;
       Navigator.of(context).pushNamed('/force-test-module');
@@ -129,54 +141,11 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
             const SizedBox(height: 32),
 
             // ── Info ───────────────────────────────────────────────
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.infoBg,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary10,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.info,
-                      color: AppColors.primary,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Información sobre las evaluaciones',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.black,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Las evaluaciones están diseñadas para medir el rendimiento de los atletas de forma precisa y objetiva. Selecciona la evaluación apropiada según tus objetivos de entrenamiento.',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textSecondary,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            InfoCard.info(
+              title: 'Información sobre las evaluaciones',
+              message:
+                  'Las evaluaciones están diseñadas para medir el rendimiento de los atletas de forma precisa y objetiva. Selecciona la evaluación apropiada según tus objetivos de entrenamiento.',
+              margin: EdgeInsets.zero,
             ),
           ],
         ),
@@ -407,30 +376,10 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                 const SizedBox(height: 14),
 
                 // ── Aviso ──────────────────────────────────────────
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.infoBg,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.info_outline,
-                          size: 15, color: AppColors.primary),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'No puedes crear una nueva prueba mientras tengas una pendiente.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.primary,
-                            height: 1.3,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                InfoCard.info(
+                  message:
+                      'No puedes crear una nueva prueba mientras tengas una pendiente.',
+                  margin: EdgeInsets.zero,
                 ),
 
                 const SizedBox(height: 16),

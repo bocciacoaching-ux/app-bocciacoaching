@@ -4,6 +4,7 @@ import '../../../data/providers/session_provider.dart';
 import '../../../data/models/user_session.dart';
 import '../../../core/services/biometric_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/app_dialog.dart';
 import 'change_password_screen.dart';
 import 'help_support_screen.dart';
 import 'notification_settings_screen.dart';
@@ -471,28 +472,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Cerrar sesión'),
-        content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(ctx).pop();
-              await context.read<SessionProvider>().clearSession();
-              if (!mounted) return;
-              Navigator.of(context).pushReplacementNamed('/');
-            },
-            child: const Text('Cerrar sesión', style: TextStyle(color: AppColors.error)),
-          ),
-        ],
-      ),
+  void _showLogoutDialog(BuildContext context) async {
+    final confirmed = await AppDialog.destructive(
+      context,
+      title: 'Cerrar sesión',
+      message: '¿Estás seguro de que deseas cerrar sesión?',
+      confirmLabel: 'Cerrar sesión',
+      icon: Icons.logout_rounded,
     );
+    if (!confirmed || !mounted) return;
+    await context.read<SessionProvider>().clearSession();
+    if (!mounted) return;
+    Navigator.of(context).pushReplacementNamed('/');
   }
 }

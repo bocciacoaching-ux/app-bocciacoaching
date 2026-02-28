@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/app_dialog.dart';
 
 class PrivacySecurityScreen extends StatefulWidget {
   const PrivacySecurityScreen({super.key});
@@ -561,59 +562,30 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen>
     );
   }
 
-  void _confirmCloseSession(BuildContext ctx, _SessionItem session) {
-    showDialog(
-      context: ctx,
-      builder: (dCtx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Cerrar sesión remota',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        content: Text(
-            '¿Deseas cerrar la sesión en "${session.device}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dCtx).pop(),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dCtx).pop();
-              setState(() => _activeSessions.remove(session));
-            },
-            child: const Text('Cerrar sesión',
-                style: TextStyle(color: AppColors.error)),
-          ),
-        ],
-      ),
+  void _confirmCloseSession(BuildContext ctx, _SessionItem session) async {
+    final confirmed = await AppDialog.destructive(
+      ctx,
+      title: 'Cerrar sesión remota',
+      message: '¿Deseas cerrar la sesión en "${session.device}"?',
+      confirmLabel: 'Cerrar sesión',
+      icon: Icons.logout_rounded,
     );
+    if (confirmed && mounted) {
+      setState(() => _activeSessions.remove(session));
+    }
   }
 
-  void _confirmCloseAllSessions(BuildContext ctx) {
-    showDialog(
-      context: ctx,
-      builder: (dCtx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Cerrar todas las sesiones',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text(
-            '¿Deseas cerrar todas las sesiones excepto la actual?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dCtx).pop(),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dCtx).pop();
-              setState(() =>
-                  _activeSessions.removeWhere((s) => !s.isCurrent));
-            },
-            child: const Text('Cerrar todas',
-                style: TextStyle(color: AppColors.error)),
-          ),
-        ],
-      ),
+  void _confirmCloseAllSessions(BuildContext ctx) async {
+    final confirmed = await AppDialog.destructive(
+      ctx,
+      title: 'Cerrar todas las sesiones',
+      message: '¿Deseas cerrar todas las sesiones excepto la actual?',
+      confirmLabel: 'Cerrar todas',
+      icon: Icons.devices_rounded,
     );
+    if (confirmed && mounted) {
+      setState(() => _activeSessions.removeWhere((s) => !s.isCurrent));
+    }
   }
 
   void _confirmDeleteAccount(BuildContext ctx) {
