@@ -1,29 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:boccia_coaching_app/providers/force_test_provider.dart';
-import 'package:boccia_coaching_app/providers/session_provider.dart';
-import 'package:boccia_coaching_app/providers/team_provider.dart';
-import 'package:boccia_coaching_app/theme/app_colors.dart';
-import 'package:boccia_coaching_app/screens/splash_screen.dart';
-import 'package:boccia_coaching_app/screens/login_screen.dart';
-import 'package:boccia_coaching_app/screens/register_screen.dart';
-import 'package:boccia_coaching_app/screens/home_screen.dart';
-import 'package:boccia_coaching_app/screens/dashboard_screen.dart';
-import 'package:boccia_coaching_app/screens/notifications_screen.dart';
-import 'package:boccia_coaching_app/screens/teams_screen.dart';
-import 'package:boccia_coaching_app/screens/profile_screen.dart';
-import 'package:boccia_coaching_app/screens/evaluations_screen.dart';
-import 'package:boccia_coaching_app/screens/athlete_selection_screen.dart';
-import 'package:boccia_coaching_app/screens/athletes_screen.dart';
-import 'package:boccia_coaching_app/screens/athlete_profile_screen.dart';
-import 'package:boccia_coaching_app/screens/strength_test_screen.dart';
-import 'package:boccia_coaching_app/screens/test_statistics_screen.dart';
-import 'package:boccia_coaching_app/screens/test_force_panel_screen.dart';
-import 'package:boccia_coaching_app/screens/biometric_lock_screen.dart';
-import 'package:boccia_coaching_app/screens/statistics_screen.dart';
-import 'package:boccia_coaching_app/providers/statistics_provider.dart';
+import 'app.dart';
+import 'core/network/api_client.dart';
+import 'core/services/storage_service.dart';
+import 'data/providers/force_test_provider.dart';
+import 'data/providers/session_provider.dart';
+import 'data/providers/team_provider.dart';
+import 'data/providers/statistics_provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // ── Inyección de dependencias globales (GetX) ──────────────────
+  await _initServices();
+
+  // ── MultiProvider para compatibilidad con pantallas existentes ─
   runApp(
     MultiProvider(
       providers: [
@@ -32,72 +24,18 @@ void main() {
         ChangeNotifierProvider(create: (_) => TeamProvider()),
         ChangeNotifierProvider(create: (_) => StatisticsProvider()),
       ],
-      child: const MyApp(),
+      child: const App(),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+/// Registra servicios globales en GetX antes de iniciar la app.
+Future<void> _initServices() async {
+  // Almacenamiento local
+  final storage = StorageService();
+  await storage.init();
+  Get.put(storage, permanent: true);
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Boccia Coaching App',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
-        inputDecorationTheme: const InputDecorationTheme(
-          filled: true,
-        ),
-      ),
-      initialRoute: '/splash',
-      routes: {
-        '/splash': (_) => const SplashScreen(),
-        '/': (_) => const LoginScreen(),
-        '/register': (_) => const RegisterScreen(),
-        '/biometric-lock': (_) => const BiometricLockScreen(),
-        '/home': (_) => const HomeScreen(),
-        '/dashboard': (_) => const DashboardScreen(),
-        '/notifications': (_) => const NotificationsScreen(),
-        '/teams': (_) => const TeamsScreen(),
-        '/profile': (_) => const ProfileScreen(),
-        '/athletes': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-          return AthletesScreen(
-            teamName: args?['teamName'] ?? 'Sin equipo',
-            teamFlag: args?['teamFlag'] ?? '',
-            teamSubtitle: args?['teamSubtitle'] ?? '',
-          );
-        },
-        '/athlete-profile': (context) {
-          final athlete = ModalRoute.of(context)?.settings.arguments as Athlete;
-          return AthleteProfileScreen(athlete: athlete);
-        },
-        '/evaluations': (_) => const EvaluationsScreen(),
-        '/statistics': (_) => const StatisticsScreen(),
-        '/force-test-module': (_) => const TestForcePanelScreen(),
-        '/athlete-selection': (context) {
-          final evaluationType = ModalRoute.of(context)?.settings.arguments as String?;
-          return AthleteSelectionScreen(evaluationType: evaluationType ?? 'strength');
-        },
-        '/strength-test': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-          return StrengthTestScreen(
-            evaluationType: args?['evaluationType'] ?? 'strength',
-            athletes: args?['athletes'] ?? [],
-          );
-        },
-        '/test-statistics': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-          return TestStatisticsScreen(
-            evaluationType: args?['evaluationType'] ?? 'strength',
-            athletes: args?['athletes'] ?? [],
-            results: args?['results'] ?? {},
-          );
-        },
-      },
-    );
-  }
+  // Cliente HTTP
+  Get.put(ApiClient(), permanent: true);
 }
