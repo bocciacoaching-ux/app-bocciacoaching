@@ -45,17 +45,6 @@ android {
             )
         }
     }
-
-    // Genera APKs separados por arquitectura (arm64, arm, x86_64).
-    // Cada una pesa ~40-60 % menos que la APK universal.
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("armeabi-v7a", "arm64-v8a", "x86_64")
-            isUniversalApk = false
-        }
-    }
 }
 
 flutter {
