@@ -95,17 +95,34 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
-      body: SafeArea(
-        child: Center(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.headerGradientTop,
+              AppColors.headerGradientBottom,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Logo
-              Image.asset(
-                'assets/images/isologo-vertical.png',
-                width: 180,
-                height: 180,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Image.asset(
+                  'assets/images/isologo-horizontal.png',
+                  height: 80,
+                  fit: BoxFit.contain,
+                  color: AppColors.white,
+                  colorBlendMode: BlendMode.srcIn,
+                ),
               ),
               const SizedBox(height: 48),
 
@@ -226,6 +243,7 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> {
                 ),
             ],
           ),
+        ),
         ),
       ),
     );

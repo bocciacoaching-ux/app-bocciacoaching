@@ -111,6 +111,16 @@ abstract final class AppColors {
   static const Color actionNeutralVisited = Color(0xFF123145);
 
   // ──────────────────────────────────────────────────────────────────
+  // Header gradient – auth screens
+  // ──────────────────────────────────────────────────────────────────
+
+  /// Parte superior del degradado del header (azul marino oscuro).
+  static const Color headerGradientTop = Color(0xFF2F536A);
+
+  /// Parte inferior del degradado del header (azul acero medio).
+  static const Color headerGradientBottom = Color(0xFF477D9E);
+
+  // ──────────────────────────────────────────────────────────────────
   // Semantic aliases (convenience)
   // ──────────────────────────────────────────────────────────────────
 

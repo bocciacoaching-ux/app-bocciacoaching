@@ -50,12 +50,30 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.splashBackground,
-      body: Center(
-        child: Image.asset(
-          'assets/images/isologo-vertical.png',
-          width: 250,
-          height: 250,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.headerGradientTop,
+              AppColors.headerGradientBottom,
+            ],
+          ),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 48),
+            child: Image.asset(
+              'assets/images/isologo-horizontal.png',
+              height: 90,
+              fit: BoxFit.contain,
+              color: AppColors.white,
+              colorBlendMode: BlendMode.srcIn,
+            ),
+          ),
         ),
       ),
     );

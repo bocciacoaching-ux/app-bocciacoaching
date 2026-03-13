@@ -227,73 +227,41 @@ class _RegisterScreenState extends State<RegisterScreen>
 
   // ── Progress stepper ──────────────────────────────────────────────
   Widget _buildStepper() {
-    const labels = ['Correo', 'Código', 'Contraseña', 'Perfil'];
+    const totalSteps = 4;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(labels.length, (i) {
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: List.generate(totalSteps * 2 - 1, (index) {
+        // Even indices → dot, odd → connector line
+        if (index.isOdd) {
+          final stepIndex = index ~/ 2;
+          final isCompleted = stepIndex < _step;
+          return Expanded(
+            child: Container(
+              height: 2,
+              margin: const EdgeInsets.symmetric(horizontal: 2),
+              color: isCompleted ? AppColors.primary : AppColors.neutral7,
+            ),
+          );
+        }
+        final i = index ~/ 2;
         final isActive = i == _step;
         final isCompleted = i < _step;
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Column(
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  width: isActive ? 32 : 26,
-                  height: isActive ? 32 : 26,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isCompleted
-                        ? AppColors.success
-                        : isActive
-                            ? AppColors.primary
-                            : AppColors.neutral8,
-                    border: isActive
-                        ? Border.all(color: AppColors.primary30, width: 3)
-                        : null,
-                  ),
-                  child: Center(
-                    child: isCompleted
-                        ? const Icon(Icons.check,
-                            color: AppColors.white, size: 14)
-                        : Text(
-                            '${i + 1}',
-                            style: TextStyle(
-                              color: isActive
-                                  ? AppColors.white
-                                  : AppColors.neutral5,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  labels[i],
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                    color: isActive || isCompleted
-                        ? AppColors.textPrimary
-                        : AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-            if (i < labels.length - 1)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: SizedBox(
-                  width: 28,
-                  child: Divider(
-                    thickness: 2,
-                    color: i < _step ? AppColors.success : AppColors.neutral7,
-                  ),
-                ),
-              ),
-          ],
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          width: isActive ? 16 : 12,
+          height: isActive ? 16 : 12,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isCompleted
+                ? AppColors.primary
+                : isActive
+                    ? AppColors.primary
+                    : AppColors.neutral7,
+            border: isActive
+                ? Border.all(color: AppColors.primary30, width: 3)
+                : null,
+          ),
         );
       }),
     );
@@ -775,162 +743,156 @@ class _RegisterScreenState extends State<RegisterScreen>
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final screenHeight = MediaQuery.of(context).size.height;
+    const headerHeight = 220.0;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // ── Header ────────────────────────────────────────────────
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.only(top: topPadding + 16, bottom: 40),
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(32),
-                  bottomRight: Radius.circular(32),
-                ),
-              ),
-              child: Column(
-                children: [
-                  // Language + back button row
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Back arrow to login
-                        GestureDetector(
-                          onTap: () =>
-                              Navigator.of(context).pushReplacementNamed('/'),
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.arrow_back,
-                                color: AppColors.white, size: 18),
-                          ),
-                        ),
-                        // Language selector
-                        Material(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(20),
-                            onTap: () {},
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text('🇪🇸', style: TextStyle(fontSize: 16)),
-                                  SizedBox(width: 4),
-                                  Icon(Icons.arrow_drop_down,
-                                      size: 18, color: AppColors.white),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Image.asset(
-                    'assets/images/isologo-vertical-1tinta.png',
-                    height: 80,
-                    fit: BoxFit.contain,
-                    color: AppColors.white,
-                    colorBlendMode: BlendMode.srcIn,
-                  ),
+      backgroundColor: AppColors.headerGradientTop,
+      body: Stack(
+        children: [
+          // ── Fondo degradado ───────────────────────────────────────
+          Container(
+            width: double.infinity,
+            height: screenHeight,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.headerGradientTop,
+                  AppColors.headerGradientBottom,
                 ],
               ),
             ),
+          ),
 
-            // ── Card body ─────────────────────────────────────────────
-            FadeTransition(
-              opacity: _fadeIn,
-              child: SlideTransition(
-                position: _slideUp,
-                child: Transform.translate(
-                  offset: const Offset(0, -24),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Material(
-                      elevation: 4,
-                      shadowColor: AppColors.primary20,
-                      borderRadius: BorderRadius.circular(20),
-                      color: AppColors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // Title
-                            const Text(
-                              'Crea tu cuenta',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  '¿Ya tienes usuario? ',
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      color: AppColors.textSecondary),
+          // ── Contenido scrollable ──────────────────────────────────
+          SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: screenHeight),
+              child: Column(
+                children: [
+                  // ── Header ────────────────────────────────────────
+                  SizedBox(
+                    height: headerHeight + topPadding,
+                    child: Column(
+                      children: [
+                        SizedBox(height: topPadding + 12),
+                        // Back + idioma
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTap: () => Navigator.of(context)
+                                    .pushReplacementNamed('/'),
+                                child: Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.arrow_back,
+                                      color: AppColors.white, size: 18),
                                 ),
-                                GestureDetector(
-                                  onTap: () => Navigator.of(context)
-                                      .pushReplacementNamed('/'),
-                                  child: const Text(
-                                    'Inicia sesión',
+                              ),
+                              const SizedBox(width: 36, height: 36),
+                            ],
+                          ),
+                        ),
+                        const Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32),
+                          child: Image.asset(
+                            'assets/images/isologo-horizontal.png',
+                            height: 80,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        const SizedBox(height: 28),
+                      ],
+                    ),
+                  ),
+
+                  // ── Card blanca ────────────────────────────────────
+                  FadeTransition(
+                    opacity: _fadeIn,
+                    child: SlideTransition(
+                      position: _slideUp,
+                      child: Container(
+                        width: double.infinity,
+                        constraints: BoxConstraints(
+                          minHeight:
+                              screenHeight - headerHeight - topPadding + 36,
+                        ),
+                        decoration: const BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(32),
+                            topRight: Radius.circular(32),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                              24, 24, 24, 24 + bottomPadding),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const Text(
+                                'Crea tu cuenta',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    '¿Ya tienes usuario? ',
                                     style: TextStyle(
-                                      fontSize: 13,
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.w700,
-                                      decoration: TextDecoration.underline,
-                                      decorationColor: AppColors.primary,
+                                        fontSize: 13,
+                                        color: AppColors.textSecondary),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () => Navigator.of(context)
+                                        .pushReplacementNamed('/'),
+                                    child: const Text(
+                                      'Inicia sesión',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w700,
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: AppColors.primary,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-
-                            // Stepper
-                            _buildStepper(),
-                            const SizedBox(height: 24),
-
-                            // Step content
-                            if (_step == 0) _buildStep0Email(),
-                            if (_step == 1) _buildStep1Code(),
-                            if (_step == 2) _buildStep2Password(),
-                            if (_step == 3) _buildStep3Profile(),
-                          ],
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              _buildStepper(),
+                              const SizedBox(height: 24),
+                              if (_step == 0) _buildStep0Email(),
+                              if (_step == 1) _buildStep1Code(),
+                              if (_step == 2) _buildStep2Password(),
+                              if (_step == 3) _buildStep3Profile(),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
-
-            const SizedBox(height: 16),
-            SizedBox(height: bottomPadding),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
