@@ -499,4 +499,55 @@ class SubscriptionService {
       return null;
     }
   }
+
+  // ── Webhooks ─────────────────────────────────────────────────────
+
+  // POST /api/Subscription/webhooks/stripe
+  Future<Map<String, dynamic>?> webhookStripe(Map<String, dynamic> payload) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_base/Subscription/webhooks/stripe'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(payload),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // ── Admin ────────────────────────────────────────────────────────
+
+  // GET /api/Subscription/admin/all
+  Future<List<dynamic>?> adminGetAll() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_base/Subscription/admin/all'),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as List<dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // GET /api/Subscription/admin/statistics
+  Future<Map<String, dynamic>?> adminGetStatistics() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_base/Subscription/admin/statistics'),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
 }

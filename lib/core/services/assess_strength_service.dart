@@ -67,6 +67,10 @@ class AssessStrengthService {
     required int assessStrengthId,
     double? coordinateX,
     double? coordinateY,
+    bool isStrength = false,
+    bool isCadence = false,
+    bool isDirection = false,
+    bool isTrajectory = false,
   }) async {
     try {
       final response = await http.post(
@@ -83,6 +87,10 @@ class AssessStrengthService {
           'assessStrengthId': assessStrengthId,
           'coordinateX': coordinateX,
           'coordinateY': coordinateY,
+          'isStrength': isStrength,
+          'isCadence': isCadence,
+          'isDirection': isDirection,
+          'isTrajectory': isTrajectory,
         }),
       );
       if (response.statusCode == 200) {
@@ -135,6 +143,42 @@ class AssessStrengthService {
       return null;
     } catch (_) {
       return null;
+    }
+  }
+
+  // POST /api/AssessStrength/Cancel
+  Future<Map<String, dynamic>?> cancel({
+    required int assessStrengthId,
+    required int coachId,
+    String? reason,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_base/AssessStrength/Cancel'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'assessStrengthId': assessStrengthId,
+          'coachId': coachId,
+          'reason': reason,
+        }),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // GET /api/AssessStrength/DebugEvaluations/{teamId}
+  Future<void> debugEvaluations(int teamId) async {
+    try {
+      await http.get(
+        Uri.parse('$_base/AssessStrength/DebugEvaluations/$teamId'),
+      );
+    } catch (_) {
+      // debug endpoint
     }
   }
 

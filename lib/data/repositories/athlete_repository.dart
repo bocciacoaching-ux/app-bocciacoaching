@@ -7,25 +7,23 @@ class AthleteRepository {
 
   AthleteRepository({required ApiClient apiClient}) : _apiClient = apiClient;
 
-  /// Obtiene la lista de atletas.
-  Future<Map<String, dynamic>> getAthletes() async {
-    return await _apiClient.get(ApiEndpoints.athletes);
+  /// Obtiene la lista de todos los usuarios.
+  Future<Map<String, dynamic>> getInfoUser() async {
+    return await _apiClient.get(ApiEndpoints.getInfoUser);
   }
 
-  /// Obtiene un atleta por ID.
-  Future<Map<String, dynamic>> getAthleteById(String athleteId) async {
-    return await _apiClient.get('${ApiEndpoints.athletes}/$athleteId');
+  /// Busca atletas por nombre y equipo.
+  Future<Map<String, dynamic>> searchAthletes(Map<String, dynamic> data) async {
+    return await _apiClient.post(ApiEndpoints.searchAthletes, body: data);
   }
 
   /// Crea un nuevo atleta.
-  Future<Map<String, dynamic>> createAthlete(Map<String, dynamic> data) async {
-    return await _apiClient.post(ApiEndpoints.athletes, body: data);
+  Future<Map<String, dynamic>> addAthlete(Map<String, dynamic> data) async {
+    return await _apiClient.post(ApiEndpoints.addAthlete, body: data);
   }
 
-  /// Actualiza un atleta.
-  Future<Map<String, dynamic>> updateAthlete(
-      String athleteId, Map<String, dynamic> data) async {
-    return await _apiClient
-        .put('${ApiEndpoints.athletes}/$athleteId', body: data);
+  /// Actualiza la información de un usuario.
+  Future<Map<String, dynamic>> updateUserInfo(Map<String, dynamic> data) async {
+    return await _apiClient.put(ApiEndpoints.updateUserInfo, body: data);
   }
 }

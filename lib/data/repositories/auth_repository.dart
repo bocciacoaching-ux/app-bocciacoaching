@@ -23,13 +23,16 @@ class AuthRepository {
     required Map<String, dynamic> userData,
   }) async {
     return await _apiClient.post(
-      ApiEndpoints.register,
+      ApiEndpoints.addInfoUser,
       body: userData,
     );
   }
 
-  /// Cierra sesión.
-  Future<void> logout() async {
-    await _apiClient.post(ApiEndpoints.logout);
+  /// Valida un email.
+  Future<Map<String, dynamic>> validateEmail({required String email}) async {
+    return await _apiClient.post(
+      ApiEndpoints.validateEmail,
+      body: {'email': email},
+    );
   }
 }

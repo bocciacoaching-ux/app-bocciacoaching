@@ -39,6 +39,21 @@ class StatisticsService {
     }
   }
 
+  // GET /api/Statistics/DebugTeamEvaluations/{teamId}
+  Future<Map<String, dynamic>?> debugTeamEvaluations(int teamId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_base/Statistics/DebugTeamEvaluations/$teamId'),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   // GET /api/Statistics/TeamStrengthStatsIndividualized/{teamId}
   Future<Map<String, dynamic>?> getTeamStrengthStatsIndividualized(int teamId) async {
     try {
