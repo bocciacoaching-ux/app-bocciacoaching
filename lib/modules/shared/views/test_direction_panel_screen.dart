@@ -303,7 +303,18 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
           // Stats drawer toggle
           Builder(
             builder: (ctx) => IconButton(
-              icon: const Icon(Icons.bar_chart_rounded),
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.bar_chart_rounded,
+                  color: AppColors.white,
+                  size: 20,
+                ),
+              ),
               tooltip: 'Estadísticas',
               onPressed: () => Scaffold.of(ctx).openEndDrawer(),
             ),

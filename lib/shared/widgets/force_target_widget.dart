@@ -25,12 +25,12 @@ class ForceTargetWidgetState extends State<ForceTargetWidget> {
 
   /// Score zones (all values in relative coordinates 0-100, center at 50,50):
   ///
-  /// 5 pts – pelota dentro del círculo verde central
-  /// 4 pts – pelota dentro del círculo verde medio
-  /// 3 pts – pelota dentro del cuadrado verde claro
-  /// 2 pts – pelota dentro del cuadrado beige interior
-  /// 1 pt  – pelota dentro del cuadrado crema exterior
-  /// 0 pts – pelota en la zona ámbar exterior (FUERA DE ZONA)
+  /// 5 pts – pelota dentro del círculo verde central (oscuro)
+  /// 4 pts – pelota dentro del círculo verde exterior (claro)
+  /// 3 pts – pelota dentro del cuadrado verde (sin tocar la línea del cuadro)
+  /// 2 pts – pelota toca/está sobre la línea del cuadro
+  /// 1 pt  – pelota fuera del cuadro pero dentro de la zona crema
+  /// 0 pts – pelota en la franja ámbar (FUERA DE ZONA)
   int _calculateScore(double relativeX, double relativeY) {
     final dx = relativeX - 50;
     final dy = relativeY - 50;
@@ -39,18 +39,24 @@ class ForceTargetWidgetState extends State<ForceTargetWidget> {
     const ballRadius = 4.5;
 
     // Radios de las zonas circulares (basados en painter)
-    const greenCenterRadius = 12.0;  // circle5Radius = w * 0.12
-    const greenOuterRadius = 20.0;   // circle4Radius = w * 0.20
+    const greenCenterRadius = 14.0;  // circle5Radius = w * 0.14
+    const greenOuterRadius = 24.0;   // circle4Radius = w * 0.24
 
-    // Bordes de las zonas cuadradas (half-size basado en painter)
-    const zone3HalfSize = 26.0;   // zone3Size = w * 0.52
-    const zone2HalfSize = 32.0;   // zone2Size = w * 0.64
-    const zone1HalfSize = 39.0;   // zone1Size = w * 0.78
+    // Borde del cuadro interior (half-size)
+    const squareHalfSize = 34.0;     // innerSquareSize = w * 0.68 → half = 34%
+
+    // Borde de la zona crema (half-size)
+    const creamHalfSize = 44.0;      // zone1Inset = w * 0.06 → half = 50 - 6 = 44%
+
+    // Grosor de la línea del cuadro en coordenadas relativas
+    const lineHalfThickness = 1.0;
 
     // ── Distancias clave de la pelota ──
     final ballFarEdge = distance + ballRadius;
     final ballFarEdgeX = dx.abs() + ballRadius;
     final ballFarEdgeY = dy.abs() + ballRadius;
+    final ballNearEdgeX = dx.abs() - ballRadius;
+    final ballNearEdgeY = dy.abs() - ballRadius;
 
     // ── 5 pts ── pelota dentro del círculo verde central
     if (ballFarEdge <= greenCenterRadius) return 5;
@@ -58,19 +64,28 @@ class ForceTargetWidgetState extends State<ForceTargetWidget> {
     // ── 4 pts ── pelota dentro del círculo verde exterior
     if (ballFarEdge <= greenOuterRadius) return 4;
 
-    // ── 3 pts ── pelota dentro del cuadrado verde
-    if (ballFarEdgeX <= zone3HalfSize &&
-        ballFarEdgeY <= zone3HalfSize) return 3;
+    // ── 3 pts ── pelota completamente dentro del cuadrado verde
+    //             (sin tocar la línea del borde)
+    if (ballFarEdgeX < squareHalfSize - lineHalfThickness &&
+        ballFarEdgeY < squareHalfSize - lineHalfThickness) return 3;
 
-    // ── 2 pts ── pelota dentro del cuadrado beige
-    if (ballFarEdgeX <= zone2HalfSize &&
-        ballFarEdgeY <= zone2HalfSize) return 2;
+    // ── 2 pts ── pelota toca/está sobre la línea del cuadro
+    //             (alguna parte de la pelota está sobre la línea del borde)
+    if (ballNearEdgeX <= squareHalfSize + lineHalfThickness &&
+        ballNearEdgeY <= squareHalfSize + lineHalfThickness) {
+      // Verificar que la pelota realmente toca la línea
+      final touchesLineX = ballFarEdgeX >= squareHalfSize - lineHalfThickness;
+      final touchesLineY = ballFarEdgeY >= squareHalfSize - lineHalfThickness;
+      final insideX = ballNearEdgeX <= squareHalfSize + lineHalfThickness;
+      final insideY = ballNearEdgeY <= squareHalfSize + lineHalfThickness;
+      if ((touchesLineX || touchesLineY) && insideX && insideY) return 2;
+    }
 
-    // ── 1 pt ── pelota dentro del cuadrado crema
-    if (ballFarEdgeX <= zone1HalfSize &&
-        ballFarEdgeY <= zone1HalfSize) return 1;
+    // ── 1 pt ── pelota fuera del cuadro, dentro de la zona crema
+    if (ballFarEdgeX <= creamHalfSize &&
+        ballFarEdgeY <= creamHalfSize) return 1;
 
-    // ── 0 pts ── fuera de zona
+    // ── 0 pts ── FUERA DE ZONA (franja ámbar)
     return 0;
   }
 
@@ -135,93 +150,87 @@ class ForceTargetPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
 
-    // ── 1) Outer amber border (FUERA DE ZONA area) ─────────────────
+    // ── 0) Outer amber border (FUERA DE ZONA = 0 pts) ──────────────
     canvas.drawRect(
       Rect.fromLTWH(0, 0, w, h),
       Paint()..color = const Color(0xFFC68B3F),
     );
 
-    // ── 2) Zone 0: cream area inside the amber border ──────────────
-    final zone0Inset = w * 0.06;
-    final zone0Rect = Rect.fromLTWH(zone0Inset, zone0Inset, w - zone0Inset * 2, h - zone0Inset * 2);
-    canvas.drawRect(zone0Rect, Paint()..color = const Color(0xFFF5E6C8));
+    // ── 1) Zone 1: cream area inside amber border ──────────────────
+    final zone1Inset = w * 0.06;
+    final zone1Rect = Rect.fromLTWH(
+      zone1Inset, zone1Inset,
+      w - zone1Inset * 2, h - zone1Inset * 2,
+    );
+    canvas.drawRect(zone1Rect, Paint()..color = const Color(0xFFF5E6C8));
 
-    // ── 3) Zone 1: light tan square ────────────────────────────────
-    final zone1Size = w * 0.78;
-    final zone1Rect = Rect.fromCenter(center: center, width: zone1Size, height: zone1Size);
-    canvas.drawRect(zone1Rect, Paint()..color = const Color(0xFFEDE4C8));
+    // ── 3) Zone 3: light green square (inside the square line) ─────
+    //    The square line itself is zone 2 (drawn on top as stroke)
+    final innerSquareSize = w * 0.68;
+    final innerSquareRect = Rect.fromCenter(
+      center: center,
+      width: innerSquareSize,
+      height: innerSquareSize,
+    );
+    canvas.drawRect(
+      innerSquareRect,
+      Paint()..color = const Color(0xFFDAE5C5),
+    );
 
-    // ── 4) Zone 2: lighter inner square ────────────────────────────
-    final zone2Size = w * 0.64;
-    final zone2Rect = Rect.fromCenter(center: center, width: zone2Size, height: zone2Size);
-    canvas.drawRect(zone2Rect, Paint()..color = const Color(0xFFE2DEBC));
-
-    // ── 5) Zone 3: light green square ──────────────────────────────
-    final zone3Size = w * 0.52;
-    final zone3Rect = Rect.fromCenter(center: center, width: zone3Size, height: zone3Size);
-    canvas.drawRect(zone3Rect, Paint()..color = const Color(0xFFD4DEB0));
-
-    // ── 6) Zone 4: green circle ────────────────────────────────────
-    final circle4Radius = w * 0.20;
+    // ── 4) Zone 4: lighter green circle ────────────────────────────
+    final circle4Radius = w * 0.24;
     canvas.drawCircle(
       center,
       circle4Radius,
-      Paint()..color = const Color(0xFFB8CFA0),
-    );
-    canvas.drawCircle(
-      center,
-      circle4Radius,
-      Paint()
-        ..color = const Color(0xFF8FB87A)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = w * 0.003,
+      Paint()..color = const Color(0xFFC2D6A8),
     );
 
-    // ── 7) Zone 5: dark green circle (center) ─────────────────────
-    final circle5Radius = w * 0.12;
+    // ── 5) Zone 5: dark green circle (center) ─────────────────────
+    final circle5Radius = w * 0.14;
     canvas.drawCircle(
       center,
       circle5Radius,
-      Paint()..color = const Color(0xFF5BA34B),
-    );
-    canvas.drawCircle(
-      center,
-      circle5Radius,
-      Paint()
-        ..color = const Color(0xFF4A8A3D)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = w * 0.003,
+      Paint()..color = const Color(0xFF4E9A3D),
     );
 
-    // ── 8) Dashed black crosshair lines ────────────────────────────
+    // ── 2) Zone 2: the square border line (stroke) ─────────────────
+    canvas.drawRect(
+      innerSquareRect,
+      Paint()
+        ..color = const Color(0xFFBDB89A)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = w * 0.006,
+    );
+
+    // ── Dashed black crosshair lines ───────────────────────────────
     final axisPaint = Paint()
       ..color = const Color(0xFF2C2C2C)
-      ..strokeWidth = w * 0.004
+      ..strokeWidth = w * 0.005
       ..style = PaintingStyle.stroke;
 
-    // Vertical
+    // Vertical (full height of cream zone)
     _drawDashedLine(
       canvas,
-      Offset(center.dx, zone0Rect.top),
-      Offset(center.dx, zone0Rect.bottom),
+      Offset(center.dx, zone1Rect.top),
+      Offset(center.dx, zone1Rect.bottom),
       axisPaint,
       dashWidth: w * 0.025,
-      dashSpace: w * 0.012,
+      dashSpace: w * 0.015,
     );
-    // Horizontal
+    // Horizontal (full width — extends into amber border)
     _drawDashedLine(
       canvas,
-      Offset(zone0Rect.left, center.dy),
-      Offset(zone0Rect.right, center.dy),
+      Offset(0, center.dy),
+      Offset(w, center.dy),
       axisPaint,
       dashWidth: w * 0.025,
-      dashSpace: w * 0.012,
+      dashSpace: w * 0.015,
     );
 
-    // ── 9) Labels ──────────────────────────────────────────────────
+    // ── Labels ─────────────────────────────────────────────────────
     _drawLabels(canvas, size, center);
 
-    // ── 10) Boccia ball (if user has tapped) ───────────────────────
+    // ── Boccia ball (if user has tapped) ───────────────────────────
     if (selection != null) {
       _drawBocciaBall(canvas, size, selection!);
     }
@@ -284,7 +293,7 @@ class ForceTargetPainter extends CustomPainter {
     }
 
     const labelColor = Color(0xFF424242);
-    final labelSize = w * 0.042;
+    final labelSize = w * 0.048;
     final fueraSize = w * 0.032;
     const fueraColor = Color(0xFFFFFFFF);
 
@@ -298,24 +307,24 @@ class ForceTargetPainter extends CustomPainter {
     // Right (rotated)
     drawRotatedText('FUERA DE ZONA', Offset(w - w * 0.03, center.dy), fueraSize, fueraColor, 3.14159 / 2);
 
-    // Zone number labels
+    // Zone number labels (positioned like the reference image)
     // "0" – top-right corner in amber zone
-    drawText('0', Offset(w * 0.93, h * 0.07), labelSize, fueraColor);
+    drawText('0', Offset(w * 0.94, h * 0.04), labelSize, fueraColor);
 
-    // "1" – top-right area in cream zone
-    drawText('1', Offset(w * 0.85, h * 0.13), labelSize, labelColor);
+    // "1" – top-right area in cream zone (between amber border and square line)
+    drawText('1', Offset(w * 0.87, h * 0.11), labelSize, labelColor);
 
-    // "2" – inside zone 2, top-right
-    drawText('2', Offset(w * 0.77, h * 0.20), labelSize, labelColor);
+    // "2" – on the square line, top-right corner area
+    drawText('2', Offset(w * 0.78, h * 0.19), labelSize, labelColor);
 
-    // "3" – inside zone 3, top-right
-    drawText('3', Offset(w * 0.68, h * 0.28), labelSize, labelColor);
+    // "3" – inside the green square, upper-right
+    drawText('3', Offset(w * 0.70, h * 0.27), labelSize, labelColor);
 
-    // "4" – inside zone 4, to the right of center
-    drawText('4', Offset(w * 0.62, h * 0.38), labelSize, labelColor);
+    // "4" – inside the lighter green circle area
+    drawText('4', Offset(w * 0.61, h * 0.36), labelSize, labelColor);
 
-    // "5" – inside the center green circle
-    drawText('5', Offset(center.dx, center.dy + w * 0.02), labelSize, const Color(0xFFFFFFFF));
+    // "5" – inside the dark green center circle
+    drawText('5', Offset(center.dx - w * 0.02, center.dy + w * 0.02), labelSize, const Color(0xFFFFFFFF));
   }
 
   void _drawBocciaBall(Canvas canvas, Size size, Offset position) {

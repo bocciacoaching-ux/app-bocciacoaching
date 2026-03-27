@@ -67,7 +67,7 @@ class DirectionTargetWidgetState extends State<DirectionTargetWidget> {
     final localPosition = details.localPosition;
     // The widget aspect ratio is 4:5 (width:height) so we scale accordingly
     final relativeX = (localPosition.dx / widget.size) * 100;
-    final relativeY = (localPosition.dy / (widget.size * 1.25)) * 100;
+    final relativeY = (localPosition.dy / (widget.size * 0.75)) * 100;
 
     int score = _calculateScore(relativeX, relativeY);
 
@@ -92,7 +92,7 @@ class DirectionTargetWidgetState extends State<DirectionTargetWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final height = widget.size * 1.25; // 4:5 aspect ratio
+    final height = widget.size * 0.75; // wider, more compact vertically
     return Center(
       child: GestureDetector(
         onTapDown: _handleTapDown,
@@ -147,7 +147,8 @@ class DirectionCourtPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final centerX = w / 2;
-    final centerY = h / 2;
+    // Balls row sits near the top, with a small breathing margin
+    final ballRowY = h * 0.22;
     final stripeW = w / 11;
 
     // ── 1) Draw vertical stripes ──────────────────────────────────
@@ -179,8 +180,8 @@ class DirectionCourtPainter extends CustomPainter {
 
     _drawDashedLine(
       canvas,
-      Offset(0, centerY),
-      Offset(w, centerY),
+      Offset(0, ballRowY),
+      Offset(w, ballRowY),
       axisPaint,
       dashWidth: w * 0.02,
       dashSpace: w * 0.01,
@@ -196,8 +197,8 @@ class DirectionCourtPainter extends CustomPainter {
       dashSpace: h * 0.008,
     );
 
-    // ── 6) Boccia balls along horizontal center ───────────────────
-    _drawBocciaBallsOnCenterLine(canvas, size, Offset(centerX, centerY));
+    // ── 6) Boccia balls along top row ────────────────────────────
+    _drawBocciaBallsOnCenterLine(canvas, size, Offset(centerX, ballRowY));
 
     // ── 7) "FUERA DE ZONA" labels on outermost stripes ────────────
     _drawOutOfZoneLabels(canvas, size, stripeW);
@@ -538,6 +539,54 @@ class DirectionCourtPainter extends CustomPainter {
     final ballX = (position.dx / 100) * w;
     final ballY = (position.dy / 100) * size.height;
     final ballRadius = w * 0.04;
+
+    // ── Arrow pointing straight up from the selected ball ─────────
+    final arrowStartY = ballY - ballRadius - 2;
+    // End the arrow near the ball row (h * 0.22) with a small gap
+    final arrowEndY = size.height * 0.22 + w / 11 * 0.42 + 4;
+
+    if (arrowStartY > arrowEndY) {
+      const arrowColor = Color(0xFF477D9E); // AppColors.primary
+      final strokeW = w * 0.018;
+
+      // Shaft
+      canvas.drawLine(
+        Offset(ballX, arrowStartY),
+        Offset(ballX, arrowEndY),
+        Paint()
+          ..color = arrowColor
+          ..strokeWidth = strokeW
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round,
+      );
+
+      // Arrowhead (pointing up: angle = -pi/2)
+      const headLen = 12.0;
+      const headAngle = 0.42; // ~24°
+      const angle = -pi / 2;
+
+      final path = Path()
+        ..moveTo(ballX, arrowEndY)
+        ..lineTo(
+          ballX - headLen * cos(angle - headAngle),
+          arrowEndY - headLen * sin(angle - headAngle),
+        )
+        ..moveTo(ballX, arrowEndY)
+        ..lineTo(
+          ballX - headLen * cos(angle + headAngle),
+          arrowEndY - headLen * sin(angle + headAngle),
+        );
+
+      canvas.drawPath(
+        path,
+        Paint()
+          ..color = arrowColor
+          ..strokeWidth = strokeW
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeJoin = StrokeJoin.round,
+      );
+    }
 
     // Shadow
     canvas.drawCircle(
