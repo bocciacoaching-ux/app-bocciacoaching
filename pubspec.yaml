@@ -37,6 +37,7 @@ flutter:
     - assets/images/isologo-horizontal.png
     - assets/images/google-logo.svg
     - assets/data/test.force.json
+    - assets/data/test.direction.json
 
 flutter_launcher_icons:
   android: true

@@ -1,6 +1,7 @@
 // Barrel file — re-exporta los widgets compartidos a nivel de app.
 export 'app_dialog.dart';
 export 'app_drawer.dart';
+export 'direction_target_widget.dart';
 export 'force_target_widget.dart';
 export 'info_card.dart';
 export 'notifications_bottom_sheet.dart';

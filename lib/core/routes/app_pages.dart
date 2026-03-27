@@ -24,6 +24,7 @@ import '../../modules/shared/views/profile_screen.dart';
 import '../../modules/shared/views/evaluations_screen.dart';
 import '../../modules/shared/views/statistics_screen.dart';
 import '../../modules/shared/views/test_force_panel_screen.dart';
+import '../../modules/shared/views/test_direction_panel_screen.dart';
 import '../../modules/shared/views/strength_test_screen.dart';
 import '../../modules/shared/views/test_statistics_screen.dart';
 
@@ -85,6 +86,10 @@ abstract final class AppPages {
     GetPage(
       name: AppRoutes.forceTestModule,
       page: () => const TestForcePanelScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.directionTestModule,
+      page: () => const TestDirectionPanelScreen(),
     ),
 
     // ── Pantallas que reciben argumentos ──────────────────────────

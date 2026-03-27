@@ -16,6 +16,7 @@ abstract final class AppRoutes {
   static const String evaluations = '/evaluations';
   static const String statistics = '/statistics';
   static const String forceTestModule = '/force-test-module';
+  static const String directionTestModule = '/direction-test-module';
   static const String athleteSelection = '/athlete-selection';
   static const String strengthTest = '/strength-test';
   static const String testStatistics = '/test-statistics';

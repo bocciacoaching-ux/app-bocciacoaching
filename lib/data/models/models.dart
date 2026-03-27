@@ -4,6 +4,7 @@ export 'active_evaluation.dart';
 export 'assess_strength.dart';
 export 'athlete.dart';
 export 'direction_evaluation.dart';
+export 'direction_evaluation_throw.dart';
 export 'direction_statistics.dart';
 export 'evaluation_throw.dart';
 export 'force_test_config.dart';
