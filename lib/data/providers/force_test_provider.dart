@@ -23,6 +23,15 @@ class ForceTestProvider extends ChangeNotifier {
   int? _currentScore;
   final TextEditingController _observationsController = TextEditingController();
 
+  // Cause chips state
+  bool _causeDirection = false;
+  bool _causeForce = false;
+  bool _causeTrajectory = false;
+  bool _causeCadence = false;
+  
+  // Evaluation metadata
+  String _evaluationName = '';
+
   int? get assessStrengthId => _assessStrengthId;
   int get currentShotNumber => _currentShotIndex + 1;
   int get totalShots => _testConfig.length;
@@ -33,6 +42,18 @@ class ForceTestProvider extends ChangeNotifier {
   Offset? get currentSelection => _currentSelection;
   int? get currentScore => _currentScore;
   TextEditingController get observationsController => _observationsController;
+
+  // Cause chips getters
+  bool get causeDirection => _causeDirection;
+  bool get causeForce => _causeForce;
+  bool get causeTrajectory => _causeTrajectory;
+  bool get causeCadence => _causeCadence;
+  
+  // Evaluation name
+  String get evaluationName => _evaluationName;
+
+  String get currentAthleteName =>
+      _selectedAthletes.isNotEmpty ? _selectedAthletes.first.name : '';
   
   ForceTestConfig? get currentShotConfig => 
       _testConfig.isNotEmpty && _currentShotIndex < _testConfig.length 
@@ -140,6 +161,26 @@ class ForceTestProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleCauseDirection() {
+    _causeDirection = !_causeDirection;
+    notifyListeners();
+  }
+
+  void toggleCauseForce() {
+    _causeForce = !_causeForce;
+    notifyListeners();
+  }
+
+  void toggleCauseTrajectory() {
+    _causeTrajectory = !_causeTrajectory;
+    notifyListeners();
+  }
+
+  void toggleCauseCadence() {
+    _causeCadence = !_causeCadence;
+    notifyListeners();
+  }
+
   void addAthlete(Athlete athlete) {
     if (!_selectedAthletes.any((a) => a.id == athlete.id)) {
       _selectedAthletes.add(athlete);
@@ -165,6 +206,7 @@ class ForceTestProvider extends ChangeNotifier {
 
   Future<void> startNewEvaluation(String name, int teamId, int coachId) async {
     _isLoading = true;
+    _evaluationName = name;
     notifyListeners();
 
     try {
@@ -273,6 +315,10 @@ class ForceTestProvider extends ChangeNotifier {
   void _resetCurrentShotState() {
     _currentSelection = null;
     _currentScore = null;
+    _causeDirection = false;
+    _causeForce = false;
+    _causeTrajectory = false;
+    _causeCadence = false;
     _observationsController.clear();
     notifyListeners();
   }

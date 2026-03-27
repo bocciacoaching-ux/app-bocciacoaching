@@ -250,14 +250,19 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
     final progressPct =
         provider.currentShotNumber / provider.totalShots;
 
+    final athleteName = provider.currentAthleteName;
+    final evalTitle = athleteName.isNotEmpty
+        ? 'Evaluación de Fuerza de $athleteName'
+        : 'Evaluación de Fuerza';
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Test de Fuerza',
+            Text(
+              evalTitle,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -271,16 +276,9 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
           ],
         ),
         actions: [
-          // Stats drawer toggle for narrow screens
-          Builder(
-            builder: (ctx) => IconButton(
-              icon: const Icon(Icons.bar_chart_rounded),
-              tooltip: 'Estadísticas',
-              onPressed: () => Scaffold.of(ctx).openEndDrawer(),
-            ),
-          ),
+          // Progress percentage
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.only(right: 8),
             child: Center(
               child: Text(
                 '${(progressPct * 100).toStringAsFixed(0)}%',
@@ -290,6 +288,25 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                   fontSize: 15,
                 ),
               ),
+            ),
+          ),
+          // Stats drawer toggle
+          Builder(
+            builder: (ctx) => IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.bar_chart_rounded,
+                  color: AppColors.white,
+                  size: 20,
+                ),
+              ),
+              tooltip: 'Estadísticas',
+              onPressed: () => Scaffold.of(ctx).openEndDrawer(),
             ),
           ),
         ],
@@ -320,25 +337,52 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                     Expanded(
                       child: SingleChildScrollView(
                         padding: EdgeInsets.fromLTRB(
-                          24,
                           16,
-                          24,
+                          16,
+                          16,
                           16 + MediaQuery.of(context).padding.bottom,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // ── Target ──
+                            // ── Target + VISTA DEL ATLETA ──
                             LayoutBuilder(
                               builder: (context, innerConstraints) {
                                 final targetSize =
-                                    (innerConstraints.maxWidth * 0.85)
+                                    (innerConstraints.maxWidth * 0.92)
                                         .clamp(200.0, 420.0);
-                                return ForceTargetWidget(
-                                  key: _targetKey,
-                                  size: targetSize,
-                                  selection: provider.currentSelection,
-                                  onTargetTap: provider.setSelection,
+                                return Column(
+                                  children: [
+                                    ForceTargetWidget(
+                                      key: _targetKey,
+                                      size: targetSize,
+                                      selection: provider.currentSelection,
+                                      onTargetTap: provider.setSelection,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      width: targetSize,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.neutral2,
+                                        borderRadius:
+                                            BorderRadius.circular(4),
+                                      ),
+                                      child: const Center(
+                                        child: Text(
+                                          'VISTA DEL ATLETA',
+                                          style: TextStyle(
+                                            color: AppColors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                            letterSpacing: 1.2,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 );
                               },
                             ),
@@ -350,65 +394,34 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
 
                             const SizedBox(height: 20),
 
-                            // ── Score selector ──
-                            const Text(
-                              'Puntaje obtenido *',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            _buildScoreSelector(provider),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 6),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '0-2: Fallo',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: AppColors.error,
-                                    ),
-                                  ),
-                                  Text(
-                                    '3-5: Acierto',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: AppColors.success,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            const SizedBox(height: 16),
-
-                            // ── Observations ──
+                            // ── Causa y observaciones ──
                             Row(
                               children: [
                                 const Text(
-                                  'Observaciones',
+                                  'Causa y observaciones',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
                                 ),
-                                if (_isObservationRequired(provider))
-                                  const Text(
-                                    ' (requerida)',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: AppColors.error,
-                                      fontStyle: FontStyle.italic,
-                                    ),
+                                const Text(
+                                  '*',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: AppColors.error,
+                                    fontWeight: FontWeight.bold,
                                   ),
+                                ),
                               ],
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 12),
+
+                            // ── Cause chips ──
+                            _buildCauseChips(provider),
+
+                            const SizedBox(height: 16),
+
+                            // ── Observations text field ──
                             TextField(
                               controller: provider.observationsController,
                               maxLines: 3,
@@ -419,23 +432,13 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(
-                                    color: _shouldHighlightObs(provider)
-                                        ? AppColors.error
-                                        : AppColors.neutral7,
-                                    width: _shouldHighlightObs(provider)
-                                        ? 2
-                                        : 1,
+                                    color: AppColors.neutral7,
                                   ),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(
-                                    color: _shouldHighlightObs(provider)
-                                        ? AppColors.error
-                                        : AppColors.neutral7,
-                                    width: _shouldHighlightObs(provider)
-                                        ? 2
-                                        : 1,
+                                    color: AppColors.neutral7,
                                   ),
                                 ),
                               ),
@@ -446,6 +449,21 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
 
                             // ── Navigation buttons ──
                             _buildNavigationButtons(provider, config),
+
+                            // ── Current box label ──
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  'Cajón n° ${config.boxNumber}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ),
 
                             const SizedBox(height: 24),
                           ],
@@ -485,85 +503,115 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
   Widget _buildShotInfoCard(ForceTestProvider provider, config) {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.primary, AppColors.actionPrimaryActive],
-        ),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.neutral7),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: AppColors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
-          // Box number
+          // Zone number badge
           Container(
-            width: 56,
-            height: 56,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
-              color: AppColors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Center(
               child: Text(
-                '${config.boxNumber}',
+                '${provider.currentScore ?? '-'}',
                 style: const TextStyle(
-                  fontSize: 28,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: AppColors.white,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
+          // Distance badge
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.neutral8,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.straighten, size: 16, color: AppColors.neutral3),
+                const SizedBox(width: 6),
+                Text(
+                  '${config.targetDistance.toStringAsFixed(1)}m',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.neutral1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Zone info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Cajón n° ${config.boxNumber}',
+                  'Zona n°${provider.currentScore ?? '-'}',
                   style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.white,
+                    color: AppColors.neutral1,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.straighten, color: AppColors.white, size: 16),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Distancia: ${config.targetDistance.toStringAsFixed(1)} m',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.white,
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 2),
+                Text(
+                  'Distancia: ${config.targetDistance.toStringAsFixed(1)} m.',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
           ),
-          // Score badge
+          // Score circle
           if (provider.currentScore != null)
             Container(
-              width: 48,
-              height: 48,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 color: _scoreColor(provider.currentScore!),
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.white, width: 2),
+                border: Border.all(
+                  color: AppColors.white,
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: _scoreColor(provider.currentScore!)
+                        .withValues(alpha: 0.3),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Center(
                 child: Text(
                   '${provider.currentScore}',
                   style: const TextStyle(
-                    fontSize: 22,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.white,
                   ),
@@ -575,54 +623,78 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
     );
   }
 
-  // ── Score selector row ─────────────────────────────────────────────
+  // ── Cause chips ─────────────────────────────────────────────────
 
-  Widget _buildScoreSelector(ForceTestProvider provider) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(6, (index) {
-        final isSelected = provider.currentScore == index;
-        final color = _scoreColor(index);
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: index == 0 ? 0 : 4,
-              right: index == 5 ? 0 : 4,
-            ),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              height: 48,
-              decoration: BoxDecoration(
-                color: isSelected ? color : AppColors.surface,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: isSelected ? color : AppColors.neutral7,
-                  width: isSelected ? 2 : 1,
-                ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: color.withValues(alpha: 0.4),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Center(
-                child: Text(
-                  '$index',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isSelected ? AppColors.white : AppColors.textPrimary,
-                  ),
-                ),
-              ),
-            ),
+  Widget _buildCauseChips(ForceTestProvider provider) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: [
+        _buildSingleCauseChip(
+          label: 'Dirección',
+          isSelected: provider.causeDirection,
+          onTap: provider.toggleCauseDirection,
+        ),
+        _buildSingleCauseChip(
+          label: 'Fuerza',
+          isSelected: provider.causeForce,
+          onTap: provider.toggleCauseForce,
+        ),
+        _buildSingleCauseChip(
+          label: 'Trayectoria',
+          isSelected: provider.causeTrajectory,
+          onTap: provider.toggleCauseTrajectory,
+        ),
+        _buildSingleCauseChip(
+          label: 'Cadencia',
+          isSelected: provider.causeCadence,
+          onTap: provider.toggleCauseCadence,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSingleCauseChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.neutral7,
+            width: isSelected ? 2 : 1,
           ),
-        );
-      }),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSelected)
+              const Padding(
+                padding: EdgeInsets.only(right: 6),
+                child: Icon(
+                  Icons.check,
+                  size: 16,
+                  color: AppColors.white,
+                ),
+              ),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? AppColors.white : AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -633,97 +705,57 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
       children: [
         // Previous
         Expanded(
-          child: Column(
-            children: [
-              if (config.prevBox != null)
-                Text(
-                  'Cajón n° ${config.prevBox}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                ),
-              const SizedBox(height: 4),
-              OutlinedButton.icon(
-                onPressed: provider.currentShotNumber > 1
-                    ? () => provider.previousShot()
-                    : null,
-                icon: const Icon(Icons.arrow_back_ios, size: 16),
-                label: const Text('Anterior'),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  side: const BorderSide(color: AppColors.neutral7),
-                  foregroundColor: AppColors.neutral4,
-                ),
+          child: OutlinedButton(
+            onPressed: provider.currentShotNumber > 1
+                ? () => provider.previousShot()
+                : null,
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-            ],
+              side: const BorderSide(color: AppColors.neutral7),
+              foregroundColor: AppColors.neutral4,
+            ),
+            child: const Text('Anterior'),
           ),
         ),
         const SizedBox(width: 16),
         // Next / Finish
         Expanded(
-          child: Column(
-            children: [
-              if (config.nextBox != null)
-                Text(
-                  'Cajón n° ${config.nextBox}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                ),
-              if (config.nextBox == null) const SizedBox(height: 14),
-              const SizedBox(height: 4),
-              ElevatedButton.icon(
-                onPressed:
-                    provider.canGoNext && !provider.isLoading
-                        ? () {
-                            // Validate observation requirement
-                            if (_isObservationRequired(provider) &&
-                                provider.observationsController.text
-                                    .trim()
-                                    .isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Para puntajes 0-2, la observación es obligatoria.',
-                                  ),
-                                  backgroundColor: AppColors.error,
-                                ),
-                              );
-                              return;
-                            }
-                            provider.nextShot();
-                          }
-                        : null,
-                icon: provider.isLoading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.white,
-                        ),
-                      )
-                    : Icon(
-                        provider.currentShotNumber == provider.totalShots
-                            ? Icons.check_circle_outline
-                            : Icons.arrow_forward_ios,
-                        size: 16,
-                      ),
-                label: Text(
-                  provider.currentShotNumber == provider.totalShots
-                      ? 'Finalizar'
-                      : 'Siguiente',
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.white,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 0,
-                ),
+          child: ElevatedButton(
+            onPressed:
+                provider.canGoNext && !provider.isLoading
+                    ? () {
+                        provider.nextShot();
+                      }
+                    : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.white,
+              minimumSize: const Size(double.infinity, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-            ],
+              elevation: 0,
+            ),
+            child: provider.isLoading
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.white,
+                    ),
+                  )
+                : Text(
+                    provider.currentShotNumber == provider.totalShots
+                        ? 'Finalizar'
+                        : 'Siguiente',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
           ),
         ),
       ],
@@ -731,15 +763,6 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
   }
 
   // ── Helper methods ─────────────────────────────────────────────────
-
-  bool _isObservationRequired(ForceTestProvider provider) {
-    return provider.currentScore != null && provider.currentScore! <= 2;
-  }
-
-  bool _shouldHighlightObs(ForceTestProvider provider) {
-    return _isObservationRequired(provider) &&
-        provider.observationsController.text.trim().isEmpty;
-  }
 
   Color _scoreColor(int score) {
     switch (score) {
