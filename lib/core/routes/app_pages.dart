@@ -13,6 +13,10 @@ import '../../modules/coach/views/athletes_screen.dart';
 import '../../modules/coach/views/athlete_profile_screen.dart';
 import '../../modules/coach/views/athlete_selection_screen.dart';
 import '../../modules/coach/views/teams_screen.dart';
+import '../../modules/coach/views/macrocycle_list_screen.dart';
+import '../../modules/coach/views/macrocycle_builder_screen.dart';
+import '../../modules/coach/views/macrocycle_detail_screen.dart';
+import '../../data/models/macrocycle.dart';
 
 // ── Módulo Athlete (pantallas exclusivas del deportista) ───────────
 import '../../modules/athlete/views/athlete_dashboard_screen.dart';
@@ -142,6 +146,23 @@ abstract final class AppPages {
           athletes: args?['athletes'] ?? [],
           results: args?['results'] ?? {},
         );
+      },
+    ),
+
+    // ── Macrociclos ──────────────────────────────────────────────
+    GetPage(
+      name: AppRoutes.macrocycles,
+      page: () => const MacrocycleListScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.macrocycleBuilder,
+      page: () => const MacrocycleBuilderScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.macrocycleDetail,
+      page: () {
+        final macrocycle = Get.arguments as Macrocycle;
+        return MacrocycleDetailScreen(macrocycle: macrocycle);
       },
     ),
   ];

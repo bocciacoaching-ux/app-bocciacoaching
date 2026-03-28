@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_pages.dart';
@@ -21,6 +22,15 @@ class App extends StatelessWidget {
       getPages: AppPages.pages,
       defaultTransition: Transition.cupertino,
       locale: const Locale('es', 'ES'),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('es', 'ES'),
+        Locale('en', 'US'),
+      ],
     );
   }
 }

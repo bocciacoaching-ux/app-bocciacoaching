@@ -21,4 +21,7 @@ abstract final class AppRoutes {
   static const String athleteSelection = '/athlete-selection';
   static const String strengthTest = '/strength-test';
   static const String testStatistics = '/test-statistics';
+  static const String macrocycles = '/macrocycles';
+  static const String macrocycleBuilder = '/macrocycle-builder';
+  static const String macrocycleDetail = '/macrocycle-detail';
 }

@@ -6,6 +6,7 @@ import 'core/network/api_client.dart';
 import 'core/services/storage_service.dart';
 import 'data/providers/direction_test_provider.dart';
 import 'data/providers/force_test_provider.dart';
+import 'data/providers/macrocycle_provider.dart';
 import 'data/providers/saremas_provider.dart';
 import 'data/providers/session_provider.dart';
 import 'data/providers/team_provider.dart';
@@ -27,6 +28,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SessionProvider()),
         ChangeNotifierProvider(create: (_) => TeamProvider()),
         ChangeNotifierProvider(create: (_) => StatisticsProvider()),
+        ChangeNotifierProvider(create: (_) => MacrocycleProvider()),
       ],
       child: const App(),
     ),

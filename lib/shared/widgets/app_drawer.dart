@@ -5,7 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/navigation_helper.dart';
 
 /// Rutas que tienen entrada en el menú lateral.
-enum AppDrawerRoute { inicio, evaluaciones, atletas, estadisticas }
+enum AppDrawerRoute { inicio, evaluaciones, atletas, estadisticas, macrociclos }
 
 /// Menú lateral compartido por todas las pantallas de la app.
 ///
@@ -158,6 +158,28 @@ class AppDrawer extends StatelessWidget {
                             }
                           },
                         ),
+
+                        // — Sección planificación (solo coach)
+                        if (!isAthlete) ...[
+                          const SizedBox(height: 8),
+                          _sectionLabel('PLANIFICACIÓN'),
+                          _item(
+                            context,
+                            icon: Icons.calendar_month_outlined,
+                            activeIcon: Icons.calendar_month,
+                            label: 'Macrociclos',
+                            active:
+                                activeRoute == AppDrawerRoute.macrociclos,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              if (activeRoute !=
+                                  AppDrawerRoute.macrociclos) {
+                                Navigator.of(context)
+                                    .pushNamed('/macrocycles');
+                              }
+                            },
+                          ),
+                        ],
                       ],
                     ),
                   );
