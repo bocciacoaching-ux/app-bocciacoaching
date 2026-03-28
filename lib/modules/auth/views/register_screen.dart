@@ -748,98 +748,89 @@ class _RegisterScreenState extends State<RegisterScreen>
 
     return Scaffold(
       backgroundColor: AppColors.headerGradientTop,
-      body: Stack(
-        children: [
-          // ── Fondo degradado ───────────────────────────────────────
-          Container(
-            width: double.infinity,
-            height: screenHeight,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  AppColors.headerGradientTop,
-                  AppColors.headerGradientBottom,
-                ],
-              ),
-            ),
+      resizeToAvoidBottomInset: true,
+      body: Container(
+        width: double.infinity,
+        height: screenHeight,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.headerGradientTop,
+              AppColors.headerGradientBottom,
+            ],
           ),
-
-          // ── Contenido scrollable ──────────────────────────────────
-          SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: screenHeight),
+        ),
+        child: Column(
+          children: [
+            // ── Header con logo (centrado) ──────────────────────
+            SizedBox(
+              height: headerHeight + topPadding,
               child: Column(
                 children: [
-                  // ── Header ────────────────────────────────────────
-                  SizedBox(
-                    height: headerHeight + topPadding,
-                    child: Column(
+                  SizedBox(height: topPadding + 12),
+                  // Back button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(height: topPadding + 12),
-                        // Back + idioma
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              GestureDetector(
-                                onTap: () => Navigator.of(context)
-                                    .pushReplacementNamed('/'),
-                                child: Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(Icons.arrow_back,
-                                      color: AppColors.white, size: 18),
-                                ),
-                              ),
-                              const SizedBox(width: 36, height: 36),
-                            ],
+                        GestureDetector(
+                          onTap: () => Navigator.of(context)
+                              .pushReplacementNamed('/'),
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.arrow_back,
+                                color: AppColors.white, size: 18),
                           ),
                         ),
-                        const Spacer(),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32),
-                          child: Image.asset(
-                            'assets/images/isologo-horizontal.png',
-                            height: 80,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        const SizedBox(height: 28),
+                        const SizedBox(width: 36, height: 36),
                       ],
                     ),
                   ),
+                  const Spacer(),
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Image.asset(
+                        'assets/images/isologo-horizontal.png',
+                        height: 80,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                ],
+              ),
+            ),
 
-                  // ── Card blanca ────────────────────────────────────
-                  FadeTransition(
-                    opacity: _fadeIn,
-                    child: SlideTransition(
-                      position: _slideUp,
-                      child: Container(
-                        width: double.infinity,
-                        constraints: BoxConstraints(
-                          minHeight:
-                              screenHeight - headerHeight - topPadding + 36,
-                        ),
-                        decoration: const BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(32),
-                            topRight: Radius.circular(32),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(
-                              24, 24, 24, 24 + bottomPadding),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
+            // ── Card blanca (ocupa el resto) ─────────────────────
+            Expanded(
+              child: FadeTransition(
+                opacity: _fadeIn,
+                child: SlideTransition(
+                  position: _slideUp,
+                  child: Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(32),
+                        topRight: Radius.circular(32),
+                      ),
+                    ),
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                          24, 24, 24, 24 + bottomPadding),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                               const Text(
                                 'Crea tu cuenta',
                                 textAlign: TextAlign.center,
@@ -888,12 +879,10 @@ class _RegisterScreenState extends State<RegisterScreen>
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
+        );
+      }
+    }

@@ -8,6 +8,7 @@ export 'direction_evaluation_throw.dart';
 export 'direction_statistics.dart';
 export 'evaluation_throw.dart';
 export 'force_test_config.dart';
+export 'saremas_throw.dart';
 export 'statistics.dart';
 export 'strength_evaluation.dart';
 export 'team.dart';

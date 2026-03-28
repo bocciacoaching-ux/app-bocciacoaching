@@ -171,6 +171,22 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
     setState(() => _activeDirectionEval = null);
   }
 
+  // ─────────────────────────────────────────────────────────────────
+  //  Clic en la tarjeta de Evaluación SAREMAS+
+  // ─────────────────────────────────────────────────────────────────
+  Future<void> _onSaremasCardTap() async {
+    final confirmed = await AppDialog.confirm(
+      context,
+      title: 'Nueva evaluación',
+      message:
+          '¿Deseas iniciar una nueva evaluación SAREMAS+? Son 28 lanzamientos en 4 diagonales.',
+      confirmLabel: 'Iniciar',
+      icon: Icons.star_rounded,
+    );
+    if (!confirmed || !mounted) return;
+    Navigator.of(context).pushNamed('/saremas-test-module');
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -211,6 +227,14 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
               const SizedBox(height: 16),
               _buildActiveDirectionEvaluationCard(_activeDirectionEval!),
             ],
+
+            const SizedBox(height: 24),
+
+            // ── Tarjeta Evaluación SAREMAS+ ────────────────────────
+            GestureDetector(
+              onTap: _onSaremasCardTap,
+              child: _buildSaremasEvaluationCard(),
+            ),
 
             const SizedBox(height: 32),
 
@@ -785,6 +809,71 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                 ),
                 const SizedBox(height: 16),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  //  Tarjeta de Evaluación SAREMAS+
+  // ─────────────────────────────────────────────────────────────────
+  Widget _buildSaremasEvaluationCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('⭐', style: TextStyle(fontSize: 24)),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.accent5x25,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'SAREMAS+',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.accent5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Evaluación SAREMAS+',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.black,
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Evaluación integral de 28 lanzamientos en 4 diagonales, con punteo por componente técnico.',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondary,
+              height: 1.5,
             ),
           ),
         ],

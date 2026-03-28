@@ -180,73 +180,58 @@ class _LoginScreenState extends State<LoginScreen>
 
     return Scaffold(
       backgroundColor: AppColors.headerGradientTop,
-      body: Stack(
-        children: [
-          // ── Fondo degradado (ocupa toda la pantalla) ─────────────
-          Container(
-            width: double.infinity,
-            height: screenHeight,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  AppColors.headerGradientTop,
-                  AppColors.headerGradientBottom,
-                ],
+      resizeToAvoidBottomInset: true,
+      body: Container(
+        width: double.infinity,
+        height: screenHeight,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.headerGradientTop,
+              AppColors.headerGradientBottom,
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            // ── Header con logo (centrado) ──────────────────────
+            SizedBox(
+              height: headerHeight + topPadding,
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: topPadding),
+                  child: Image.asset(
+                    'assets/images/isologo-horizontal.png',
+                    height: 80,
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
             ),
-          ),
 
-          // ── Contenido scrollable ──────────────────────────────────
-          SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: screenHeight),
-              child: Column(
-                children: [
-                  // ── Header con logo ────────────────────────────────
-                  SizedBox(
-                    height: headerHeight + topPadding,
-                    child: Column(
-                      children: [
-                        SizedBox(height: topPadding + 8),
-                        // Logo
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32),
-                          child: Image.asset(
-                            'assets/images/isologo-horizontal.png',
-                            height: 80,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
+            // ── Card blanca (ocupa el resto) ─────────────────────
+            Expanded(
+              child: FadeTransition(
+                opacity: _fadeIn,
+                child: SlideTransition(
+                  position: _slideUp,
+                  child: Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(32),
+                        topRight: Radius.circular(32),
+                      ),
                     ),
-                  ),
-
-                  // ── Card blanca ────────────────────────────────────
-                  FadeTransition(
-                    opacity: _fadeIn,
-                    child: SlideTransition(
-                      position: _slideUp,
-                      child: Container(
-                        width: double.infinity,
-                        constraints: BoxConstraints(
-                          minHeight: screenHeight - headerHeight - topPadding + 36,
-                        ),
-                        decoration: const BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(32),
-                            topRight: Radius.circular(32),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(
-                              24, 28, 24, 28 + bottomPadding),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                          24, 28, 24, 28 + bottomPadding),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                               const Text(
                                 '¡Hola de nuevo!',
                                 textAlign: TextAlign.center,
@@ -473,12 +458,10 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
+        );
+      }
+    }
