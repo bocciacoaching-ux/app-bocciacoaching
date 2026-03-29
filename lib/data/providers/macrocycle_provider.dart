@@ -412,7 +412,8 @@ class MacrocycleProvider extends ChangeNotifier {
     }
   }
 
-  /// Enriquece microciclos con el nombre de su período y mesociclo.
+  /// Enriquece microciclos con el nombre de su período y mesociclo,
+  /// y asigna la distribución de entrenamiento según el tipo de microciclo.
   static List<Microcycle> _enrichMicrocycles(
     List<Microcycle> microcycles,
     List<MacrocyclePeriod> periods,
@@ -438,9 +439,14 @@ class MacrocycleProvider extends ChangeNotifier {
         }
       }
 
+      // Asignar distribución de entrenamiento según tipo de microciclo
+      final distribution =
+          TrainingDistribution.forMicrocycleType(micro.type);
+
       return micro.copyWith(
         periodName: periodName,
         mesocycleName: mesoName,
+        trainingDistribution: distribution,
       );
     }).toList();
   }

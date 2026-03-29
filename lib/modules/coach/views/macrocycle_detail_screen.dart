@@ -90,6 +90,15 @@ class MacrocycleDetailScreen extends StatelessWidget {
             _buildMicrocycleTable(),
             const SizedBox(height: 20),
 
+            // ── Distribución de Entrenamiento ────────────────
+            _sectionTitle(
+              'Distribución de Entrenamiento',
+              Icons.pie_chart_outline,
+            ),
+            const SizedBox(height: 8),
+            _buildTrainingDistributionSection(),
+            const SizedBox(height: 20),
+
             // ── Notas ────────────────────────────────────────
             if (macrocycle.notes != null &&
                 macrocycle.notes!.isNotEmpty) ...[
@@ -635,6 +644,212 @@ class MacrocycleDetailScreen extends StatelessWidget {
           }).toList(),
         ),
       ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // DISTRIBUCIÓN DE ENTRENAMIENTO
+  // ══════════════════════════════════════════════════════════════════════
+
+  Widget _buildTrainingDistributionSection() {
+    if (macrocycle.microcycles.isEmpty) {
+      return _emptySection('Sin microciclos para mostrar distribución');
+    }
+
+    final categories = [
+      ('FISICA GENERAL', AppColors.accent3, (TrainingDistribution d) => d.fisicaGeneral),
+      ('FISICA ESPECIAL', AppColors.accent6, (TrainingDistribution d) => d.fisicaEspecial),
+      ('TÉCNICA', AppColors.success, (TrainingDistribution d) => d.tecnica),
+      ('TÁTICA', AppColors.accent2, (TrainingDistribution d) => d.tactica),
+      ('TEÓRICA', AppColors.error, (TrainingDistribution d) => d.teorica),
+      ('PSICOLÓGICA', AppColors.accent5, (TrainingDistribution d) => d.psicologica),
+    ];
+
+    return Column(
+      children: [
+        // ── Leyenda de colores ──────────────────────────────
+        Wrap(
+          spacing: 12,
+          runSpacing: 6,
+          children: categories.map((cat) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: cat.$2,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  cat.$1,
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
+                ),
+              ],
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 12),
+
+        // ── Tabla de distribución ────────────────────────────
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.neutral8),
+          ),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              headingRowColor: WidgetStateProperty.all(AppColors.primary10),
+              columnSpacing: 12,
+              dataRowMinHeight: 36,
+              dataRowMaxHeight: 44,
+              columns: [
+                const DataColumn(
+                  label: Text('Categoría',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                ),
+                ...macrocycle.microcycles.map((micro) => DataColumn(
+                      label: Text(
+                        'S${micro.number}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                        ),
+                      ),
+                    )),
+              ],
+              rows: categories.map((cat) {
+                return DataRow(
+                  cells: [
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: cat.$2.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          cat.$1,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: cat.$2,
+                          ),
+                        ),
+                      ),
+                    ),
+                    ...macrocycle.microcycles.map((micro) {
+                      final value = cat.$3(micro.trainingDistribution);
+                      return DataCell(
+                        Text(
+                          '${(value * 100).round()}%',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: value > 0
+                                ? AppColors.neutral2
+                                : AppColors.neutral6,
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // ── Barras apiladas por microciclo ────────────────────
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.neutral8),
+          ),
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Distribución por Semana',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ...macrocycle.microcycles.map((micro) {
+                final dist = micro.trainingDistribution;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 38,
+                        child: Text(
+                          'S${micro.number}',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: SizedBox(
+                            height: 18,
+                            child: Row(
+                              children: [
+                                _stackedSegment(
+                                    dist.fisicaGeneral, categories[0].$2),
+                                _stackedSegment(
+                                    dist.fisicaEspecial, categories[1].$2),
+                                _stackedSegment(
+                                    dist.tecnica, categories[2].$2),
+                                _stackedSegment(
+                                    dist.tactica, categories[3].$2),
+                                _stackedSegment(
+                                    dist.teorica, categories[4].$2),
+                                _stackedSegment(
+                                    dist.psicologica, categories[5].$2),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      SizedBox(
+                        width: 28,
+                        child: Text(
+                          micro.type.label.substring(0, 3),
+                          style: const TextStyle(
+                              fontSize: 8, color: AppColors.neutral4),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _stackedSegment(double fraction, Color color) {
+    if (fraction <= 0) return const SizedBox.shrink();
+    return Expanded(
+      flex: (fraction * 100).round(),
+      child: Container(color: color),
     );
   }
 
