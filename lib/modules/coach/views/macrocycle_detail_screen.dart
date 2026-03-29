@@ -1012,15 +1012,41 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
                     }).toList(),
                   ),
                   const SizedBox(height: 20),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    const Text('Distribución de entrenamiento:', style: TextStyle(fontWeight: FontWeight.w600)),
-                    Row(children: [
-                      Text('Custom', style: TextStyle(fontSize: 11, color: useCustomDistribution ? AppColors.primary : AppColors.neutral5)),
-                      Switch(value: useCustomDistribution, activeColor: AppColors.primary, onChanged: (value) {
-                        setDialogState(() { useCustomDistribution = value; if (!value) updateControllersFromType(selectedType); });
-                      }),
-                    ]),
-                  ]),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Flexible(
+                        child: Text(
+                          'Distribución de entrenamiento:',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Custom',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: useCustomDistribution ? AppColors.primary : AppColors.neutral5,
+                            ),
+                          ),
+                          Switch(
+                            value: useCustomDistribution,
+                            activeColor: AppColors.primary,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            onChanged: (value) {
+                              setDialogState(() {
+                                useCustomDistribution = value;
+                                if (!value) updateControllersFromType(selectedType);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 8),
                   _percentageField('Física General', fisGenCtrl, AppColors.accent3, enabled: useCustomDistribution, onChanged: () => setDialogState(() {})),
                   _percentageField('Física Especial', fisEspCtrl, AppColors.accent6, enabled: useCustomDistribution, onChanged: () => setDialogState(() {})),
