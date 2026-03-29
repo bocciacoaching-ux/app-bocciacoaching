@@ -305,29 +305,79 @@ class MacrocycleExcelExport {
     currentRow = 14;
     _setCellValue(sheet, 0, currentRow, 'Intercambios', labelStyle);
 
-    // ─── ROWS 15-25: Escala gráfica de porcentajes con barras verdes ─
+    // ─── ROWS 15-25: Escala gráfica de porcentajes con barras ─────────
     // Cada fila = un nivel de porcentaje (100%, 90%, ..., 0%).
-    // Por cada semana, si el total del microciclo >= ese nivel,
-    // la celda se colorea verde.
+    // El color y nivel de llenado dependen del tipo de μ y de si la
+    // semana tiene evento de competencia:
+    //   - Verde (#00B050): μ normales, llena hasta el % del tipo de μ.
+    //   - Amarillo (#FFFF00): μ5 (Choque 2 Intensidad) llena 100%.
+    //   - Rojo (#FF0000): semanas con competencia (CN/CI) llena 100%.
     final greenBarStyle = CellStyle(
       fontSize: 8,
-      backgroundColorHex: ExcelColor.fromHexString('#27AE60'),
+      backgroundColorHex: ExcelColor.fromHexString('#00B050'),
+      horizontalAlign: HorizontalAlign.Center,
+    );
+    final yellowBarStyle = CellStyle(
+      fontSize: 8,
+      backgroundColorHex: ExcelColor.fromHexString('#FFFF00'),
+      horizontalAlign: HorizontalAlign.Center,
+    );
+    final redBarStyle = CellStyle(
+      fontSize: 8,
+      backgroundColorHex: ExcelColor.fromHexString('#FF0000'),
       horizontalAlign: HorizontalAlign.Center,
     );
     final emptyScaleStyle = CellStyle(
       fontSize: 8,
       horizontalAlign: HorizontalAlign.Center,
     );
+
+    // Pre-calcular el porcentaje de barra y color por semana
+    final List<int> barPctPerWeek = [];
+    final List<CellStyle> barStylePerWeek = [];
+    for (int i = 0; i < totalWeeks; i++) {
+      final micro = micros[i];
+      // Detectar si la semana tiene evento de competencia (CN o CI)
+      bool hasCompetition = false;
+      for (final event in macrocycle.events) {
+        if (event.type == EventType.competencia &&
+            !micro.startDate.isAfter(event.endDate) &&
+            !micro.endDate.isBefore(event.startDate)) {
+          hasCompetition = true;
+          break;
+        }
+      }
+
+      if (hasCompetition) {
+        // Semana de competencia → rojo, 100%
+        barPctPerWeek.add(100);
+        barStylePerWeek.add(redBarStyle);
+      } else if (micro.type == MicrocycleType.competitivo) {
+        // μ5 (Choque 2 Intensidad) → amarillo, 100%
+        barPctPerWeek.add(100);
+        barStylePerWeek.add(yellowBarStyle);
+      } else {
+        // Otros tipos → verde, porcentaje según tipo de μ
+        barPctPerWeek.add(_barPercentForMicrocycleType(micro.type));
+        barStylePerWeek.add(greenBarStyle);
+      }
+    }
+
     for (int s = 0; s <= 10; s++) {
       currentRow = 15 + s;
       final pctThreshold = (10 - s) * 10; // 100, 90, 80, ..., 0
       _setCellValue(sheet, 0, currentRow, '$pctThreshold%',
           CellStyle(fontSize: 8, horizontalAlign: HorizontalAlign.Center));
       for (int i = 0; i < totalWeeks; i++) {
-        final dist = micros[i].trainingDistribution;
-        final totalPct = (dist.total * 100).round();
-        if (totalPct >= pctThreshold && pctThreshold > 0) {
-          _setCellValue(sheet, colOffset + i, currentRow, '', greenBarStyle);
+        final weekBarPct = barPctPerWeek[i];
+        // Llenar si el porcentaje del μ es mayor al umbral.
+        // Para 0%: llenar si hay barra (weekBarPct > 0).
+        final shouldFill = pctThreshold == 0
+            ? weekBarPct > 0
+            : weekBarPct >= pctThreshold;
+        if (shouldFill) {
+          _setCellValue(
+              sheet, colOffset + i, currentRow, '', barStylePerWeek[i]);
         } else {
           _setCellValue(sheet, colOffset + i, currentRow, '', emptyScaleStyle);
         }
@@ -498,7 +548,7 @@ class MacrocycleExcelExport {
     _setCellValue(sheet, 3, currentRow, 'MESOCICLO DE RECUPERACION', legendLabelStyle);
     _setCellValue(sheet, 4, currentRow, 'μ1', legendBoldStyle);
     _setCellValue(sheet, 5, currentRow, 'MICROCICLO INCORPORACION', legendLabelStyle);
-    // Días: 30% 60% 30% 60% 30% (vacío) → total 42%
+    // Días: 30% 60% 30% 60% 30% (vacío) → promedio 42%
     _setCellValue(sheet, 6, currentRow, '30%', cyanBg);
     _setCellValue(sheet, 7, currentRow, '60%', magentaBg);
     _setCellValue(sheet, 8, currentRow, '30%', cyanBg);
@@ -518,10 +568,13 @@ class MacrocycleExcelExport {
     _setCellValue(sheet, 3, currentRow, 'MESOCICLO DE INCORPORACION', legendLabelStyle);
     _setCellValue(sheet, 4, currentRow, 'μ2', legendBoldStyle);
     _setCellValue(sheet, 5, currentRow, 'MICROCICLO ORDINÁRIO', legendLabelStyle);
-    // Días: vacíos → total 48%
-    for (int d = 6; d <= 11; d++) {
-      _setCellValue(sheet, d, currentRow, '', whiteBg);
-    }
+    // Días: 60% 30% 60% 30% 60% (vacío) → promedio 48%
+    _setCellValue(sheet, 6, currentRow, '60%', cyanBg);
+    _setCellValue(sheet, 7, currentRow, '30%', magentaBg);
+    _setCellValue(sheet, 8, currentRow, '60%', cyanBg);
+    _setCellValue(sheet, 9, currentRow, '30%', magentaBg);
+    _setCellValue(sheet, 10, currentRow, '60%', cyanBg);
+    _setCellValue(sheet, 11, currentRow, '', whiteBg);
     _setCellValue(sheet, 12, currentRow, '48%', pctStyle);
 
     // ── Fila 3: E1 – PREPARACION ESPECIAL / MB – MESOCICLO DE BASE / μ3 – MICROCICLO ESTABILIZADOR
@@ -535,7 +588,7 @@ class MacrocycleExcelExport {
     _setCellValue(sheet, 3, currentRow, 'MESOCICLO DE BASE', legendLabelStyle);
     _setCellValue(sheet, 4, currentRow, 'μ3', legendBoldStyle);
     _setCellValue(sheet, 5, currentRow, 'MICROCICLO ESTABILIZADOR', legendLabelStyle);
-    // Días: 70% 40% 70% 40% 70% (vacío) → total 58%
+    // Días: 70% 40% 70% 40% 70% (vacío) → promedio 58%
     _setCellValue(sheet, 6, currentRow, '70%', cyanBg);
     _setCellValue(sheet, 7, currentRow, '40%', magentaBg);
     _setCellValue(sheet, 8, currentRow, '70%', cyanBg);
@@ -555,7 +608,7 @@ class MacrocycleExcelExport {
     _setCellValue(sheet, 3, currentRow, 'MESOCICLO DE ESTABILIZACION', legendLabelStyle);
     _setCellValue(sheet, 4, currentRow, 'μ4', legendBoldStyle);
     _setCellValue(sheet, 5, currentRow, 'MICROCICLO DE CHOQUE 1 VOLUMEN', legendLabelStyle);
-    // Días: 80% 20% 80% 20% 80% (vacío) → total 56%
+    // Días: 80% 20% 80% 20% 80% (vacío) → promedio 56%
     _setCellValue(sheet, 6, currentRow, '80%', yellowBg);
     _setCellValue(sheet, 7, currentRow, '20%', cyanBg);
     _setCellValue(sheet, 8, currentRow, '80%', yellowBg);
@@ -575,7 +628,7 @@ class MacrocycleExcelExport {
     _setCellValue(sheet, 3, currentRow, 'MESOCICLO DE CONTROL', legendLabelStyle);
     _setCellValue(sheet, 4, currentRow, 'μ5', legendBoldStyle);
     _setCellValue(sheet, 5, currentRow, 'MICROCICLO DE CHOQUE 2 INTENSIDAD', legendLabelStyle);
-    // Días: 100% 10% 100% 10% 100% (vacío) → total 64%
+    // Días: 100% 10% 100% 10% 100% (vacío) → promedio 64%
     _setCellValue(sheet, 6, currentRow, '100%', yellowBg);
     _setCellValue(sheet, 7, currentRow, '10%', cyanBg);
     _setCellValue(sheet, 8, currentRow, '100%', yellowBg);
@@ -595,13 +648,18 @@ class MacrocycleExcelExport {
     _setCellValue(sheet, 3, currentRow, 'MESOCICLO PRÉ COMPETITIVO', legendLabelStyle);
     _setCellValue(sheet, 4, currentRow, 'μ6', legendBoldStyle);
     _setCellValue(sheet, 5, currentRow, 'MICROCICLO DE CHOQUE 3 COMPETENCIA', legendLabelStyle);
-    // Días: 100% 100% 100% 100% 100% 100% → total 100%
-    _setCellValue(sheet, 6, currentRow, '100%', yellowBg);
-    _setCellValue(sheet, 7, currentRow, '100%', yellowBg);
-    _setCellValue(sheet, 8, currentRow, '100%', yellowBg);
-    _setCellValue(sheet, 9, currentRow, '100%', yellowBg);
-    _setCellValue(sheet, 10, currentRow, '100%', yellowBg);
-    _setCellValue(sheet, 11, currentRow, '100%', yellowBg);
+    // Días: 100% 100% 100% 100% 100% 100% → promedio 100%
+    final competitionDayBg = CellStyle(
+      fontSize: 9, horizontalAlign: HorizontalAlign.Center,
+      backgroundColorHex: ExcelColor.fromHexString('#660066'),
+      fontColorHex: ExcelColor.fromHexString('#808080'),
+    );
+    _setCellValue(sheet, 6, currentRow, '100%', competitionDayBg);
+    _setCellValue(sheet, 7, currentRow, '100%', competitionDayBg);
+    _setCellValue(sheet, 8, currentRow, '100%', competitionDayBg);
+    _setCellValue(sheet, 9, currentRow, '100%', competitionDayBg);
+    _setCellValue(sheet, 10, currentRow, '100%', competitionDayBg);
+    _setCellValue(sheet, 11, currentRow, '100%', competitionDayBg);
     _setCellValue(sheet, 12, currentRow, '100%', pctStyle);
 
     // ── Fila 7: CI – CAMPEONATO INTERNACIONAL / MCP – MESOCICLO COMPETITIVO / μ7 – MICROCICLO DE RECUPERACION
@@ -615,13 +673,17 @@ class MacrocycleExcelExport {
     _setCellValue(sheet, 3, currentRow, 'MESOCICLO COMPETITIVO', legendLabelStyle);
     _setCellValue(sheet, 4, currentRow, 'μ7', legendBoldStyle);
     _setCellValue(sheet, 5, currentRow, 'MICROCICLO DE RECUPERACION', legendLabelStyle);
-    // Días: 70% 40% 20% 70% 40% 20% → total 43%
-    _setCellValue(sheet, 6, currentRow, '70%', cyanBg);
-    _setCellValue(sheet, 7, currentRow, '40%', magentaBg);
-    _setCellValue(sheet, 8, currentRow, '20%', cyanBg);
-    _setCellValue(sheet, 9, currentRow, '70%', magentaBg);
-    _setCellValue(sheet, 10, currentRow, '40%', cyanBg);
-    _setCellValue(sheet, 11, currentRow, '20%', whiteBg);
+    // Días: 70% 40% 20% 70% 40% 20% → promedio 43%
+    final recoveryDayBg = CellStyle(
+      fontSize: 9, horizontalAlign: HorizontalAlign.Center,
+      backgroundColorHex: ExcelColor.fromHexString('#800080'),
+    );
+    _setCellValue(sheet, 6, currentRow, '70%', recoveryDayBg);
+    _setCellValue(sheet, 7, currentRow, '40%', recoveryDayBg);
+    _setCellValue(sheet, 8, currentRow, '20%', recoveryDayBg);
+    _setCellValue(sheet, 9, currentRow, '70%', recoveryDayBg);
+    _setCellValue(sheet, 10, currentRow, '40%', recoveryDayBg);
+    _setCellValue(sheet, 11, currentRow, '20%', recoveryDayBg);
     _setCellValue(sheet, 12, currentRow, '43%', pctStyle);
 
     // ─── Ajustar anchos de columna ───────────────────────────────────
@@ -779,6 +841,31 @@ class MacrocycleExcelExport {
         return ExcelColor.fromHexString('#FADBD8');
       case MicrocycleType.transitorio:
         return ExcelColor.fromHexString('#D1F2EB');
+    }
+  }
+
+  /// Porcentaje de llenado de la barra gráfica según el tipo de μ.
+  /// Basado en los promedios de la leyenda del Excel "Macro formato 2026".
+  /// - μ1 (transitorio): 42%
+  /// - μ2 (ordinario): 48%
+  /// - μ3 (activación/estabilizador): 58%
+  /// - μ4 (choque/volumen): 56%
+  /// - μ5 (competitivo/intensidad): 64%
+  /// - μ7 (recuperación): 43%
+  static int _barPercentForMicrocycleType(MicrocycleType type) {
+    switch (type) {
+      case MicrocycleType.transitorio: // μ1
+        return 42;
+      case MicrocycleType.ordinario: // μ2
+        return 48;
+      case MicrocycleType.activacion: // μ3
+        return 58;
+      case MicrocycleType.choque: // μ4
+        return 56;
+      case MicrocycleType.competitivo: // μ5
+        return 64;
+      case MicrocycleType.recuperacion: // μ7
+        return 43;
     }
   }
 }
