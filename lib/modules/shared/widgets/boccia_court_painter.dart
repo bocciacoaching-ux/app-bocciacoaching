@@ -22,6 +22,9 @@ class BocciaCourtResult {
   });
 }
 
+/// Tipo de punto de referencia seleccionado para mover.
+enum _SelectedPoint { launch, white, color }
+
 /// Widget interactivo — cancha de boccia vertical con zoom.
 ///
 /// Orientación vertical (arriba → abajo):
@@ -67,7 +70,9 @@ class _BocciaCourtWidgetState extends State<BocciaCourtWidget> {
   Offset? _whiteBall;
   Offset? _colorBall;
   Offset? _launchPoint;
-  String? _draggingBall; // 'white' | 'color' | 'launch'
+
+  /// Punto seleccionado para mover (cuando _placingStep == 3).
+  _SelectedPoint _selectedPoint = _SelectedPoint.white;
 
   // Estado de colocación secuencial
   // 0 = colocar launch, 1 = colocar white, 2 = colocar color, 3 = done
@@ -156,30 +161,43 @@ class _BocciaCourtWidgetState extends State<BocciaCourtWidget> {
     return Offset(x.clamp(0.0, courtWidthM), y.clamp(0.0, courtLengthM));
   }
 
-  Offset _metersToPixel(Offset meters, Size courtSize) {
-    final x = (meters.dx / courtWidthM) * courtSize.width;
-    final y = (meters.dy / courtLengthM) * courtSize.height;
+  /// Convierte coordenadas locales del widget a coordenadas locales de la cancha
+  /// (teniendo en cuenta la transformación del InteractiveViewer).
+  Offset _toCourtLocal(Offset localPosition) {
+    final matrix = Matrix4.inverted(_transformController.value);
+    // Aplicar la transformación inversa manualmente
+    final storage = matrix.storage;
+    final x = storage[0] * localPosition.dx +
+        storage[4] * localPosition.dy +
+        storage[12];
+    final y = storage[1] * localPosition.dx +
+        storage[5] * localPosition.dy +
+        storage[13];
     return Offset(x, y);
   }
 
-  String? _hitTestBall(Offset pixelPos, Size courtSize) {
-    const toleranceM = 0.40;
-    final tolerancePx = (toleranceM / courtWidthM) * courtSize.width;
-
-    // Prioridad: launch > white > color
-    if (_launchPoint != null) {
-      final lp = _metersToPixel(_launchPoint!, courtSize);
-      if ((pixelPos - lp).distance < tolerancePx) return 'launch';
-    }
-    if (_whiteBall != null) {
-      final wp = _metersToPixel(_whiteBall!, courtSize);
-      if ((pixelPos - wp).distance < tolerancePx) return 'white';
-    }
-    if (_colorBall != null) {
-      final cp = _metersToPixel(_colorBall!, courtSize);
-      if ((pixelPos - cp).distance < tolerancePx) return 'color';
-    }
-    return null;
+  /// Mueve el punto seleccionado a la posición indicada en metros.
+  void _moveSelectedPoint(Offset meters) {
+    setState(() {
+      switch (_selectedPoint) {
+        case _SelectedPoint.white:
+          _whiteBall = meters;
+          break;
+        case _SelectedPoint.color:
+          _colorBall = meters;
+          break;
+        case _SelectedPoint.launch:
+          final colIdx = 6 - widget.launchBox;
+          final minX = colIdx * boxWidthM;
+          final maxX = minX + boxWidthM;
+          _launchPoint = Offset(
+            meters.dx.clamp(minX, maxX),
+            meters.dy.clamp(0, boxesHeightM),
+          );
+          break;
+      }
+    });
+    _emitResult();
   }
 
   @override
@@ -189,6 +207,18 @@ class _BocciaCourtWidgetState extends State<BocciaCourtWidget> {
       children: [
         _buildStatusBar(),
         const SizedBox(height: 8),
+
+        // ── Distancias compactas (siempre visibles arriba) ───────
+        if (_whiteBall != null && _colorBall != null)
+          _buildCompactDistances(),
+        if (_whiteBall != null && _colorBall != null)
+          const SizedBox(height: 8),
+
+        // ── Selector de punto a mover ────────────────────────────
+        if (_placingStep == 3) ...[
+          _buildPointSelector(),
+          const SizedBox(height: 8),
+        ],
 
         // ── Leyenda de bolas ─────────────────────────────────────
         _buildLegend(),
@@ -203,84 +233,41 @@ class _BocciaCourtWidgetState extends State<BocciaCourtWidget> {
                   Size(constraints.maxWidth, constraints.maxHeight);
               return ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: InteractiveViewer(
-                  transformationController: _transformController,
-                  minScale: 1.0,
-                  maxScale: 5.0,
-                  panEnabled: true,
-                  boundaryMargin: const EdgeInsets.all(20),
-                  child: GestureDetector(
-                    onPanStart: (details) {
-                      final hit =
-                          _hitTestBall(details.localPosition, courtSize);
-                      if (hit != null) {
-                        setState(() => _draggingBall = hit);
+                child: GestureDetector(
+                  // El tap mueve el punto seleccionado, sin consumir pan/pinch
+                  onTapUp: (details) {
+                    final courtLocal = _toCourtLocal(details.localPosition);
+                    final meters = _pixelToMeters(courtLocal, courtSize);
+                    setState(() {
+                      if (_placingStep == 0) {
+                        final colIdx = 6 - widget.launchBox;
+                        final minX = colIdx * boxWidthM;
+                        final maxX = minX + boxWidthM;
+                        _launchPoint = Offset(
+                          meters.dx.clamp(minX, maxX),
+                          meters.dy.clamp(0, boxesHeightM),
+                        );
+                        _placingStep = 1;
+                      } else if (_placingStep == 1) {
+                        _whiteBall = meters;
+                        _placingStep = 2;
+                      } else if (_placingStep == 2) {
+                        _colorBall = meters;
+                        _placingStep = 3;
+                      } else {
+                        // Todo colocado: mover el punto seleccionado
+                        _moveSelectedPoint(meters);
                       }
-                    },
-                    onPanUpdate: (details) {
-                      if (_draggingBall != null) {
-                        final meters = _pixelToMeters(
-                            details.localPosition, courtSize);
-                        setState(() {
-                          if (_draggingBall == 'white') {
-                            _whiteBall = meters;
-                          } else if (_draggingBall == 'color') {
-                            _colorBall = meters;
-                          } else if (_draggingBall == 'launch') {
-                            // Restringir launch point dentro del box
-                            // Numeración derecha→izquierda: box N → columna (6-N)
-                            final colIdx = 6 - widget.launchBox;
-                            final minX = colIdx * boxWidthM;
-                            final maxX = minX + boxWidthM;
-                            _launchPoint = Offset(
-                              meters.dx.clamp(minX, maxX),
-                              meters.dy.clamp(0, boxesHeightM),
-                            );
-                          }
-                        });
-                        _emitResult();
-                      }
-                    },
-                    onPanEnd: (_) =>
-                        setState(() => _draggingBall = null),
-                    onTapUp: (details) {
-                      if (_draggingBall != null) return;
-                      final meters = _pixelToMeters(
-                          details.localPosition, courtSize);
-                      setState(() {
-                        if (_placingStep == 0) {
-                          // Colocar launch — numeración derecha→izquierda
-                          final colIdx = 6 - widget.launchBox;
-                          final minX = colIdx * boxWidthM;
-                          final maxX = minX + boxWidthM;
-                          _launchPoint = Offset(
-                            meters.dx.clamp(minX, maxX),
-                            meters.dy.clamp(0, boxesHeightM),
-                          );
-                          _placingStep = 1;
-                        } else if (_placingStep == 1) {
-                          _whiteBall = meters;
-                          _placingStep = 2;
-                        } else if (_placingStep == 2) {
-                          _colorBall = meters;
-                          _placingStep = 3;
-                        } else {
-                          // Todo colocado: mover la bola más cercana
-                          final dw = _whiteBall != null
-                              ? (meters - _whiteBall!).distance
-                              : double.infinity;
-                          final dc = _colorBall != null
-                              ? (meters - _colorBall!).distance
-                              : double.infinity;
-                          if (dw < dc) {
-                            _whiteBall = meters;
-                          } else {
-                            _colorBall = meters;
-                          }
-                        }
-                      });
-                      _emitResult();
-                    },
+                    });
+                    _emitResult();
+                  },
+                  child: InteractiveViewer(
+                    transformationController: _transformController,
+                    minScale: 1.0,
+                    maxScale: 8.0,
+                    panEnabled: true,
+                    scaleEnabled: true,
+                    boundaryMargin: const EdgeInsets.all(40),
                     child: CustomPaint(
                       size: courtSize,
                       painter: _BocciaCourtPainter(
@@ -290,6 +277,16 @@ class _BocciaCourtWidgetState extends State<BocciaCourtWidget> {
                         teamBallColor: widget.teamBallColor,
                         courtSize: courtSize,
                         highlightBox: widget.launchBox,
+                        selectedPoint:
+                            _placingStep == 3 ? _selectedPoint : null,
+                        edgeToEdgeDistance:
+                            (_whiteBall != null && _colorBall != null)
+                                ? _edgeToEdgeDistance
+                                : null,
+                        launchToJackDistance:
+                            (_whiteBall != null && _launchPoint != null)
+                                ? _launchToJackDistance
+                                : null,
                       ),
                     ),
                   ),
@@ -306,14 +303,14 @@ class _BocciaCourtWidgetState extends State<BocciaCourtWidget> {
             Icon(Icons.pinch, size: 16, color: Colors.grey[400]),
             const SizedBox(width: 4),
             Text(
-              'Pellizca para hacer zoom',
+              'Pellizca para hacer zoom · Toca para mover punto',
               style: TextStyle(fontSize: 11, color: Colors.grey[400]),
             ),
           ],
         ),
         const SizedBox(height: 8),
 
-        // ── Tarjetas de distancia ────────────────────────────────
+        // ── Tarjetas de distancia (detalle) ──────────────────────
         if (_whiteBall != null && _colorBall != null)
           _buildDistanceCard(
             icon: Icons.straighten,
@@ -354,8 +351,189 @@ class _BocciaCourtWidgetState extends State<BocciaCourtWidget> {
         boxesHeightM - 0.30,
       );
       _placingStep = 1;
+      _selectedPoint = _SelectedPoint.white;
       _transformController.value = Matrix4.identity();
     });
+  }
+
+  // ── Selector de punto a mover ──────────────────────────────────
+
+  Widget _buildPointSelector() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.touch_app, size: 16, color: Color(0xFF757575)),
+          const SizedBox(width: 6),
+          const Text(
+            'Mover:',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF616161),
+            ),
+          ),
+          const SizedBox(width: 8),
+          _buildPointChip(
+            label: '▲ Lanzamiento',
+            point: _SelectedPoint.launch,
+            color: Colors.green[700]!,
+          ),
+          const SizedBox(width: 6),
+          _buildPointChip(
+            label: 'J  Jack',
+            point: _SelectedPoint.white,
+            color: const Color(0xFF757575),
+          ),
+          const SizedBox(width: 6),
+          _buildPointChip(
+            label: 'B  Bola',
+            point: _SelectedPoint.color,
+            color: widget.teamBallColor,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPointChip({
+    required String label,
+    required _SelectedPoint point,
+    required Color color,
+  }) {
+    final isSelected = _selectedPoint == point;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedPoint = point),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
+          decoration: BoxDecoration(
+            color: isSelected ? color.withAlpha(30) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected ? color : Colors.transparent,
+              width: 2,
+            ),
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected ? color : const Color(0xFF9E9E9E),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Distancias compactas (arriba de la cancha) ─────────────────
+
+  Widget _buildCompactDistances() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFAFAFA),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE8E8E8)),
+      ),
+      child: Row(
+        children: [
+          // Distancia entre bolas
+          Expanded(
+            child: Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEF4444),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Bolas',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFF9E9E9E),
+                        ),
+                      ),
+                      Text(
+                        '${_edgeToEdgeDistance.toStringAsFixed(2)} m',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFEF4444),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Separador
+          Container(
+            width: 1,
+            height: 30,
+            color: const Color(0xFFE0E0E0),
+          ),
+          const SizedBox(width: 12),
+          // Distancia lanzamiento → jack
+          if (_launchPoint != null)
+            Expanded(
+              child: Row(
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF477D9E),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Lanz. → Jack',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Color(0xFF9E9E9E),
+                          ),
+                        ),
+                        Text(
+                          '${_launchToJackDistance.toStringAsFixed(2)} m',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF477D9E),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   Widget _buildLegend() {
@@ -397,7 +575,8 @@ class _BocciaCourtWidgetState extends State<BocciaCourtWidget> {
     Color color;
 
     if (_placingStep == 0) {
-      text = 'Toca dentro del box ${widget.launchBox} para marcar el lanzamiento';
+      text =
+          'Toca dentro del box ${widget.launchBox} para marcar el lanzamiento';
       icon = Icons.touch_app;
       color = Colors.green;
     } else if (_placingStep == 1) {
@@ -409,9 +588,19 @@ class _BocciaCourtWidgetState extends State<BocciaCourtWidget> {
       icon = Icons.touch_app;
       color = widget.teamBallColor;
     } else {
-      text = 'Arrastra las bolas para ajustar · Pellizca para zoom';
+      // Indicar cuál punto está seleccionado
+      final pointName = switch (_selectedPoint) {
+        _SelectedPoint.launch => 'Lanzamiento ▲',
+        _SelectedPoint.white => 'Jack (bola blanca)',
+        _SelectedPoint.color => 'Bola de color',
+      };
+      text = 'Toca para mover: $pointName · Pellizca para zoom';
       icon = Icons.open_with;
-      color = Colors.green;
+      color = switch (_selectedPoint) {
+        _SelectedPoint.launch => Colors.green,
+        _SelectedPoint.white => Colors.orange,
+        _SelectedPoint.color => widget.teamBallColor,
+      };
     }
 
     return Container(
@@ -510,6 +699,13 @@ class _BocciaCourtPainter extends CustomPainter {
   /// Box a resaltar (1-6).
   final int highlightBox;
 
+  /// Punto actualmente seleccionado para mover (null si aún colocando).
+  final _SelectedPoint? selectedPoint;
+
+  /// Distancias a mostrar sobre la cancha.
+  final double? edgeToEdgeDistance;
+  final double? launchToJackDistance;
+
   static const double courtWidthM = 6.00;
   static const double courtLengthM = 12.50;
   static const double boxesHeightM = 2.50;
@@ -531,6 +727,9 @@ class _BocciaCourtPainter extends CustomPainter {
     required this.teamBallColor,
     required this.courtSize,
     required this.highlightBox,
+    this.selectedPoint,
+    this.edgeToEdgeDistance,
+    this.launchToJackDistance,
   });
 
   double _mToX(double m) => (m / courtWidthM) * courtSize.width;
@@ -681,6 +880,8 @@ class _BocciaCourtPainter extends CustomPainter {
     if (launchPoint != null) {
       final lp = _mToPixel(launchPoint!.dx, launchPoint!.dy);
       final s = _ballRadiusPx * 1.2;
+      final isSelected = selectedPoint == _SelectedPoint.launch;
+
       final launchPath = Path()
         ..moveTo(lp.dx, lp.dy - s) // punta arriba
         ..lineTo(lp.dx - s * 0.85, lp.dy + s * 0.6)
@@ -698,39 +899,62 @@ class _BocciaCourtPainter extends CustomPainter {
             ..color = const Color(0xFF1B5E20)
             ..style = PaintingStyle.stroke
             ..strokeWidth = 1.5);
+
+      // Halo de selección
+      if (isSelected) {
+        _drawSelectionHalo(canvas, lp, s * 1.8, const Color(0xFF2E7D32));
+      }
     }
 
     // ── Bolas (a escala real: 8.6cm diámetro) ────────────────────
     final br = _ballRadiusPx;
 
     if (whiteBall != null) {
+      final isSelected = selectedPoint == _SelectedPoint.white;
+      if (isSelected) {
+        _drawSelectionHalo(canvas, _mToPixel(whiteBall!.dx, whiteBall!.dy),
+            br * 2.2, const Color(0xFFFF9800));
+      }
       _drawBall(canvas, whiteBall!, br, Colors.white,
           const Color(0xFF444444), 'J', Colors.black);
     }
     if (colorBall != null) {
+      final isSelected = selectedPoint == _SelectedPoint.color;
+      if (isSelected) {
+        _drawSelectionHalo(canvas, _mToPixel(colorBall!.dx, colorBall!.dy),
+            br * 2.2, teamBallColor);
+      }
       _drawBall(canvas, colorBall!, br, teamBallColor,
           teamBallColor.withAlpha(178), 'B', Colors.white);
     }
 
-    // ── Línea entre bolas ────────────────────────────────────────
+    // ── Línea entre bolas + etiqueta de distancia ────────────────
     if (whiteBall != null && colorBall != null) {
+      final wp = _mToPixel(whiteBall!.dx, whiteBall!.dy);
+      final cp = _mToPixel(colorBall!.dx, colorBall!.dy);
       _drawDashedLine(
-        canvas,
-        _mToPixel(whiteBall!.dx, whiteBall!.dy),
-        _mToPixel(colorBall!.dx, colorBall!.dy),
+        canvas, wp, cp,
         Paint()
           ..color = const Color(0xFFEF4444)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.5,
       );
+
+      // Etiqueta de distancia en el punto medio de la línea
+      if (edgeToEdgeDistance != null) {
+        final midX = (wp.dx + cp.dx) / 2;
+        final midY = (wp.dy + cp.dy) / 2;
+        _drawDistanceLabel(canvas, '${edgeToEdgeDistance!.toStringAsFixed(2)} m',
+            midX, midY, const Color(0xFFEF4444));
+      }
     }
 
-    // ── Línea launch → jack ──────────────────────────────────────
+    // ── Línea launch → jack + etiqueta de distancia ──────────────
     if (launchPoint != null && whiteBall != null) {
+      final lp = _mToPixel(launchPoint!.dx, launchPoint!.dy);
+      final wp = _mToPixel(whiteBall!.dx, whiteBall!.dy);
       _drawDashedLine(
-        canvas,
-        _mToPixel(launchPoint!.dx, launchPoint!.dy),
-        _mToPixel(whiteBall!.dx, whiteBall!.dy),
+        canvas, lp, wp,
         Paint()
           ..color = const Color(0xFF477D9E).withAlpha(180)
           ..style = PaintingStyle.stroke
@@ -738,7 +962,80 @@ class _BocciaCourtPainter extends CustomPainter {
         dashWidth: 4,
         gapWidth: 4,
       );
+
+      // Etiqueta de distancia en el punto medio
+      if (launchToJackDistance != null) {
+        final midX = (lp.dx + wp.dx) / 2;
+        final midY = (lp.dy + wp.dy) / 2;
+        _drawDistanceLabel(
+            canvas,
+            '${launchToJackDistance!.toStringAsFixed(2)} m',
+            midX,
+            midY - 14,
+            const Color(0xFF477D9E));
+      }
     }
+  }
+
+  /// Dibuja un halo pulsante alrededor del punto seleccionado.
+  void _drawSelectionHalo(
+      Canvas canvas, Offset center, double radius, Color color) {
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
+        ..color = color.withAlpha(40)
+        ..style = PaintingStyle.fill,
+    );
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
+        ..color = color.withAlpha(120)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0,
+    );
+  }
+
+  /// Dibuja una etiqueta de distancia con fondo sobre la cancha.
+  void _drawDistanceLabel(
+      Canvas canvas, String text, double x, double y, Color color) {
+    final tp = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: color,
+          fontSize: (courtSize.width * 0.04).clamp(10, 14).toDouble(),
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    const padding = 4.0;
+    final bgRect = RRect.fromRectAndRadius(
+      Rect.fromCenter(
+        center: Offset(x, y),
+        width: tp.width + padding * 2,
+        height: tp.height + padding * 2,
+      ),
+      const Radius.circular(4),
+    );
+
+    // Fondo blanco semitransparente
+    canvas.drawRRect(
+      bgRect,
+      Paint()..color = Colors.white.withAlpha(220),
+    );
+    canvas.drawRRect(
+      bgRect,
+      Paint()
+        ..color = color.withAlpha(80)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.0,
+    );
+
+    tp.paint(canvas, Offset(x - tp.width / 2, y - tp.height / 2));
   }
 
   void _drawBall(Canvas canvas, Offset ballM, double radius, Color fillColor,
@@ -823,6 +1120,9 @@ class _BocciaCourtPainter extends CustomPainter {
         colorBall != old.colorBall ||
         launchPoint != old.launchPoint ||
         teamBallColor != old.teamBallColor ||
-        highlightBox != old.highlightBox;
+        highlightBox != old.highlightBox ||
+        selectedPoint != old.selectedPoint ||
+        edgeToEdgeDistance != old.edgeToEdgeDistance ||
+        launchToJackDistance != old.launchToJackDistance;
   }
 }
