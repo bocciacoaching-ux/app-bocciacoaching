@@ -20,6 +20,24 @@ class TrainingDistribution {
   double get total =>
       fisicaGeneral + fisicaEspecial + tecnica + tactica + teorica + psicologica;
 
+  TrainingDistribution copyWith({
+    double? fisicaGeneral,
+    double? fisicaEspecial,
+    double? tecnica,
+    double? tactica,
+    double? teorica,
+    double? psicologica,
+  }) {
+    return TrainingDistribution(
+      fisicaGeneral: fisicaGeneral ?? this.fisicaGeneral,
+      fisicaEspecial: fisicaEspecial ?? this.fisicaEspecial,
+      tecnica: tecnica ?? this.tecnica,
+      tactica: tactica ?? this.tactica,
+      teorica: teorica ?? this.teorica,
+      psicologica: psicologica ?? this.psicologica,
+    );
+  }
+
   Map<String, double> toMap() => {
         'FISICA GENERAL': fisicaGeneral,
         'FISICA ESPECIAL': fisicaEspecial,

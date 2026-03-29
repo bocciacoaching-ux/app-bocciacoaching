@@ -148,6 +148,22 @@ class MacrocyclePeriod {
     required this.weeks,
   });
 
+  MacrocyclePeriod copyWith({
+    String? name,
+    PeriodType? type,
+    DateTime? startDate,
+    DateTime? endDate,
+    int? weeks,
+  }) {
+    return MacrocyclePeriod(
+      name: name ?? this.name,
+      type: type ?? this.type,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      weeks: weeks ?? this.weeks,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'name': name,
         'type': type.name,
