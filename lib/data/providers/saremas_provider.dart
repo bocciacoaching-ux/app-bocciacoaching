@@ -2,16 +2,46 @@ import 'package:flutter/material.dart';
 import '../models/athlete.dart';
 import '../models/saremas_throw.dart';
 
-/// Componentes técnicos disponibles para la evaluación SAREMAS+.
-const List<String> kSaremasComponents = [
-  'Salida',
-  'Aproximación',
-  'Arrimate',
-  'Contención',
-  'Impacto',
-  'Despeje',
-  'Presión',
-];
+/// Componente técnico fijo para cada lanzamiento SAREMAS+ (1-28).
+/// Los 28 lanzamientos están organizados en 4 bloques de 7:
+///   Bloque 1 (1-7):  Diagonal Roja
+///   Bloque 2 (8-14): Diagonal Azul
+///   Bloque 3 (15-21): Diagonal Roja
+///   Bloque 4 (22-28): Diagonal Azul
+const Map<int, String> kSaremasComponentPerThrow = {
+  // ── Bloque 1 – Diagonal Roja ──────────────────────────────────────
+  1: 'Salida',
+  2: 'Romper',
+  3: 'Arrimar',
+  4: 'Empujar A',
+  5: 'Sapito Ras',
+  6: 'Montar',
+  7: 'Penal',
+  // ── Bloque 2 – Diagonal Azul ──────────────────────────────────────
+  8: 'Romper',
+  9: 'Arrimar',
+  10: 'Empujar F',
+  11: 'Romper AE',
+  12: 'Apoyar',
+  13: 'Empujar A',
+  14: 'Penal',
+  // ── Bloque 3 – Diagonal Roja ──────────────────────────────────────
+  15: 'Romper',
+  16: 'Arrimar',
+  17: 'Empujar A',
+  18: 'Empujar LA',
+  19: 'Sapito AE',
+  20: 'Arrimar',
+  21: 'Penal',
+  // ── Bloque 4 – Diagonal Azul ──────────────────────────────────────
+  22: 'Salida',
+  23: 'Romper',
+  24: 'Arrimar',
+  25: 'Empujar A',
+  26: 'Arrima R Zona',
+  27: 'Libre Entrega',
+  28: 'Penal',
+};
 
 /// Provider que gestiona todo el estado de una evaluación SAREMAS+.
 ///
@@ -84,7 +114,6 @@ class SaremasProvider extends ChangeNotifier {
   /// Determina si se puede avanzar al siguiente lanzamiento.
   bool get canGoNext {
     if (_currentScore == null) return false;
-    if (_selectedComponent == null) return false;
     // Si el puntaje es 0, 1 o 2 → observación obligatoria
     if (_currentScore! <= 2 && _observationsController.text.trim().isEmpty) {
       return false;
@@ -240,7 +269,8 @@ class SaremasProvider extends ChangeNotifier {
 
   void _resetCurrentThrowState() {
     _currentScore = null;
-    _selectedComponent = null;
+    // El componente se asigna automáticamente según el número de lanzamiento
+    _selectedComponent = kSaremasComponentPerThrow[currentThrowNumber];
     _observationsController.clear();
     _tagFuerza = false;
     _tagDireccion = false;

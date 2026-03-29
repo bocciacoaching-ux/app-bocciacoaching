@@ -413,7 +413,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Componente técnico (dropdown) ────────────────
+                  // ── Componente técnico (etiqueta fija) ──────────────
                   const Text(
                     'Componente Técnico',
                     style: TextStyle(
@@ -423,7 +423,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  _buildComponentDropdown(provider),
+                  _buildComponentBadge(provider),
 
                   const SizedBox(height: 24),
 
@@ -532,44 +532,38 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
     );
   }
 
-  // ── Dropdown de componente técnico ─────────────────────────────────
+  // ── Etiqueta fija de componente técnico ───────────────────────────
 
-  Widget _buildComponentDropdown(SaremasProvider provider) {
+  Widget _buildComponentBadge(SaremasProvider provider) {
+    final component = provider.selectedComponent ?? '—';
+
     return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.neutral7),
       ),
-      child: DropdownButtonFormField<String>(
-        value: provider.selectedComponent,
-        isExpanded: true,
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          border: InputBorder.none,
-          prefixIcon: Icon(Icons.sports_rounded, color: AppColors.primary),
-        ),
-        hint: const Text(
-          'Selecciona un componente',
-          style: TextStyle(color: AppColors.textSecondary),
-        ),
-        icon: const Icon(Icons.keyboard_arrow_down_rounded,
-            color: AppColors.primary),
-        items: kSaremasComponents.map((component) {
-          return DropdownMenuItem<String>(
-            value: component,
+      child: Row(
+        children: [
+          const Icon(
+            Icons.sports_rounded,
+            color: AppColors.primary,
+            size: 22,
+          ),
+          const SizedBox(width: 14),
+          Expanded(
             child: Text(
               component,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
             ),
-          );
-        }).toList(),
-        onChanged: (value) {
-          if (value != null) provider.setComponent(value);
-        },
+          ),
+        ],
       ),
     );
   }
