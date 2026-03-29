@@ -5,6 +5,7 @@ import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/athlete.dart';
+import '../widgets/boccia_court_painter.dart';
 
 /// Pantalla completa de evaluación SAREMAS+.
 ///
@@ -425,6 +426,12 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
                   const SizedBox(height: 10),
                   _buildComponentBadge(provider),
 
+                  // ── Botón de cancha para componente "Salida" ────
+                  if (provider.isSalidaComponent) ...[
+                    const SizedBox(height: 12),
+                    _buildCourtButton(provider),
+                  ],
+
                   const SizedBox(height: 24),
 
                   // ── Puntaje (0 – 5) ─────────────────────────────
@@ -565,6 +572,266 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // ── Botón y resultado de cancha de boccia (Salida) ────────────────
+
+  Widget _buildCourtButton(SaremasProvider provider) {
+    final hasData = provider.estimatedDistance != null;
+    final isDiagonalRoja = provider.currentDiagonal == 'Roja';
+    final teamColor =
+        isDiagonalRoja ? const Color(0xFFEF4444) : const Color(0xFF3B82F6);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ElevatedButton.icon(
+          onPressed: () => _openBocciaCourt(context, provider, teamColor),
+          icon: Icon(
+            hasData ? Icons.edit_location_alt : Icons.place,
+            size: 20,
+          ),
+          label: Text(
+            hasData
+                ? 'Editar posición en cancha'
+                : 'Marcar posición en cancha',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: hasData
+                ? AppColors.success.withOpacity(0.1)
+                : AppColors.infoBg,
+            foregroundColor: hasData ? AppColors.success : AppColors.primary,
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: hasData
+                    ? AppColors.success.withOpacity(0.3)
+                    : AppColors.primary.withOpacity(0.3),
+              ),
+            ),
+          ),
+        ),
+        if (hasData) ...[
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.success.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.straighten,
+                    color: AppColors.success,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Distancia estimada',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${provider.estimatedDistance!.toStringAsFixed(2)} m (${(provider.estimatedDistance! * 100).toStringAsFixed(1)} cm)',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.neutral1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    provider.clearBallPositions();
+                  },
+                  icon: const Icon(Icons.close, size: 18),
+                  color: AppColors.neutral5,
+                  tooltip: 'Borrar posiciones',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _openBocciaCourt(
+    BuildContext context,
+    SaremasProvider provider,
+    Color teamColor,
+  ) async {
+    // Preparar posiciones iniciales si ya existen
+    Offset? initialWhite;
+    Offset? initialColor;
+    Offset? initialLaunch;
+    if (provider.whiteBallX != null && provider.whiteBallY != null) {
+      initialWhite = Offset(provider.whiteBallX!, provider.whiteBallY!);
+    }
+    if (provider.colorBallX != null && provider.colorBallY != null) {
+      initialColor = Offset(provider.colorBallX!, provider.colorBallY!);
+    }
+    if (provider.launchPointX != null && provider.launchPointY != null) {
+      initialLaunch = Offset(provider.launchPointX!, provider.launchPointY!);
+    }
+
+    // Determinar box de lanzamiento: Roja → Box 3, Azul → Box 4
+    final launchBox = provider.currentDiagonal == 'Roja' ? 3 : 4;
+
+    BocciaCourtResult? result;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.85,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                children: [
+                  // ── Handle ──────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12, bottom: 8),
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.neutral6,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  // ── Título ──────────────────────────────────────
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.sports_soccer,
+                          color: AppColors.primary,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            'Cancha de Boccia — Salida',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.close),
+                          color: AppColors.neutral4,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  // ── Cancha ──────────────────────────────────────
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.all(16),
+                      child: BocciaCourtWidget(
+                        initialWhiteBall: initialWhite,
+                        initialColorBall: initialColor,
+                        initialLaunchPoint: initialLaunch,
+                        teamBallColor: teamColor,
+                        launchBox: launchBox,
+                        onResult: (r) {
+                          result = r;
+                        },
+                      ),
+                    ),
+                  ),
+                  // ── Botón confirmar ─────────────────────────────
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      12,
+                      20,
+                      12 + MediaQuery.of(context).padding.bottom,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (result != null) {
+                            provider.setBallPositions(
+                              whiteBallX: result!.whiteBallPosition.dx,
+                              whiteBallY: result!.whiteBallPosition.dy,
+                              colorBallX: result!.colorBallPosition.dx,
+                              colorBallY: result!.colorBallPosition.dy,
+                              estimatedDistance: result!.edgeToEdgeDistance,
+                              launchPointX: result!.launchPoint.dx,
+                              launchPointY: result!.launchPoint.dy,
+                              distanceToLaunchPoint:
+                                  result!.launchToJackDistance,
+                            );
+                          }
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'CONFIRMAR POSICIONES',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

@@ -72,6 +72,16 @@ class SaremasProvider extends ChangeNotifier {
   bool _tagCadencia = false;
   bool _tagTrayectoria = false;
 
+  // ── Datos de la cancha (componente "Salida") ──────────────────
+  double? _whiteBallX;
+  double? _whiteBallY;
+  double? _colorBallX;
+  double? _colorBallY;
+  double? _estimatedDistance;
+  double? _launchPointX;
+  double? _launchPointY;
+  double? _distanceToLaunchPoint;
+
   // ── Getters ───────────────────────────────────────────────────────
   int? get saremasEvalId => _saremasEvalId;
   int get currentThrowNumber => _currentThrowIndex + 1;
@@ -91,6 +101,19 @@ class SaremasProvider extends ChangeNotifier {
   bool get tagDireccion => _tagDireccion;
   bool get tagCadencia => _tagCadencia;
   bool get tagTrayectoria => _tagTrayectoria;
+
+  double? get whiteBallX => _whiteBallX;
+  double? get whiteBallY => _whiteBallY;
+  double? get colorBallX => _colorBallX;
+  double? get colorBallY => _colorBallY;
+  double? get estimatedDistance => _estimatedDistance;
+  double? get launchPointX => _launchPointX;
+  double? get launchPointY => _launchPointY;
+  double? get distanceToLaunchPoint => _distanceToLaunchPoint;
+
+  /// Indica si el componente actual es "Salida".
+  bool get isSalidaComponent =>
+      _selectedComponent?.toLowerCase() == 'salida';
 
   String get currentAthleteName =>
       _selectedAthletes.isNotEmpty ? _selectedAthletes.first.name : '';
@@ -200,6 +223,40 @@ class SaremasProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ── Datos de la cancha ────────────────────────────────────────────
+  void setBallPositions({
+    required double whiteBallX,
+    required double whiteBallY,
+    required double colorBallX,
+    required double colorBallY,
+    required double estimatedDistance,
+    double? launchPointX,
+    double? launchPointY,
+    double? distanceToLaunchPoint,
+  }) {
+    _whiteBallX = whiteBallX;
+    _whiteBallY = whiteBallY;
+    _colorBallX = colorBallX;
+    _colorBallY = colorBallY;
+    _estimatedDistance = estimatedDistance;
+    _launchPointX = launchPointX;
+    _launchPointY = launchPointY;
+    _distanceToLaunchPoint = distanceToLaunchPoint;
+    notifyListeners();
+  }
+
+  void clearBallPositions() {
+    _whiteBallX = null;
+    _whiteBallY = null;
+    _colorBallX = null;
+    _colorBallY = null;
+    _estimatedDistance = null;
+    _launchPointX = null;
+    _launchPointY = null;
+    _distanceToLaunchPoint = null;
+    notifyListeners();
+  }
+
   // ── Navegación de tiros ───────────────────────────────────────────
   void nextShot() {
     if (!canGoNext) return;
@@ -218,6 +275,14 @@ class SaremasProvider extends ChangeNotifier {
       scoreObtained: _currentScore!,
       observations: _observationsController.text.trim(),
       failureTags: tags,
+      whiteBallX: _whiteBallX,
+      whiteBallY: _whiteBallY,
+      colorBallX: _colorBallX,
+      colorBallY: _colorBallY,
+      estimatedDistance: _estimatedDistance,
+      launchPointX: _launchPointX,
+      launchPointY: _launchPointY,
+      distanceToLaunchPoint: _distanceToLaunchPoint,
     );
 
     // Si estamos editando un tiro anterior, reemplazamos
@@ -264,6 +329,14 @@ class SaremasProvider extends ChangeNotifier {
       _tagDireccion = t.failureTags.contains('Dirección');
       _tagCadencia = t.failureTags.contains('Cadencia');
       _tagTrayectoria = t.failureTags.contains('Trayectoria');
+      _whiteBallX = t.whiteBallX;
+      _whiteBallY = t.whiteBallY;
+      _colorBallX = t.colorBallX;
+      _colorBallY = t.colorBallY;
+      _estimatedDistance = t.estimatedDistance;
+      _launchPointX = t.launchPointX;
+      _launchPointY = t.launchPointY;
+      _distanceToLaunchPoint = t.distanceToLaunchPoint;
     }
   }
 
@@ -276,6 +349,14 @@ class SaremasProvider extends ChangeNotifier {
     _tagDireccion = false;
     _tagCadencia = false;
     _tagTrayectoria = false;
+    _whiteBallX = null;
+    _whiteBallY = null;
+    _colorBallX = null;
+    _colorBallY = null;
+    _estimatedDistance = null;
+    _launchPointX = null;
+    _launchPointY = null;
+    _distanceToLaunchPoint = null;
   }
 
   /// Verdadero si se completaron los 28 tiros.
