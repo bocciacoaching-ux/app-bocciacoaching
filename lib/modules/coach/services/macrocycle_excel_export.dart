@@ -125,52 +125,39 @@ class MacrocycleExcelExport {
     currentRow = 1;
     _setCellValue(sheet, 0, currentRow, 'Meses', labelStyle);
     if (micros.isNotEmpty) {
-      int colStart = colOffset;
-      int currentMonth = micros[0].startDate.month;
-      for (int i = 0; i < totalWeeks; i++) {
-        final microMonth = micros[i].startDate.month;
-        if (microMonth != currentMonth || i == totalWeeks - 1) {
-          final endCol = (i == totalWeeks - 1 && microMonth == currentMonth)
-              ? colOffset + i
-              : colOffset + i - 1;
-          if (endCol > colStart) {
-            sheet.merge(
-              CellIndex.indexByColumnRow(
-                  columnIndex: colStart, rowIndex: currentRow),
-              CellIndex.indexByColumnRow(
-                  columnIndex: endCol, rowIndex: currentRow),
-            );
-          }
-          _setCellValue(sheet, colStart, currentRow,
-              months[currentMonth - 1], headerStyle);
-          if (microMonth != currentMonth) {
-            colStart = colOffset + i;
-            currentMonth = microMonth;
-          }
-          if (i == totalWeeks - 1 && microMonth != currentMonth) {
-            // Último mes que quedó solo
-            _setCellValue(sheet, colStart, currentRow,
-                months[currentMonth - 1], headerStyle);
-          }
+      // 1) Agrupar semanas consecutivas por mes
+      final List<List<int>> monthGroups = []; // [month, year, startIdx, endIdx]
+      int groupStart = 0;
+      int groupMonth = micros[0].startDate.month;
+      int groupYear = micros[0].startDate.year;
+      for (int i = 1; i < totalWeeks; i++) {
+        final m = micros[i].startDate.month;
+        final y = micros[i].startDate.year;
+        if (m != groupMonth || y != groupYear) {
+          monthGroups.add([groupMonth, groupYear, groupStart, i - 1]);
+          groupStart = i;
+          groupMonth = m;
+          groupYear = y;
         }
       }
-      // Handle case where all micros are in same month
-      if (totalWeeks > 0) {
-        final firstMonth = micros[0].startDate.month;
-        final lastMonth = micros[totalWeeks - 1].startDate.month;
-        if (firstMonth == lastMonth) {
-          if (totalWeeks > 1) {
-            sheet.merge(
-              CellIndex.indexByColumnRow(
-                  columnIndex: colOffset, rowIndex: currentRow),
-              CellIndex.indexByColumnRow(
-                  columnIndex: colOffset + totalWeeks - 1,
-                  rowIndex: currentRow),
-            );
-          }
-          _setCellValue(sheet, colOffset, currentRow,
-              months[firstMonth - 1], headerStyle);
+      // Último grupo
+      monthGroups.add([groupMonth, groupYear, groupStart, totalWeeks - 1]);
+
+      // 2) Escribir y mergear cada grupo
+      for (final g in monthGroups) {
+        final gMonth = g[0];
+        final gStartIdx = g[2];
+        final gEndIdx = g[3];
+        final colStart = colOffset + gStartIdx;
+        final colEnd = colOffset + gEndIdx;
+        if (colEnd > colStart) {
+          sheet.merge(
+            CellIndex.indexByColumnRow(columnIndex: colStart, rowIndex: currentRow),
+            CellIndex.indexByColumnRow(columnIndex: colEnd, rowIndex: currentRow),
+          );
         }
+        _setCellValue(sheet, colStart, currentRow,
+            months[gMonth - 1], headerStyle);
       }
     }
 
@@ -318,12 +305,33 @@ class MacrocycleExcelExport {
     currentRow = 14;
     _setCellValue(sheet, 0, currentRow, 'Intercambios', labelStyle);
 
-    // ─── ROWS 15-25: Escala gráfica (1.0, 0.9, ..., 0.0) ───────────
+    // ─── ROWS 15-25: Escala gráfica de porcentajes con barras verdes ─
+    // Cada fila = un nivel de porcentaje (100%, 90%, ..., 0%).
+    // Por cada semana, si el total del microciclo >= ese nivel,
+    // la celda se colorea verde.
+    final greenBarStyle = CellStyle(
+      fontSize: 8,
+      backgroundColorHex: ExcelColor.fromHexString('#27AE60'),
+      horizontalAlign: HorizontalAlign.Center,
+    );
+    final emptyScaleStyle = CellStyle(
+      fontSize: 8,
+      horizontalAlign: HorizontalAlign.Center,
+    );
     for (int s = 0; s <= 10; s++) {
       currentRow = 15 + s;
-      final value = (10 - s) / 10.0;
-      _setCellValue(sheet, 0, currentRow, value.toStringAsFixed(1),
+      final pctThreshold = (10 - s) * 10; // 100, 90, 80, ..., 0
+      _setCellValue(sheet, 0, currentRow, '$pctThreshold%',
           CellStyle(fontSize: 8, horizontalAlign: HorizontalAlign.Center));
+      for (int i = 0; i < totalWeeks; i++) {
+        final dist = micros[i].trainingDistribution;
+        final totalPct = (dist.total * 100).round();
+        if (totalPct >= pctThreshold && pctThreshold > 0) {
+          _setCellValue(sheet, colOffset + i, currentRow, '', greenBarStyle);
+        } else {
+          _setCellValue(sheet, colOffset + i, currentRow, '', emptyScaleStyle);
+        }
+      }
     }
 
     // ─── ROW 26: FÍSICA GENERAL ──────────────────────────────────────
@@ -336,8 +344,8 @@ class MacrocycleExcelExport {
     _setCellValue(sheet, 0, currentRow, 'FISICA GENERAL', fgLabelStyle);
     for (int i = 0; i < totalWeeks; i++) {
       final dist = micros[i].trainingDistribution;
-      _setCellNumeric(sheet, colOffset + i, currentRow,
-          dist.fisicaGeneral, percentStyle);
+      _setCellValue(sheet, colOffset + i, currentRow,
+          '${(dist.fisicaGeneral * 100).round()}%', percentStyle);
     }
 
     // ─── ROW 27: FÍSICA ESPECIAL ─────────────────────────────────────
@@ -351,8 +359,8 @@ class MacrocycleExcelExport {
         sheet, 0, currentRow, 'FISICA ESPECIAL', feLabelStyle);
     for (int i = 0; i < totalWeeks; i++) {
       final dist = micros[i].trainingDistribution;
-      _setCellNumeric(sheet, colOffset + i, currentRow,
-          dist.fisicaEspecial, percentStyle);
+      _setCellValue(sheet, colOffset + i, currentRow,
+          '${(dist.fisicaEspecial * 100).round()}%', percentStyle);
     }
 
     // ─── ROW 28: TÉCNICA ─────────────────────────────────────────────
@@ -365,8 +373,8 @@ class MacrocycleExcelExport {
     _setCellValue(sheet, 0, currentRow, 'TÉCNICA', tecLabelStyle);
     for (int i = 0; i < totalWeeks; i++) {
       final dist = micros[i].trainingDistribution;
-      _setCellNumeric(
-          sheet, colOffset + i, currentRow, dist.tecnica, percentStyle);
+      _setCellValue(
+          sheet, colOffset + i, currentRow, '${(dist.tecnica * 100).round()}%', percentStyle);
     }
 
     // ─── ROW 29: TÁTICA ──────────────────────────────────────────────
@@ -379,8 +387,8 @@ class MacrocycleExcelExport {
     _setCellValue(sheet, 0, currentRow, 'TÁTICA', tacLabelStyle);
     for (int i = 0; i < totalWeeks; i++) {
       final dist = micros[i].trainingDistribution;
-      _setCellNumeric(
-          sheet, colOffset + i, currentRow, dist.tactica, percentStyle);
+      _setCellValue(
+          sheet, colOffset + i, currentRow, '${(dist.tactica * 100).round()}%', percentStyle);
     }
 
     // ─── ROW 30: TEÓRICA ─────────────────────────────────────────────
@@ -393,8 +401,8 @@ class MacrocycleExcelExport {
     _setCellValue(sheet, 0, currentRow, 'TEÓRICA', teoLabelStyle);
     for (int i = 0; i < totalWeeks; i++) {
       final dist = micros[i].trainingDistribution;
-      _setCellNumeric(
-          sheet, colOffset + i, currentRow, dist.teorica, percentStyle);
+      _setCellValue(
+          sheet, colOffset + i, currentRow, '${(dist.teorica * 100).round()}%', percentStyle);
     }
 
     // ─── ROW 31: PSICOLÓGICA ─────────────────────────────────────────
@@ -407,8 +415,8 @@ class MacrocycleExcelExport {
     _setCellValue(sheet, 0, currentRow, 'PSICOLÓGICA', psiLabelStyle);
     for (int i = 0; i < totalWeeks; i++) {
       final dist = micros[i].trainingDistribution;
-      _setCellNumeric(sheet, colOffset + i, currentRow,
-          dist.psicologica, percentStyle);
+      _setCellValue(sheet, colOffset + i, currentRow,
+          '${(dist.psicologica * 100).round()}%', percentStyle);
     }
 
     // ─── ROW 32: TOTAL ───────────────────────────────────────────────
@@ -429,8 +437,8 @@ class MacrocycleExcelExport {
     _setCellValue(sheet, 0, currentRow, 'TOTAL', totalLabelStyle);
     for (int i = 0; i < totalWeeks; i++) {
       final dist = micros[i].trainingDistribution;
-      _setCellNumeric(
-          sheet, colOffset + i, currentRow, dist.total, totalCellStyle);
+      _setCellValue(
+          sheet, colOffset + i, currentRow, '${(dist.total * 100).round()}%', totalCellStyle);
     }
 
     // ─── ROW 33: Espacio ─────────────────────────────────────────────
@@ -648,19 +656,6 @@ class MacrocycleExcelExport {
     final cell =
         sheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row));
     cell.value = TextCellValue(value);
-    cell.cellStyle = style;
-  }
-
-  static void _setCellNumeric(
-    Sheet sheet,
-    int col,
-    int row,
-    double value,
-    CellStyle style,
-  ) {
-    final cell =
-        sheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row));
-    cell.value = DoubleCellValue(value);
     cell.cellStyle = style;
   }
 
