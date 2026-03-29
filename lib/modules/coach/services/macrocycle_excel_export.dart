@@ -436,103 +436,202 @@ class MacrocycleExcelExport {
     // ─── ROW 33: Espacio ─────────────────────────────────────────────
     currentRow = 33;
 
-    // ─── ROW 34-41: LEYENDA ──────────────────────────────────────────
+    // ─── ROW 34-41: LEYENDA (formato compacto) ──────────────────────
+    // Columnas: A=Etapa abrev, B=Etapa nombre, C=Meso abrev, D=Meso nombre,
+    //           E=Micro abrev, F=Micro nombre, G-L=LUN-SAB, M=% total
+    // Colores de días: Cyan (#00FFFF), Magenta (#FF00FF), Amarillo (#FFFF00),
+    //                  Blanco, y combinaciones según la imagen de referencia.
+
     currentRow = 34;
     _setCellValue(sheet, 0, currentRow, 'LEGENDA:', CellStyle(
-      bold: true,
-      fontSize: 10,
+      bold: true, fontSize: 10,
     ));
 
-    // Etapas
+    // Encabezados de días (columnas 6-11) y % (columna 12)
+    final dayHeaderStyle = CellStyle(
+      bold: true, fontSize: 9,
+      horizontalAlign: HorizontalAlign.Center,
+    );
+    final dayNames = ['LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB'];
+    for (int d = 0; d < dayNames.length; d++) {
+      _setCellValue(sheet, 6 + d, currentRow, dayNames[d], dayHeaderStyle);
+    }
+
+    // Estilos para colores de días por fila (según imagen)
+    final cyanBg = CellStyle(
+      fontSize: 9, horizontalAlign: HorizontalAlign.Center,
+      backgroundColorHex: ExcelColor.fromHexString('#00FFFF'),
+    );
+    final magentaBg = CellStyle(
+      fontSize: 9, horizontalAlign: HorizontalAlign.Center,
+      backgroundColorHex: ExcelColor.fromHexString('#FF00FF'),
+    );
+    final yellowBg = CellStyle(
+      fontSize: 9, horizontalAlign: HorizontalAlign.Center,
+      backgroundColorHex: ExcelColor.fromHexString('#FFFF00'),
+    );
+    final whiteBg = CellStyle(
+      fontSize: 9, horizontalAlign: HorizontalAlign.Center,
+    );
+    final pctStyle = CellStyle(
+      fontSize: 9, horizontalAlign: HorizontalAlign.Center,
+    );
+    final legendLabelStyle = CellStyle(fontSize: 9);
+    final legendBoldStyle = CellStyle(bold: true, fontSize: 9);
+
+    // ── Fila 1: T0 – TRANSICION / MR – MESOCICLO DE RECUPERACION / μ1 – MICROCICLO INCORPORACION
     currentRow = 35;
+    _setCellValue(sheet, 0, currentRow, 'T0', CellStyle(
+      bold: true, fontSize: 9,
+      backgroundColorHex: ExcelColor.fromHexString('#D1F2EB'),
+    ));
+    _setCellValue(sheet, 1, currentRow, 'TRANSICION', legendLabelStyle);
+    _setCellValue(sheet, 2, currentRow, 'MR', legendBoldStyle);
+    _setCellValue(sheet, 3, currentRow, 'MESOCICLO DE RECUPERACION', legendLabelStyle);
+    _setCellValue(sheet, 4, currentRow, 'μ1', legendBoldStyle);
+    _setCellValue(sheet, 5, currentRow, 'MICROCICLO INCORPORACION', legendLabelStyle);
+    // Días: 30% 60% 30% 60% 30% (vacío) → total 42%
+    _setCellValue(sheet, 6, currentRow, '30%', cyanBg);
+    _setCellValue(sheet, 7, currentRow, '60%', magentaBg);
+    _setCellValue(sheet, 8, currentRow, '30%', cyanBg);
+    _setCellValue(sheet, 9, currentRow, '60%', magentaBg);
+    _setCellValue(sheet, 10, currentRow, '30%', cyanBg);
+    _setCellValue(sheet, 11, currentRow, '', whiteBg);
+    _setCellValue(sheet, 12, currentRow, '42%', pctStyle);
+
+    // ── Fila 2: G1 – PREPARACION GENERAL / MI – MESOCICLO DE INCORPORACION / μ2 – MICROCICLO ORDINÁRIO
+    currentRow = 36;
     _setCellValue(sheet, 0, currentRow, 'G1', CellStyle(
       bold: true, fontSize: 9,
       backgroundColorHex: ExcelColor.fromHexString('#D6EAF8'),
     ));
-    _setCellValue(sheet, 1, currentRow, 'PREPARACION GENERAL', CellStyle(fontSize: 9));
-    _setCellValue(sheet, 3, currentRow, 'μ1', CellStyle(bold: true, fontSize: 9));
-    _setCellValue(sheet, 4, currentRow, 'MICROCICLO INCORPORACION', CellStyle(fontSize: 9));
+    _setCellValue(sheet, 1, currentRow, 'PREPARACION GENERAL', legendLabelStyle);
+    _setCellValue(sheet, 2, currentRow, 'MI', legendBoldStyle);
+    _setCellValue(sheet, 3, currentRow, 'MESOCICLO DE INCORPORACION', legendLabelStyle);
+    _setCellValue(sheet, 4, currentRow, 'μ2', legendBoldStyle);
+    _setCellValue(sheet, 5, currentRow, 'MICROCICLO ORDINÁRIO', legendLabelStyle);
+    // Días: vacíos → total 48%
+    for (int d = 6; d <= 11; d++) {
+      _setCellValue(sheet, d, currentRow, '', whiteBg);
+    }
+    _setCellValue(sheet, 12, currentRow, '48%', pctStyle);
 
-    currentRow = 36;
+    // ── Fila 3: E1 – PREPARACION ESPECIAL / MB – MESOCICLO DE BASE / μ3 – MICROCICLO ESTABILIZADOR
+    currentRow = 37;
     _setCellValue(sheet, 0, currentRow, 'E1', CellStyle(
       bold: true, fontSize: 9,
       backgroundColorHex: ExcelColor.fromHexString('#E8DAEF'),
     ));
-    _setCellValue(sheet, 1, currentRow, 'PREPARACION ESPECIAL', CellStyle(fontSize: 9));
-    _setCellValue(sheet, 3, currentRow, 'μ2', CellStyle(bold: true, fontSize: 9));
-    _setCellValue(sheet, 4, currentRow, 'MICROCICLO ORDINÁRIO', CellStyle(fontSize: 9));
+    _setCellValue(sheet, 1, currentRow, 'PREPARACION ESPECIAL', legendLabelStyle);
+    _setCellValue(sheet, 2, currentRow, 'MB', legendBoldStyle);
+    _setCellValue(sheet, 3, currentRow, 'MESOCICLO DE BASE', legendLabelStyle);
+    _setCellValue(sheet, 4, currentRow, 'μ3', legendBoldStyle);
+    _setCellValue(sheet, 5, currentRow, 'MICROCICLO ESTABILIZADOR', legendLabelStyle);
+    // Días: 70% 40% 70% 40% 70% (vacío) → total 58%
+    _setCellValue(sheet, 6, currentRow, '70%', cyanBg);
+    _setCellValue(sheet, 7, currentRow, '40%', magentaBg);
+    _setCellValue(sheet, 8, currentRow, '70%', cyanBg);
+    _setCellValue(sheet, 9, currentRow, '40%', magentaBg);
+    _setCellValue(sheet, 10, currentRow, '70%', cyanBg);
+    _setCellValue(sheet, 11, currentRow, '', whiteBg);
+    _setCellValue(sheet, 12, currentRow, '58%', pctStyle);
 
-    currentRow = 37;
+    // ── Fila 4: P1 – PRECOMPETITIVO / ME – MESOCICLO DE ESTABILIZACION / μ4 – MICROCICLO DE CHOQUE 1 VOLUMEN
+    currentRow = 38;
     _setCellValue(sheet, 0, currentRow, 'P1', CellStyle(
       bold: true, fontSize: 9,
       backgroundColorHex: ExcelColor.fromHexString('#FADBD8'),
     ));
-    _setCellValue(sheet, 1, currentRow, 'PRECOMPETITIVO', CellStyle(fontSize: 9));
-    _setCellValue(sheet, 3, currentRow, 'μ3', CellStyle(bold: true, fontSize: 9));
-    _setCellValue(sheet, 4, currentRow, 'MICROCICLO ESTABILIZADOR', CellStyle(fontSize: 9));
+    _setCellValue(sheet, 1, currentRow, 'PRECOMPETITIVO', legendLabelStyle);
+    _setCellValue(sheet, 2, currentRow, 'ME', legendBoldStyle);
+    _setCellValue(sheet, 3, currentRow, 'MESOCICLO DE ESTABILIZACION', legendLabelStyle);
+    _setCellValue(sheet, 4, currentRow, 'μ4', legendBoldStyle);
+    _setCellValue(sheet, 5, currentRow, 'MICROCICLO DE CHOQUE 1 VOLUMEN', legendLabelStyle);
+    // Días: 80% 20% 80% 20% 80% (vacío) → total 56%
+    _setCellValue(sheet, 6, currentRow, '80%', yellowBg);
+    _setCellValue(sheet, 7, currentRow, '20%', cyanBg);
+    _setCellValue(sheet, 8, currentRow, '80%', yellowBg);
+    _setCellValue(sheet, 9, currentRow, '20%', cyanBg);
+    _setCellValue(sheet, 10, currentRow, '80%', yellowBg);
+    _setCellValue(sheet, 11, currentRow, '', whiteBg);
+    _setCellValue(sheet, 12, currentRow, '56%', pctStyle);
 
-    currentRow = 38;
+    // ── Fila 5: C1 – COMPETITIVO / MC – MESOCICLO DE CONTROL / μ5 – MICROCICLO DE CHOQUE 2 INTENSIDAD
+    currentRow = 39;
     _setCellValue(sheet, 0, currentRow, 'C1', CellStyle(
       bold: true, fontSize: 9,
       backgroundColorHex: ExcelColor.fromHexString('#D5F5E3'),
     ));
-    _setCellValue(sheet, 1, currentRow, 'COMPETITIVO', CellStyle(fontSize: 9));
-    _setCellValue(sheet, 3, currentRow, 'μ4', CellStyle(bold: true, fontSize: 9));
-    _setCellValue(sheet, 4, currentRow, 'MICROCICLO DE CHOQUE 1 VOLUMEN', CellStyle(fontSize: 9));
+    _setCellValue(sheet, 1, currentRow, 'COMPETITIVO', legendLabelStyle);
+    _setCellValue(sheet, 2, currentRow, 'MC', legendBoldStyle);
+    _setCellValue(sheet, 3, currentRow, 'MESOCICLO DE CONTROL', legendLabelStyle);
+    _setCellValue(sheet, 4, currentRow, 'μ5', legendBoldStyle);
+    _setCellValue(sheet, 5, currentRow, 'MICROCICLO DE CHOQUE 2 INTENSIDAD', legendLabelStyle);
+    // Días: 100% 10% 100% 10% 100% (vacío) → total 64%
+    _setCellValue(sheet, 6, currentRow, '100%', yellowBg);
+    _setCellValue(sheet, 7, currentRow, '10%', cyanBg);
+    _setCellValue(sheet, 8, currentRow, '100%', yellowBg);
+    _setCellValue(sheet, 9, currentRow, '10%', cyanBg);
+    _setCellValue(sheet, 10, currentRow, '100%', yellowBg);
+    _setCellValue(sheet, 11, currentRow, '', whiteBg);
+    _setCellValue(sheet, 12, currentRow, '64%', pctStyle);
 
-    currentRow = 39;
+    // ── Fila 6: CN – CAMPEONATO NACIONAL / MP – MESOCICLO PRÉ COMPETITIVO / μ6 – MICROCICLO DE CHOQUE 3 COMPETENCIA
+    currentRow = 40;
     _setCellValue(sheet, 0, currentRow, 'CN', CellStyle(
       bold: true, fontSize: 9,
       fontColorHex: ExcelColor.fromHexString('#C0392B'),
     ));
-    _setCellValue(sheet, 1, currentRow, 'CAMPEONATO NACIONAL', CellStyle(fontSize: 9));
-    _setCellValue(sheet, 3, currentRow, 'μ5', CellStyle(bold: true, fontSize: 9));
-    _setCellValue(sheet, 4, currentRow, 'MICROCICLO DE CHOQUE 2 INTENSIDAD', CellStyle(fontSize: 9));
+    _setCellValue(sheet, 1, currentRow, 'CAMPEONATO NACIONAL', legendLabelStyle);
+    _setCellValue(sheet, 2, currentRow, 'MP', legendBoldStyle);
+    _setCellValue(sheet, 3, currentRow, 'MESOCICLO PRÉ COMPETITIVO', legendLabelStyle);
+    _setCellValue(sheet, 4, currentRow, 'μ6', legendBoldStyle);
+    _setCellValue(sheet, 5, currentRow, 'MICROCICLO DE CHOQUE 3 COMPETENCIA', legendLabelStyle);
+    // Días: 100% 100% 100% 100% 100% 100% → total 100%
+    _setCellValue(sheet, 6, currentRow, '100%', yellowBg);
+    _setCellValue(sheet, 7, currentRow, '100%', yellowBg);
+    _setCellValue(sheet, 8, currentRow, '100%', yellowBg);
+    _setCellValue(sheet, 9, currentRow, '100%', yellowBg);
+    _setCellValue(sheet, 10, currentRow, '100%', yellowBg);
+    _setCellValue(sheet, 11, currentRow, '100%', yellowBg);
+    _setCellValue(sheet, 12, currentRow, '100%', pctStyle);
 
-    currentRow = 40;
+    // ── Fila 7: CI – CAMPEONATO INTERNACIONAL / MCP – MESOCICLO COMPETITIVO / μ7 – MICROCICLO DE RECUPERACION
+    currentRow = 41;
     _setCellValue(sheet, 0, currentRow, 'CI', CellStyle(
       bold: true, fontSize: 9,
       fontColorHex: ExcelColor.fromHexString('#8E44AD'),
     ));
-    _setCellValue(sheet, 1, currentRow, 'CAMPEONATO INTERNACIONAL', CellStyle(fontSize: 9));
-    _setCellValue(sheet, 3, currentRow, 'μ6', CellStyle(bold: true, fontSize: 9));
-    _setCellValue(sheet, 4, currentRow, 'MICROCICLO DE CHOQUE 3 COMPETENCIA', CellStyle(fontSize: 9));
-
-    currentRow = 41;
-    _setCellValue(sheet, 3, currentRow, 'μ7', CellStyle(bold: true, fontSize: 9));
-    _setCellValue(sheet, 4, currentRow, 'MICROCICLO DE RECUPERACION', CellStyle(fontSize: 9));
-
-    // ─── MESOCICLOS (leyenda) ────────────────────────────────────────
-    currentRow = 43;
-    _setCellValue(sheet, 0, currentRow, 'MESOCICLOS:', CellStyle(
-      bold: true, fontSize: 10,
-    ));
-
-    currentRow = 44;
-    _setCellValue(sheet, 0, currentRow, 'MB', CellStyle(bold: true, fontSize: 9));
-    _setCellValue(sheet, 1, currentRow, 'MESOCICLO DE BASE', CellStyle(fontSize: 9));
-
-    currentRow = 45;
-    _setCellValue(sheet, 0, currentRow, 'ME', CellStyle(bold: true, fontSize: 9));
-    _setCellValue(sheet, 1, currentRow, 'MESOCICLO DE ESTABILIZACION', CellStyle(fontSize: 9));
-
-    currentRow = 46;
-    _setCellValue(sheet, 0, currentRow, 'MP', CellStyle(bold: true, fontSize: 9));
-    _setCellValue(sheet, 1, currentRow, 'MESOCICLO PRÉ COMPETITIVO', CellStyle(fontSize: 9));
-
-    currentRow = 47;
-    _setCellValue(sheet, 0, currentRow, 'MCP', CellStyle(bold: true, fontSize: 9));
-    _setCellValue(sheet, 1, currentRow, 'MESOCICLO COMPETITIVO', CellStyle(fontSize: 9));
-
-    currentRow = 48;
-    _setCellValue(sheet, 0, currentRow, 'TO', CellStyle(bold: true, fontSize: 9));
-    _setCellValue(sheet, 1, currentRow, 'TRANSICION', CellStyle(fontSize: 9));
+    _setCellValue(sheet, 1, currentRow, 'CAMPEONATO INTERNACIONAL', legendLabelStyle);
+    _setCellValue(sheet, 2, currentRow, 'MCP', legendBoldStyle);
+    _setCellValue(sheet, 3, currentRow, 'MESOCICLO COMPETITIVO', legendLabelStyle);
+    _setCellValue(sheet, 4, currentRow, 'μ7', legendBoldStyle);
+    _setCellValue(sheet, 5, currentRow, 'MICROCICLO DE RECUPERACION', legendLabelStyle);
+    // Días: 70% 40% 20% 70% 40% 20% → total 43%
+    _setCellValue(sheet, 6, currentRow, '70%', cyanBg);
+    _setCellValue(sheet, 7, currentRow, '40%', magentaBg);
+    _setCellValue(sheet, 8, currentRow, '20%', cyanBg);
+    _setCellValue(sheet, 9, currentRow, '70%', magentaBg);
+    _setCellValue(sheet, 10, currentRow, '40%', cyanBg);
+    _setCellValue(sheet, 11, currentRow, '20%', whiteBg);
+    _setCellValue(sheet, 12, currentRow, '43%', pctStyle);
 
     // ─── Ajustar anchos de columna ───────────────────────────────────
     sheet.setColumnWidth(0, 25);
     for (int i = 0; i < totalWeeks; i++) {
       sheet.setColumnWidth(colOffset + i, 6);
     }
+    // Columnas extra para leyenda (C=2, D=3, E=4, F=5 se usan en la leyenda)
+    // Asegurar que tengan ancho adecuado si no fueron cubiertas por semanas
+    if (totalWeeks < 2) sheet.setColumnWidth(2, 6);
+    if (totalWeeks < 3) sheet.setColumnWidth(3, 30);
+    if (totalWeeks < 4) sheet.setColumnWidth(4, 6);
+    if (totalWeeks < 5) sheet.setColumnWidth(5, 35);
+    // Columnas de días (G-L = 6-11) y total (M = 12)
+    for (int d = 6; d <= 11; d++) {
+      if (totalWeeks < d) sheet.setColumnWidth(d, 8);
+    }
+    if (totalWeeks < 12) sheet.setColumnWidth(12, 8);
   }
 
   // ══════════════════════════════════════════════════════════════════════
