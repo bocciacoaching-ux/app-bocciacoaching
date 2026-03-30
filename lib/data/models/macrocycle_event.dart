@@ -64,6 +64,16 @@ class MacrocycleEvent {
         'macrocycleId': macrocycleId,
       };
 
+  /// JSON para CreateMacrocycleEventDto (sin id, macrocycleEventId, macrocycleId).
+  Map<String, dynamic> toCreateJson() => {
+        'name': name,
+        'type': type.name,
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+        'location': location,
+        'notes': notes,
+      };
+
   factory MacrocycleEvent.fromJson(Map<String, dynamic> json) {
     return MacrocycleEvent(
       id: (json['macrocycleEventId'] ?? json['id'] ?? '').toString(),

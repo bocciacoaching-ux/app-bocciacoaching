@@ -207,6 +207,19 @@ class Microcycle {
         'trainingDistribution': trainingDistribution.toJson(),
       };
 
+  /// JSON para CreateMicrocycleDto (sin microcycleId, macrocycleId, notes).
+  Map<String, dynamic> toCreateJson() => {
+        'number': number,
+        'weekNumber': weekNumber,
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+        'type': type.name,
+        'periodName': periodName,
+        'mesocycleName': mesocycleName,
+        'hasPeakPerformance': hasPeakPerformance,
+        'trainingDistribution': trainingDistribution.toJson(),
+      };
+
   factory Microcycle.fromJson(Map<String, dynamic> json) {
     final type = MicrocycleType.values.firstWhere(
       (e) => e.name == json['type'],

@@ -105,7 +105,9 @@ class MacrocycleProvider extends ChangeNotifier {
   // ── CRUD ───────────────────────────────────────────────────────────
 
   /// Agrega un macrociclo nuevo: envía a la API y persiste localmente.
-  Future<void> addMacrocycle(Macrocycle macrocycle) async {
+  ///
+  /// Retorna `null` si se creó con éxito, o un mensaje de error del backend.
+  Future<String?> addMacrocycle(Macrocycle macrocycle) async {
     // Intentar crear en la API
     try {
       final result = await _service.create(
@@ -118,33 +120,42 @@ class MacrocycleProvider extends ChangeNotifier {
         endDate: macrocycle.endDate,
         notes: macrocycle.notes,
         events: macrocycle.events
-            .map((e) => e.toJson())
+            .map((e) => e.toCreateJson())
             .toList(),
         mesocycles: macrocycle.mesocycles
-            .map((m) => m.toJson())
+            .map((m) => m.toCreateJson())
             .toList(),
         microcycles: macrocycle.microcycles
-            .map((m) => m.toJson())
+            .map((m) => m.toCreateJson())
             .toList(),
       );
-      if (result != null && result['data'] != null) {
-        final apiId = result['data']['macrocycleId']?.toString();
-        if (apiId != null) {
-          // Actualizar el macrociclo con el ID de la API
-          final updated = macrocycle.copyWith(macrocycleId: apiId);
-          _macrocycles.add(updated);
-          await _save();
-          notifyListeners();
-          return;
+      if (result != null) {
+        if (result['success'] == true && result['data'] != null) {
+          final apiId = result['data']['macrocycleId']?.toString();
+          if (apiId != null) {
+            // Actualizar el macrociclo con el ID de la API
+            final updated = macrocycle.copyWith(macrocycleId: apiId);
+            _macrocycles.add(updated);
+            await _save();
+            notifyListeners();
+            return null; // éxito
+          }
         }
+        // La API respondió con success: false
+        final msg = result['message'] as String? ?? 'Error desconocido del servidor';
+        _errorMessage = msg;
+        notifyListeners();
+        return msg;
       }
-    } catch (_) {
-      // Fallback: guardar solo localmente
+    } catch (e) {
+      debugPrint('[MacrocycleProvider] addMacrocycle error: $e');
     }
 
+    // Fallback: guardar solo localmente
     _macrocycles.add(macrocycle);
     await _save();
     notifyListeners();
+    return null;
   }
 
   /// Actualiza un macrociclo existente: envía a la API y persiste localmente.
@@ -218,6 +229,8 @@ class MacrocycleProvider extends ChangeNotifier {
     required DateTime startDate,
     required DateTime endDate,
     required List<MacrocycleEvent> events,
+    int? coachId,
+    int? teamId,
     String? notes,
   }) {
     // Normalizar fechas al inicio de semana (lunes)
@@ -249,6 +262,8 @@ class MacrocycleProvider extends ChangeNotifier {
       name: name,
       startDate: normalizedStart,
       endDate: normalizedEnd,
+      coachId: coachId,
+      teamId: teamId,
       events: events,
       periods: periods,
       mesocycles: mesocycles,

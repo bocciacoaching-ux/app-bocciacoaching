@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../constants/app_config.dart';
 import '../../data/models/macrocycle.dart';
@@ -28,28 +29,33 @@ class MacrocycleService {
     List<Map<String, dynamic>>? microcycles,
   }) async {
     try {
+      final body = {
+        'athleteId': athleteId,
+        'athleteName': athleteName,
+        'name': name,
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+        'notes': notes,
+        'coachId': coachId,
+        'teamId': teamId,
+        if (events != null) 'events': events,
+        if (mesocycles != null) 'mesocycles': mesocycles,
+        if (microcycles != null) 'microcycles': microcycles,
+      };
+      debugPrint('[MacrocycleService] POST Create body: ${jsonEncode(body)}');
       final response = await http.post(
         Uri.parse('$_base/Macrocycle/Create'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'athleteId': athleteId,
-          'athleteName': athleteName,
-          'name': name,
-          'startDate': startDate.toIso8601String(),
-          'endDate': endDate.toIso8601String(),
-          'notes': notes,
-          'coachId': coachId,
-          'teamId': teamId,
-          if (events != null) 'events': events,
-          if (mesocycles != null) 'mesocycles': mesocycles,
-          if (microcycles != null) 'microcycles': microcycles,
-        }),
+        body: jsonEncode(body),
       );
+      debugPrint('[MacrocycleService] Create status: ${response.statusCode}');
+      debugPrint('[MacrocycleService] Create response: ${response.body}');
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
       return null;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[MacrocycleService] Create error: $e');
       return null;
     }
   }

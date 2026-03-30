@@ -59,6 +59,17 @@ class Mesocycle {
         'macrocycleId': macrocycleId,
       };
 
+  /// JSON para CreateMesocycleDto (sin mesocycleId, macrocycleId).
+  Map<String, dynamic> toCreateJson() => {
+        'number': number,
+        'name': name,
+        'type': type.name,
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+        'weeks': weeks,
+        'objective': objective,
+      };
+
   factory Mesocycle.fromJson(Map<String, dynamic> json) {
     return Mesocycle(
       mesocycleId: json['mesocycleId'] as int?,

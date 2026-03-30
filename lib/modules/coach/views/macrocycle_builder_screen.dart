@@ -6,6 +6,7 @@ import '../../../data/models/macrocycle.dart';
 import '../../../data/models/macrocycle_event.dart';
 import '../../../data/models/mesocycle.dart';
 import '../../../data/providers/macrocycle_provider.dart';
+import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
 
 /// Pantalla para construir un macrociclo nuevo.
@@ -1166,6 +1167,11 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
   void _calculateMacrocycle() {
     setState(() => _isCalculating = true);
 
+    // Obtener coachId y teamId de la sesión / equipo actual
+    final session = context.read<SessionProvider>().session;
+    final team = context.read<TeamProvider>().selectedTeam;
+    final coachId = session?.userId ?? team?.coachId;
+
     // Simular un pequeño delay para UX
     Future.delayed(const Duration(milliseconds: 500), () {
       final macro = MacrocycleProvider.buildMacrocycle(
@@ -1176,6 +1182,8 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
         startDate: _startDate!,
         endDate: _endDate!,
         events: _events,
+        coachId: coachId,
+        teamId: team?.teamId,
         notes: _notesController.text.trim().isNotEmpty
             ? _notesController.text.trim()
             : null,
@@ -1191,11 +1199,26 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
   Future<void> _saveMacrocycle() async {
     if (_previewMacrocycle == null) return;
 
-    await context
+    final error = await context
         .read<MacrocycleProvider>()
         .addMacrocycle(_previewMacrocycle!);
 
     if (!mounted) return;
+
+    if (error != null) {
+      // La API rechazó la creación → mostrar error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $error'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+      return;
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
