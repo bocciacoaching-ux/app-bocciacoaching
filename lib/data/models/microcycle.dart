@@ -131,6 +131,7 @@ class TrainingDistribution {
 
 /// Microciclo — unidad mínima de planificación, generalmente 1 semana.
 class Microcycle {
+  final int? microcycleId;
   final int number;
   final DateTime startDate;
   final DateTime endDate;
@@ -139,9 +140,12 @@ class Microcycle {
   final String? mesocycleName;
   final String? periodName;
   final String? notes;
+  final bool hasPeakPerformance;
+  final String? macrocycleId;
   final TrainingDistribution trainingDistribution;
 
   const Microcycle({
+    this.microcycleId,
     required this.number,
     required this.startDate,
     required this.endDate,
@@ -150,6 +154,8 @@ class Microcycle {
     this.mesocycleName,
     this.periodName,
     this.notes,
+    this.hasPeakPerformance = false,
+    this.macrocycleId,
     this.trainingDistribution = const TrainingDistribution(),
   });
 
@@ -157,6 +163,7 @@ class Microcycle {
   String get label => 'Micro $number (Sem $weekNumber)';
 
   Microcycle copyWith({
+    int? microcycleId,
     int? number,
     DateTime? startDate,
     DateTime? endDate,
@@ -165,9 +172,12 @@ class Microcycle {
     String? mesocycleName,
     String? periodName,
     String? notes,
+    bool? hasPeakPerformance,
+    String? macrocycleId,
     TrainingDistribution? trainingDistribution,
   }) {
     return Microcycle(
+      microcycleId: microcycleId ?? this.microcycleId,
       number: number ?? this.number,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
@@ -176,11 +186,14 @@ class Microcycle {
       mesocycleName: mesocycleName ?? this.mesocycleName,
       periodName: periodName ?? this.periodName,
       notes: notes ?? this.notes,
+      hasPeakPerformance: hasPeakPerformance ?? this.hasPeakPerformance,
+      macrocycleId: macrocycleId ?? this.macrocycleId,
       trainingDistribution: trainingDistribution ?? this.trainingDistribution,
     );
   }
 
   Map<String, dynamic> toJson() => {
+        'microcycleId': microcycleId,
         'number': number,
         'startDate': startDate.toIso8601String(),
         'endDate': endDate.toIso8601String(),
@@ -189,6 +202,8 @@ class Microcycle {
         'mesocycleName': mesocycleName,
         'periodName': periodName,
         'notes': notes,
+        'hasPeakPerformance': hasPeakPerformance,
+        'macrocycleId': macrocycleId,
         'trainingDistribution': trainingDistribution.toJson(),
       };
 
@@ -198,6 +213,7 @@ class Microcycle {
       orElse: () => MicrocycleType.ordinario,
     );
     return Microcycle(
+      microcycleId: json['microcycleId'] as int?,
       number: json['number'] as int,
       startDate: DateTime.parse(json['startDate'] as String),
       endDate: DateTime.parse(json['endDate'] as String),
@@ -206,6 +222,8 @@ class Microcycle {
       mesocycleName: json['mesocycleName'] as String?,
       periodName: json['periodName'] as String?,
       notes: json['notes'] as String?,
+      hasPeakPerformance: json['hasPeakPerformance'] as bool? ?? false,
+      macrocycleId: json['macrocycleId']?.toString(),
       trainingDistribution: json['trainingDistribution'] != null
           ? TrainingDistribution.fromJson(
               json['trainingDistribution'] as Map<String, dynamic>)

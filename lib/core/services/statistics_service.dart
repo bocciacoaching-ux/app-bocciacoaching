@@ -273,4 +273,64 @@ class StatisticsService {
       return null;
     }
   }
+
+  // GET /api/Statistics/SaremasTeamStats/{teamId}
+  Future<Map<String, dynamic>?> getSaremasTeamStats(int teamId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_base/Statistics/SaremasTeamStats/$teamId'),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // GET /api/Statistics/SaremasAthleteStats/{athleteId}
+  Future<Map<String, dynamic>?> getSaremasAthleteStats(int athleteId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_base/Statistics/SaremasAthleteStats/$athleteId'),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // GET /api/Statistics/MacrocycleProgress/{macrocycleId}
+  Future<Map<String, dynamic>?> getMacrocycleProgress(int macrocycleId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_base/Statistics/MacrocycleProgress/$macrocycleId'),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // GET /api/Statistics/AthleteFullDashboard/{athleteId}
+  Future<Map<String, dynamic>?> getAthleteFullDashboard(int athleteId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_base/Statistics/AthleteFullDashboard/$athleteId'),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
 }

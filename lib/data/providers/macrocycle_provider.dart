@@ -3,8 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/macrocycle.dart';
 import '../models/macrocycle_event.dart';
+import '../models/macrocycle_summary.dart';
 import '../models/mesocycle.dart';
 import '../models/microcycle.dart';
+import '../../core/services/macrocycle_service.dart';
 
 /// Provider que gestiona el estado de los macrociclos.
 ///
@@ -12,6 +14,8 @@ import '../models/microcycle.dart';
 /// y microciclos, así como la lista completa de macrociclos.
 class MacrocycleProvider extends ChangeNotifier {
   static const _kStorageKey = 'macrocycles_data';
+
+  final MacrocycleService _service = MacrocycleService();
 
   List<Macrocycle> _macrocycles = [];
   bool _isLoading = false;
@@ -30,13 +34,39 @@ class MacrocycleProvider extends ChangeNotifier {
 
   // ── Persistencia ───────────────────────────────────────────────────
 
-  /// Carga los macrociclos desde SharedPreferences.
-  Future<void> loadMacrocycles() async {
+  /// Carga los macrociclos desde la API (por equipo) con fallback a local.
+  Future<void> loadMacrocycles({int? teamId}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
+      // Intentar cargar desde la API si se tiene teamId
+      if (teamId != null) {
+        final List<MacrocycleSummaryDto>? summaries = await _service.getByTeam(teamId);
+        if (summaries != null && summaries.isNotEmpty) {
+          // Obtener cada macrociclo completo por su ID
+          final fullMacrocycles = <Macrocycle>[];
+          for (final summary in summaries) {
+            if (summary.macrocycleId != null) {
+              final full = await _service.getById(summary.macrocycleId!);
+              if (full != null) {
+                fullMacrocycles.add(full);
+              }
+            }
+          }
+          if (fullMacrocycles.isNotEmpty) {
+            _macrocycles = fullMacrocycles;
+            // Sincronizar a local
+            await _save();
+            _isLoading = false;
+            notifyListeners();
+            return;
+          }
+        }
+      }
+
+      // Fallback: cargar desde SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString(_kStorageKey);
       if (raw != null) {
@@ -46,7 +76,19 @@ class MacrocycleProvider extends ChangeNotifier {
             .toList();
       }
     } catch (e) {
-      _errorMessage = 'Error al cargar macrociclos: $e';
+      // Si la API falla, intentar cargar localmente
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final raw = prefs.getString(_kStorageKey);
+        if (raw != null) {
+          final list = jsonDecode(raw) as List<dynamic>;
+          _macrocycles = list
+              .map((e) => Macrocycle.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
+      } catch (localError) {
+        _errorMessage = 'Error al cargar macrociclos: $localError';
+      }
     }
 
     _isLoading = false;
@@ -62,25 +104,97 @@ class MacrocycleProvider extends ChangeNotifier {
 
   // ── CRUD ───────────────────────────────────────────────────────────
 
-  /// Agrega un macrociclo nuevo y lo persiste.
+  /// Agrega un macrociclo nuevo: envía a la API y persiste localmente.
   Future<void> addMacrocycle(Macrocycle macrocycle) async {
+    // Intentar crear en la API
+    try {
+      final result = await _service.create(
+        name: macrocycle.name,
+        athleteId: macrocycle.athleteId,
+        athleteName: macrocycle.athleteName,
+        coachId: macrocycle.coachId ?? 0,
+        teamId: macrocycle.teamId ?? 0,
+        startDate: macrocycle.startDate,
+        endDate: macrocycle.endDate,
+        notes: macrocycle.notes,
+        events: macrocycle.events
+            .map((e) => e.toJson())
+            .toList(),
+        mesocycles: macrocycle.mesocycles
+            .map((m) => m.toJson())
+            .toList(),
+        microcycles: macrocycle.microcycles
+            .map((m) => m.toJson())
+            .toList(),
+      );
+      if (result != null && result['data'] != null) {
+        final apiId = result['data']['macrocycleId']?.toString();
+        if (apiId != null) {
+          // Actualizar el macrociclo con el ID de la API
+          final updated = macrocycle.copyWith(macrocycleId: apiId);
+          _macrocycles.add(updated);
+          await _save();
+          notifyListeners();
+          return;
+        }
+      }
+    } catch (_) {
+      // Fallback: guardar solo localmente
+    }
+
     _macrocycles.add(macrocycle);
     await _save();
     notifyListeners();
   }
 
-  /// Actualiza un macrociclo existente y lo persiste.
+  /// Actualiza un macrociclo existente: envía a la API y persiste localmente.
   Future<void> updateMacrocycle(Macrocycle macrocycle) async {
     final index = _macrocycles.indexWhere((m) => m.id == macrocycle.id);
     if (index >= 0) {
+      // Intentar actualizar en la API si tiene macrocycleId
+      if (macrocycle.macrocycleId != null) {
+        try {
+          await _service.update(
+            macrocycleId: macrocycle.macrocycleId!,
+            name: macrocycle.name,
+            athleteId: macrocycle.athleteId,
+            athleteName: macrocycle.athleteName,
+            coachId: macrocycle.coachId ?? 0,
+            teamId: macrocycle.teamId ?? 0,
+            startDate: macrocycle.startDate,
+            endDate: macrocycle.endDate,
+            notes: macrocycle.notes,
+            events: macrocycle.events
+                .map((e) => e.toJson())
+                .toList(),
+          );
+        } catch (_) {
+          // Continuamos con persistencia local
+        }
+      }
+
       _macrocycles[index] = macrocycle;
       await _save();
       notifyListeners();
     }
   }
 
-  /// Elimina un macrociclo por ID.
+  /// Elimina un macrociclo por ID: llama a la API y lo remueve localmente.
   Future<void> deleteMacrocycle(String id) async {
+    final target = _macrocycles.firstWhere(
+      (m) => m.id == id,
+      orElse: () => _macrocycles.first,
+    );
+
+    // Si tiene macrocycleId de la API, eliminarlo allí también
+    if (target.macrocycleId != null) {
+      try {
+        await _service.delete(target.macrocycleId!);
+      } catch (_) {
+        // Continuamos con eliminación local
+      }
+    }
+
     _macrocycles.removeWhere((m) => m.id == id);
     await _save();
     notifyListeners();

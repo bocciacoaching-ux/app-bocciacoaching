@@ -9,6 +9,7 @@ import '../../../shared/widgets/team_end_drawer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
+import '../../../data/providers/statistics_provider.dart';
 
 /// Dashboard específico para el rol de **atleta** (rolId == 3).
 ///
@@ -38,47 +39,61 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // ── Datos simulados del dashboard del atleta ───────────────────────
-  final bool _isNewUser = false;
+  // ── Datos del dashboard del atleta desde la API ─────────────────────
+  bool get _isNewUser {
+    final dashboard = context.read<StatisticsProvider>().athleteDashboard;
+    if (dashboard == null) return false;
+    final total = (dashboard['totalEvaluations'] as num?) ?? 0;
+    return total == 0;
+  }
 
-  // Stats personales
-  final int _totalEvaluations = 5;
-  final double _avgEffectiveness = 72.3;
-  final int _pendingEvaluations = 1;
-  final int _completedSessions = 12;
+  // Stats personales desde la API
+  int get _totalEvaluations =>
+      (context.read<StatisticsProvider>().athleteDashboard?['totalEvaluations']
+              as num?)
+          ?.toInt() ??
+      0;
+  double get _avgEffectiveness =>
+      (context.read<StatisticsProvider>().athleteDashboard?['avgEffectiveness']
+              as num?)
+          ?.toDouble() ??
+      0.0;
+  int get _pendingEvaluations =>
+      (context.read<StatisticsProvider>().athleteDashboard?['pendingEvaluations']
+              as num?)
+          ?.toInt() ??
+      0;
+  int get _completedSessions =>
+      (context.read<StatisticsProvider>().athleteDashboard?['completedSessions']
+              as num?)
+          ?.toInt() ??
+      0;
 
-  // Mis evaluaciones recientes
-  final List<Map<String, dynamic>> _recentActivity = [
-    {
-      'type': 'evaluation',
-      'title': 'Evaluación de Fuerza completada',
-      'subtitle': '78% efectividad · 36 tiros',
-      'time': 'Hace 2 horas',
-      'icon': Icons.check_circle_outline,
-      'color': AppColors.primary,
-    },
-    {
-      'type': 'evaluation',
-      'title': 'Evaluación de Dirección en curso',
-      'subtitle': '18/36 tiros completados',
-      'time': 'Ayer',
-      'icon': Icons.timer_outlined,
-      'color': AppColors.info,
-    },
-    {
-      'type': 'result',
-      'title': 'Nuevo récord personal',
-      'subtitle': 'Fuerza: mejor puntaje en cajón 3',
-      'time': 'Hace 3 días',
-      'icon': Icons.emoji_events_outlined,
-      'color': AppColors.accent2,
-    },
-  ];
+  // Evaluaciones recientes desde la API
+  List<Map<String, dynamic>> get _recentActivity {
+    final dashboard = context.read<StatisticsProvider>().athleteDashboard;
+    final recent = dashboard?['recentEvaluations'];
+    if (recent is! List || recent.isEmpty) return [];
+    return recent.map<Map<String, dynamic>>((e) {
+      final item = e as Map<String, dynamic>;
+      return {
+        'type': 'evaluation',
+        'title': item['testType'] ?? 'Evaluación',
+        'subtitle': '${item['score'] ?? ''}% efectividad',
+        'time': item['date'] ?? '',
+        'icon': Icons.check_circle_outline,
+        'color': AppColors.primary,
+      };
+    }).toList();
+  }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadTeams());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadTeams();
+      _loadAthleteDashboard();
+    });
   }
 
   Future<void> _loadTeams() async {
@@ -90,9 +105,18 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
     }
   }
 
+  Future<void> _loadAthleteDashboard() async {
+    final session = context.read<SessionProvider>().session;
+    if (session == null) return;
+    final stats = context.read<StatisticsProvider>();
+    await stats.fetchAthleteFullDashboard(session.userId);
+  }
+
   @override
   Widget build(BuildContext context) {
     final teamProvider = context.watch<TeamProvider>();
+    // Watch statistics for reactive updates
+    context.watch<StatisticsProvider>();
     final selected = teamProvider.selectedTeam;
     final selectedName = selected?.nameTeam ?? 'Sin equipo';
     final selectedCountry = selected?.country ?? '';

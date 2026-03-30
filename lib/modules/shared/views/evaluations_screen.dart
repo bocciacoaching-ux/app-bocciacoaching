@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../data/models/active_evaluation.dart';
 import '../../../data/models/active_direction_evaluation.dart';
+import '../../../data/models/active_saremas_evaluation.dart';
 import '../../../data/providers/force_test_provider.dart';
 import '../../../data/providers/direction_test_provider.dart';
+import '../../../data/providers/saremas_provider.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
 import '../../../core/theme/app_colors.dart';
@@ -26,11 +28,17 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
   /// `null` = no se ha consultado o no hay evaluación activa (dirección).
   ActiveDirectionEvaluation? _activeDirectionEval;
 
+  /// `null` = no se ha consultado o no hay evaluación activa (SAREMAS+).
+  ActiveSaremasEvaluation? _activeSaremasEval;
+
   /// `true` mientras se ejecuta la petición GET para fuerza.
   bool _checking = false;
 
   /// `true` mientras se ejecuta la petición GET para dirección.
   bool _checkingDirection = false;
+
+  /// `true` mientras se ejecuta la petición GET para SAREMAS+.
+  bool _checkingSaremas = false;
 
   // ─────────────────────────────────────────────────────────────────
   //  Clic en la tarjeta de Evaluación de Fuerza
@@ -175,16 +183,66 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
   //  Clic en la tarjeta de Evaluación SAREMAS+
   // ─────────────────────────────────────────────────────────────────
   Future<void> _onSaremasCardTap() async {
-    final confirmed = await AppDialog.confirm(
-      context,
-      title: 'Nueva evaluación',
-      message:
-          '¿Deseas iniciar una nueva evaluación SAREMAS+? Son 28 lanzamientos en 4 diagonales.',
-      confirmLabel: 'Iniciar',
-      icon: Icons.star_rounded,
-    );
-    if (!confirmed || !mounted) return;
+    if (_checkingSaremas) return;
+
+    setState(() {
+      _checkingSaremas = true;
+      _activeSaremasEval = null;
+    });
+
+    final provider = context.read<SaremasProvider>();
+    final session = context.read<SessionProvider>().session;
+    final team = context.read<TeamProvider>().selectedTeam;
+
+    final coachId = session?.userId ?? 1;
+    final teamId = team?.teamId ?? 1;
+
+    final result = await provider.checkForActiveEvaluation(teamId, coachId);
+
+    if (!mounted) return;
+
+    if (result != null) {
+      setState(() {
+        _activeSaremasEval = result;
+        _checkingSaremas = false;
+      });
+    } else {
+      setState(() {
+        _activeSaremasEval = null;
+        _checkingSaremas = false;
+      });
+      if (!mounted) return;
+      final confirmed = await AppDialog.confirm(
+        context,
+        title: 'Nueva evaluación',
+        message:
+            '¿Deseas iniciar una nueva evaluación SAREMAS+? Son 28 lanzamientos en 4 diagonales.',
+        confirmLabel: 'Iniciar',
+        icon: Icons.star_rounded,
+      );
+      if (!confirmed || !mounted) return;
+      await provider.resetForNewEvaluation();
+      if (!mounted) return;
+      Navigator.of(context).pushNamed('/saremas-test-module');
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  //  Continuar la evaluación SAREMAS+ activa
+  // ─────────────────────────────────────────────────────────────────
+  Future<void> _continueActiveSaremasEvaluation() async {
+    final provider = context.read<SaremasProvider>();
+    await provider.resumeEvaluation(_activeSaremasEval!);
+    if (!mounted) return;
+    setState(() => _activeSaremasEval = null);
     Navigator.of(context).pushNamed('/saremas-test-module');
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  //  Descartar la card de SAREMAS+
+  // ─────────────────────────────────────────────────────────────────
+  void _dismissActiveSaremasCard() {
+    setState(() => _activeSaremasEval = null);
   }
 
   @override
@@ -235,6 +293,12 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
               onTap: _onSaremasCardTap,
               child: _buildSaremasEvaluationCard(),
             ),
+
+            // ── Card de evaluación SAREMAS+ activa ─────────────────
+            if (_activeSaremasEval != null) ...[
+              const SizedBox(height: 16),
+              _buildActiveSaremasEvaluationCard(_activeSaremasEval!),
+            ],
 
             const SizedBox(height: 32),
 
@@ -874,6 +938,198 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
               fontSize: 14,
               color: AppColors.textSecondary,
               height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  //  Card: evaluación SAREMAS+ activa pendiente
+  // ─────────────────────────────────────────────────────────────────
+  Widget _buildActiveSaremasEvaluationCard(ActiveSaremasEvaluation eval) {
+    final athleteNames =
+        eval.athletes.map((a) => a.name ?? 'Atleta ${a.athleteId}').join(', ');
+    final throwsDone = eval.athletes.fold<int>(
+        0, (sum, a) => sum + a.throws_.length);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+            color: AppColors.accent5.withOpacity(0.35), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.accent5.withOpacity(0.12),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Encabezado ────────────────────────────────────────────
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.accent5,
+                  AppColors.accent5.withOpacity(0.75),
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(14),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: AppColors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.pending_actions_rounded,
+                    color: AppColors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Evaluación SAREMAS+ Pendiente',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.white,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: _dismissActiveSaremasCard,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      color: AppColors.white,
+                      size: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ── Cuerpo ────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _infoRow(Icons.edit_note_rounded, 'Nombre',
+                    eval.description ?? 'Evaluación SAREMAS+'),
+                const SizedBox(height: 10),
+                _infoRow(Icons.groups_rounded, 'Equipo',
+                    'Equipo ${eval.teamId}'),
+                if (athleteNames.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  _infoRow(Icons.person_outline_rounded, 'Atletas',
+                      athleteNames),
+                ],
+                const SizedBox(height: 10),
+                _infoRow(
+                  Icons.sports_rounded,
+                  'Lanzamientos',
+                  '$throwsDone registrados',
+                ),
+                const SizedBox(height: 16),
+
+                // ── Barra de progreso ──────────────────────────────
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Progreso',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    Text(
+                      '$throwsDone / 28 tiros',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.accent5,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: throwsDone / 28,
+                    minHeight: 7,
+                    backgroundColor: AppColors.neutral8,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.accent5,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
+                InfoCard.info(
+                  message:
+                      'No puedes crear una nueva prueba mientras tengas una pendiente.',
+                  margin: EdgeInsets.zero,
+                ),
+
+                const SizedBox(height: 16),
+
+                // ── Botón continuar ────────────────────────────────
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _continueActiveSaremasEvaluation,
+                    icon:
+                        const Icon(Icons.play_arrow_rounded, size: 20),
+                    label: const Text(
+                      'CONTINUAR EVALUACIÓN',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.accent5,
+                      foregroundColor: AppColors.white,
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
             ),
           ),
         ],

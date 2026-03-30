@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import '../../core/services/assess_strength_service.dart';
+import '../../core/services/statistics_service.dart';
 
 enum StatsLoadingStatus { idle, loading, success, error }
 
 class StatisticsProvider extends ChangeNotifier {
   final AssessStrengthService _service = AssessStrengthService();
+  final StatisticsService _statisticsService = StatisticsService();
 
   // ── Estado de evaluaciones del equipo ──────────────────────────────
   List<Map<String, dynamic>> _evaluations = [];
@@ -165,6 +167,227 @@ class StatisticsProvider extends ChangeNotifier {
     ]);
   }
 
+  // ══════════════════════════════════════════════════════════════════
+  // DASHBOARD DATA (powered by StatisticsService)
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── Indicadores del dashboard ─────────────────────────────────────
+  Map<String, dynamic>? _dashboardIndicators;
+  StatsLoadingStatus _dashboardIndicatorsStatus = StatsLoadingStatus.idle;
+
+  Map<String, dynamic>? get dashboardIndicators => _dashboardIndicators;
+  StatsLoadingStatus get dashboardIndicatorsStatus =>
+      _dashboardIndicatorsStatus;
+  bool get isLoadingDashboardIndicators =>
+      _dashboardIndicatorsStatus == StatsLoadingStatus.loading;
+
+  // ── Dashboard completo ────────────────────────────────────────────
+  Map<String, dynamic>? _dashboardComplete;
+  StatsLoadingStatus _dashboardCompleteStatus = StatsLoadingStatus.idle;
+
+  Map<String, dynamic>? get dashboardComplete => _dashboardComplete;
+  StatsLoadingStatus get dashboardCompleteStatus => _dashboardCompleteStatus;
+
+  // ── Top atletas ───────────────────────────────────────────────────
+  List<Map<String, dynamic>> _topAthletes = [];
+  StatsLoadingStatus _topAthletesStatus = StatsLoadingStatus.idle;
+
+  List<Map<String, dynamic>> get topAthletes =>
+      List.unmodifiable(_topAthletes);
+  StatsLoadingStatus get topAthletesStatus => _topAthletesStatus;
+
+  // ── Tests recientes ───────────────────────────────────────────────
+  List<Map<String, dynamic>> _recentTests = [];
+  StatsLoadingStatus _recentTestsStatus = StatsLoadingStatus.idle;
+
+  List<Map<String, dynamic>> get recentTests =>
+      List.unmodifiable(_recentTests);
+  StatsLoadingStatus get recentTestsStatus => _recentTestsStatus;
+
+  // ── Evolución mensual ─────────────────────────────────────────────
+  Map<String, dynamic>? _monthlyEvolution;
+  StatsLoadingStatus _monthlyEvolutionStatus = StatsLoadingStatus.idle;
+
+  Map<String, dynamic>? get monthlyEvolution => _monthlyEvolution;
+  StatsLoadingStatus get monthlyEvolutionStatus => _monthlyEvolutionStatus;
+
+  // ── Dashboard del atleta ──────────────────────────────────────────
+  Map<String, dynamic>? _athleteDashboard;
+  StatsLoadingStatus _athleteDashboardStatus = StatsLoadingStatus.idle;
+
+  Map<String, dynamic>? get athleteDashboard => _athleteDashboard;
+  StatsLoadingStatus get athleteDashboardStatus => _athleteDashboardStatus;
+  bool get isLoadingAthleteDashboard =>
+      _athleteDashboardStatus == StatsLoadingStatus.loading;
+
+  /// Obtiene los indicadores del dashboard del coach.
+  Future<void> fetchDashboardIndicators({int? coachId, int? teamId}) async {
+    _dashboardIndicatorsStatus = StatsLoadingStatus.loading;
+    notifyListeners();
+
+    try {
+      final result = await _statisticsService.getDashboardIndicators(
+        coachId: coachId,
+        teamId: teamId,
+      );
+      if (result != null && result['success'] == true) {
+        _dashboardIndicators = result['data'] as Map<String, dynamic>?;
+        _dashboardIndicatorsStatus = StatsLoadingStatus.success;
+      } else {
+        _dashboardIndicatorsStatus = StatsLoadingStatus.error;
+      }
+    } catch (_) {
+      _dashboardIndicatorsStatus = StatsLoadingStatus.error;
+    }
+
+    notifyListeners();
+  }
+
+  /// Obtiene el dashboard completo del coach.
+  Future<void> fetchDashboardComplete({int? coachId}) async {
+    _dashboardCompleteStatus = StatsLoadingStatus.loading;
+    notifyListeners();
+
+    try {
+      final result = await _statisticsService.getDashboardComplete(
+        coachId: coachId,
+      );
+      if (result != null && result['success'] == true) {
+        _dashboardComplete = result['data'] as Map<String, dynamic>?;
+        _dashboardCompleteStatus = StatsLoadingStatus.success;
+      } else {
+        _dashboardCompleteStatus = StatsLoadingStatus.error;
+      }
+    } catch (_) {
+      _dashboardCompleteStatus = StatsLoadingStatus.error;
+    }
+
+    notifyListeners();
+  }
+
+  /// Obtiene los atletas con mejor rendimiento.
+  Future<void> fetchTopPerformanceAthletes({
+    int? coachId,
+    int? teamId,
+    int limit = 5,
+  }) async {
+    _topAthletesStatus = StatsLoadingStatus.loading;
+    notifyListeners();
+
+    try {
+      final result = await _statisticsService.getTopPerformanceAthletes(
+        coachId: coachId,
+        teamId: teamId,
+        limit: limit,
+      );
+      if (result != null && result['success'] == true) {
+        final data = result['data'];
+        if (data is List) {
+          _topAthletes =
+              data.map((e) => e as Map<String, dynamic>).toList();
+        }
+        _topAthletesStatus = StatsLoadingStatus.success;
+      } else {
+        _topAthletesStatus = StatsLoadingStatus.error;
+      }
+    } catch (_) {
+      _topAthletesStatus = StatsLoadingStatus.error;
+    }
+
+    notifyListeners();
+  }
+
+  /// Obtiene los tests más recientes.
+  Future<void> fetchRecentTests({
+    int? coachId,
+    int? teamId,
+    int limit = 10,
+  }) async {
+    _recentTestsStatus = StatsLoadingStatus.loading;
+    notifyListeners();
+
+    try {
+      final result = await _statisticsService.getRecentTests(
+        coachId: coachId,
+        teamId: teamId,
+        limit: limit,
+      );
+      if (result != null && result['success'] == true) {
+        final data = result['data'];
+        if (data is List) {
+          _recentTests =
+              data.map((e) => e as Map<String, dynamic>).toList();
+        }
+        _recentTestsStatus = StatsLoadingStatus.success;
+      } else {
+        _recentTestsStatus = StatsLoadingStatus.error;
+      }
+    } catch (_) {
+      _recentTestsStatus = StatsLoadingStatus.error;
+    }
+
+    notifyListeners();
+  }
+
+  /// Obtiene la evolución mensual.
+  Future<void> fetchMonthlyEvolution({
+    int? coachId,
+    int? teamId,
+    int months = 12,
+  }) async {
+    _monthlyEvolutionStatus = StatsLoadingStatus.loading;
+    notifyListeners();
+
+    try {
+      final result = await _statisticsService.getMonthlyEvolution(
+        coachId: coachId,
+        teamId: teamId,
+        months: months,
+      );
+      if (result != null && result['success'] == true) {
+        _monthlyEvolution = result['data'] as Map<String, dynamic>?;
+        _monthlyEvolutionStatus = StatsLoadingStatus.success;
+      } else {
+        _monthlyEvolutionStatus = StatsLoadingStatus.error;
+      }
+    } catch (_) {
+      _monthlyEvolutionStatus = StatsLoadingStatus.error;
+    }
+
+    notifyListeners();
+  }
+
+  /// Obtiene el dashboard completo de un atleta individual.
+  Future<void> fetchAthleteFullDashboard(int athleteId) async {
+    _athleteDashboardStatus = StatsLoadingStatus.loading;
+    notifyListeners();
+
+    try {
+      final result =
+          await _statisticsService.getAthleteFullDashboard(athleteId);
+      if (result != null && result['success'] == true) {
+        _athleteDashboard = result['data'] as Map<String, dynamic>?;
+        _athleteDashboardStatus = StatsLoadingStatus.success;
+      } else {
+        _athleteDashboardStatus = StatsLoadingStatus.error;
+      }
+    } catch (_) {
+      _athleteDashboardStatus = StatsLoadingStatus.error;
+    }
+
+    notifyListeners();
+  }
+
+  /// Carga todos los datos del dashboard del coach de una vez.
+  Future<void> fetchAllDashboardData({int? coachId, int? teamId}) async {
+    await Future.wait([
+      fetchDashboardIndicators(coachId: coachId, teamId: teamId),
+      fetchTopPerformanceAthletes(coachId: coachId, teamId: teamId),
+      fetchRecentTests(coachId: coachId, teamId: teamId),
+      fetchMonthlyEvolution(coachId: coachId, teamId: teamId),
+    ]);
+  }
+
   /// Limpia el estado (útil al cerrar sesión o cambiar de equipo).
   void clear() {
     _evaluations = [];
@@ -178,6 +401,19 @@ class StatisticsProvider extends ChangeNotifier {
     _detailsStatus = StatsLoadingStatus.idle;
     _detailsError = null;
     _selectedEvaluationId = null;
+    // Dashboard
+    _dashboardIndicators = null;
+    _dashboardIndicatorsStatus = StatsLoadingStatus.idle;
+    _dashboardComplete = null;
+    _dashboardCompleteStatus = StatsLoadingStatus.idle;
+    _topAthletes = [];
+    _topAthletesStatus = StatsLoadingStatus.idle;
+    _recentTests = [];
+    _recentTestsStatus = StatsLoadingStatus.idle;
+    _monthlyEvolution = null;
+    _monthlyEvolutionStatus = StatsLoadingStatus.idle;
+    _athleteDashboard = null;
+    _athleteDashboardStatus = StatsLoadingStatus.idle;
     notifyListeners();
   }
 }

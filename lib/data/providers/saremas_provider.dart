@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/athlete.dart';
 import '../models/saremas_throw.dart';
+import '../models/active_saremas_evaluation.dart';
+import '../../core/services/assess_saremas_service.dart';
 
 /// Componente técnico fijo para cada lanzamiento SAREMAS+ (1-28).
 /// Los 28 lanzamientos están organizados en 4 bloques de 7:
@@ -48,6 +51,8 @@ const Map<int, String> kSaremasComponentPerThrow = {
 /// Son 28 lanzamientos organizados en 4 bloques de 7.
 /// Diagonal alterna cada bloque: Roja → Azul → Roja → Azul.
 class SaremasProvider extends ChangeNotifier {
+  final AssessSaremasService _service = AssessSaremasService();
+
   // ── Configuración ─────────────────────────────────────────────────
   static const int totalThrows = 28;
   static const int throwsPerBlock = 7;
@@ -60,6 +65,17 @@ class SaremasProvider extends ChangeNotifier {
 
   List<Athlete> _selectedAthletes = [];
   List<SaremasThrow> _completedThrows = [];
+
+  SaremasProvider() {
+    _restorePersistedId();
+  }
+
+  /// Restaura el ID de evaluación guardado en SharedPreferences.
+  Future<void> _restorePersistedId() async {
+    final prefs = await SharedPreferences.getInstance();
+    _saremasEvalId = prefs.getInt('saremasEvalId');
+    notifyListeners();
+  }
 
   // ── Estado del lanzamiento actual ─────────────────────────────────
   int? _currentScore;
@@ -167,7 +183,43 @@ class SaremasProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Para uso local generamos un ID temporal
+      // Crear evaluación en la API
+      final result = await _service.addEvaluation(
+        description: name,
+        teamId: teamId,
+        coachId: coachId,
+      );
+      final id = result != null
+          ? (result['data']?['saremasEvalId'] as int?)
+          : null;
+
+      if (id != null) {
+        _saremasEvalId = id;
+      } else {
+        // Fallback local si la API falla
+        _saremasEvalId = DateTime.now().millisecondsSinceEpoch;
+      }
+
+      _evaluationName = name;
+
+      // Persistir el ID
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('saremasEvalId', _saremasEvalId!);
+
+      // Registrar atletas en la API
+      for (final athlete in _selectedAthletes) {
+        await _service.addAthleteToEvaluation(
+          coachId: coachId,
+          athleteId: athlete.id,
+          saremasEvalId: _saremasEvalId!,
+        );
+      }
+
+      _currentThrowIndex = 0;
+      _completedThrows = [];
+      _resetCurrentThrowState();
+    } catch (_) {
+      // Fallback local
       _saremasEvalId = DateTime.now().millisecondsSinceEpoch;
       _evaluationName = name;
       _currentThrowIndex = 0;
@@ -179,8 +231,125 @@ class SaremasProvider extends ChangeNotifier {
     }
   }
 
+  /// Consulta la API para verificar si existe una evaluación activa
+  /// para el equipo y coach dados.
+  Future<ActiveSaremasEvaluation?> checkForActiveEvaluation(
+      int teamId, int coachId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final activeEval = await _service.getActiveEvaluation(teamId, coachId);
+      if (activeEval != null) {
+        _isLoading = false;
+        notifyListeners();
+        return activeEval;
+      }
+    } catch (_) {
+      // Si falla, continuamos sin evaluación activa
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return null;
+  }
+
+  /// Reanuda una evaluación activa existente.
+  Future<void> resumeEvaluation(ActiveSaremasEvaluation activeEval) async {
+    _isLoading = true;
+    notifyListeners();
+
+    _saremasEvalId = activeEval.saremasEvalId;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('saremasEvalId', _saremasEvalId!);
+
+    // Restaurar atletas
+    _selectedAthletes = activeEval.athletes
+        .map((a) => Athlete(id: a.athleteId, name: a.name ?? ''))
+        .toList();
+
+    // Restaurar lanzamientos completados
+    _completedThrows = [];
+    for (final athlete in activeEval.athletes) {
+      for (final t in athlete.throws_) {
+        _completedThrows.add(SaremasThrow(
+          throwNumber: t.throwNumber,
+          diagonal: t.diagonal ?? '',
+          technicalComponent: t.technicalComponent ?? '',
+          scoreObtained: t.scoreObtained,
+          observations: t.observations ?? '',
+          failureTags: t.failureTagsList,
+          whiteBallX: t.whiteBallX,
+          whiteBallY: t.whiteBallY,
+          colorBallX: t.colorBallX,
+          colorBallY: t.colorBallY,
+          estimatedDistance: t.estimatedDistance,
+          launchPointX: t.launchPointX,
+          launchPointY: t.launchPointY,
+          distanceToLaunchPoint: t.distanceToLaunchPoint,
+        ));
+      }
+    }
+
+    // Posicionar en el siguiente tiro pendiente
+    _currentThrowIndex = _completedThrows.length < totalThrows
+        ? _completedThrows.length
+        : totalThrows - 1;
+    _resetCurrentThrowState();
+    _loadExistingThrowIfAny();
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  /// Cancela la evaluación activa vía API.
+  Future<void> cancelEvaluation(int coachId, {String? reason}) async {
+    if (_saremasEvalId == null) return;
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      await _service.cancel(
+        saremasEvalId: _saremasEvalId!,
+        coachId: coachId,
+        reason: reason,
+      );
+    } catch (_) {
+      // Continuar con reset local aunque falle la API
+    }
+
+    await resetForNewEvaluation();
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  /// Finaliza la evaluación activa cambiando su estado vía API.
+  Future<void> finalizeEvaluation(int teamId) async {
+    if (_saremasEvalId == null) return;
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      await _service.updateState(
+        saremasEvalId: _saremasEvalId!,
+        evaluationDate: DateTime.now(),
+        description: _evaluationName,
+        teamId: teamId,
+        state: 'Finalizado',
+      );
+    } catch (_) {
+      // Continuamos aunque falle
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
   // ── Resetear para nueva evaluación ────────────────────────────────
   Future<void> resetForNewEvaluation() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('saremasEvalId');
     _saremasEvalId = null;
     _currentThrowIndex = 0;
     _selectedAthletes = [];
@@ -258,7 +427,7 @@ class SaremasProvider extends ChangeNotifier {
   }
 
   // ── Navegación de tiros ───────────────────────────────────────────
-  void nextShot() {
+  Future<void> nextShot() async {
     if (!canGoNext) return;
 
     // Construir tags de fallo
@@ -285,6 +454,37 @@ class SaremasProvider extends ChangeNotifier {
       distanceToLaunchPoint: _distanceToLaunchPoint,
     );
 
+    _isLoading = true;
+    notifyListeners();
+
+    // Enviar detalle del tiro a la API
+    if (_saremasEvalId != null) {
+      try {
+        await _service.addDetailsToEvaluation(
+          throwNumber: throwData.throwNumber,
+          diagonal: throwData.diagonal,
+          technicalComponent: throwData.technicalComponent,
+          scoreObtained: throwData.scoreObtained,
+          observations: throwData.observations,
+          failureTags: tags.join(','),
+          status: 'Activo',
+          athleteId:
+              _selectedAthletes.isNotEmpty ? _selectedAthletes.first.id : 0,
+          saremasEvalId: _saremasEvalId!,
+          whiteBallX: throwData.whiteBallX,
+          whiteBallY: throwData.whiteBallY,
+          colorBallX: throwData.colorBallX,
+          colorBallY: throwData.colorBallY,
+          estimatedDistance: throwData.estimatedDistance,
+          launchPointX: throwData.launchPointX,
+          launchPointY: throwData.launchPointY,
+          distanceToLaunchPoint: throwData.distanceToLaunchPoint,
+        );
+      } catch (_) {
+        // Continuamos aunque falle la API
+      }
+    }
+
     // Si estamos editando un tiro anterior, reemplazamos
     final existingIdx =
         _completedThrows.indexWhere((t) => t.throwNumber == currentThrowNumber);
@@ -299,9 +499,12 @@ class SaremasProvider extends ChangeNotifier {
       _resetCurrentThrowState();
       _loadExistingThrowIfAny();
     } else {
-      // Evaluación finalizada
-      notifyListeners();
+      // Evaluación finalizada – limpiar persistencia
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('saremasEvalId');
     }
+
+    _isLoading = false;
     notifyListeners();
   }
 

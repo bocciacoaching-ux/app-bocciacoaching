@@ -52,6 +52,44 @@ abstract final class ApiEndpoints {
   static String directionGetEvaluationDetails(int assessDirectionId) =>
       '/AssessDirection/GetEvaluationDetails/$assessDirectionId';
 
+  // ── AssessSaremas ─────────────────────────────────────────────────
+  static const String saremasAddEvaluation = '/AssessSaremas/AddEvaluation';
+  static const String saremasAthletesToEvaluated = '/AssessSaremas/AthletesToEvaluated';
+  static const String saremasAddDetails = '/AssessSaremas/AddDetailsToEvaluation';
+  static String saremasGetActiveEvaluation(int teamId, int coachId) =>
+      '/AssessSaremas/GetActiveEvaluation/$teamId/$coachId';
+  static const String saremasUpdateState = '/AssessSaremas/UpdateState';
+  static const String saremasCancel = '/AssessSaremas/Cancel';
+  static String saremasGetTeamEvaluations(int teamId) =>
+      '/AssessSaremas/GetTeamEvaluations/$teamId';
+  static String saremasGetEvaluationDetails(int saremasEvalId) =>
+      '/AssessSaremas/GetEvaluationDetails/$saremasEvalId';
+  static String saremasGetEvaluationStatistics(int saremasEvalId) =>
+      '/AssessSaremas/GetEvaluationStatistics/$saremasEvalId';
+  static String saremasGetAthleteHistory(int athleteId) =>
+      '/AssessSaremas/GetAthleteHistory/$athleteId';
+
+  // ── Macrocycle ───────────────────────────────────────────────────
+  static const String macrocycleCreate = '/Macrocycle/Create';
+  static String macrocycleGetByAthlete(int athleteId) =>
+      '/Macrocycle/GetByAthlete/$athleteId';
+  static String macrocycleGetByTeam(int teamId) =>
+      '/Macrocycle/GetByTeam/$teamId';
+  static String macrocycleGetById(int macrocycleId) =>
+      '/Macrocycle/GetById/$macrocycleId';
+  static const String macrocycleUpdate = '/Macrocycle/Update';
+  static String macrocycleDelete(int macrocycleId) =>
+      '/Macrocycle/Delete/$macrocycleId';
+  static const String macrocycleAddEvent = '/Macrocycle/AddEvent';
+  static const String macrocycleUpdateEvent = '/Macrocycle/UpdateEvent';
+  static String macrocycleDeleteEvent(int eventId) =>
+      '/Macrocycle/DeleteEvent/$eventId';
+  static const String macrocycleUpdateMicrocycle = '/Macrocycle/UpdateMicrocycle';
+  static String macrocycleGetCoachMacrocycles(int coachId) =>
+      '/Macrocycle/GetCoachMacrocycles/$coachId';
+  static String macrocycleDuplicate(int macrocycleId) =>
+      '/Macrocycle/Duplicate/$macrocycleId';
+
   // ── Email ────────────────────────────────────────────────────────
   static const String sendCodeVerify = '/Email/SendCodeVerify';
   static const String validateCode = '/Email/ValidateCode';
@@ -98,6 +136,14 @@ abstract final class ApiEndpoints {
   static String nextSession(int coachId) => '/Statistics/NextSession/$coachId';
   static String coachTeamsOverview(int coachId) =>
       '/Statistics/CoachTeamsOverview/$coachId';
+  static String saremasTeamStats(int teamId) =>
+      '/Statistics/SaremasTeamStats/$teamId';
+  static String saremasAthleteStats(int athleteId) =>
+      '/Statistics/SaremasAthleteStats/$athleteId';
+  static String macrocycleProgress(int macrocycleId) =>
+      '/Statistics/MacrocycleProgress/$macrocycleId';
+  static String athleteFullDashboard(int athleteId) =>
+      '/Statistics/AthleteFullDashboard/$athleteId';
 
   // ── Subscription ─────────────────────────────────────────────────
   static const String subscriptionTypes = '/Subscription/types';

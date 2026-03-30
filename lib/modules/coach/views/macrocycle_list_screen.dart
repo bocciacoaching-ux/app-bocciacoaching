@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/macrocycle.dart';
 import '../../../data/providers/macrocycle_provider.dart';
+import '../../../data/providers/team_provider.dart';
 import '../../../shared/widgets/app_drawer.dart';
 import '../../../shared/widgets/profile_menu_button.dart';
 import '../../../core/routes/app_routes.dart';
@@ -27,7 +28,8 @@ class _MacrocycleListScreenState extends State<MacrocycleListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MacrocycleProvider>().loadMacrocycles();
+      final teamId = context.read<TeamProvider>().selectedTeam?.teamId;
+      context.read<MacrocycleProvider>().loadMacrocycles(teamId: teamId);
     });
   }
 

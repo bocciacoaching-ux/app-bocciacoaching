@@ -9,6 +9,7 @@ import '../../../shared/widgets/team_end_drawer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
+import '../../../data/providers/statistics_provider.dart';
 
 // Widget para el logo BOCCIA COACHING
 class BocciaLogo extends StatelessWidget {
@@ -56,76 +57,77 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // ── Datos simulados del dashboard ──────────────────────────────────
   // Cambiar a true para simular un usuario nuevo sin datos
-  final bool _isNewUser = false;
+  bool get _isNewUser {
+    final stats = context.read<StatisticsProvider>();
+    final indicators = stats.dashboardIndicators;
+    if (indicators == null) return false;
+    final total = (indicators['totalEvaluations'] as num?) ?? 0;
+    return total == 0;
+  }
 
-  // Stats resumen (cuando hay datos)
-  final int _totalAthletes = 8;
-  final int _totalEvaluations = 12;
-  final double _avgEffectiveness = 68.5;
-  final int _pendingEvaluations = 2;
+  // Stats desde la API (con fallback a 0)
+  int get _totalAthletes =>
+      (context.read<StatisticsProvider>().dashboardIndicators?['totalAthletes']
+              as num?)
+          ?.toInt() ??
+      0;
+  int get _totalEvaluations =>
+      (context.read<StatisticsProvider>().dashboardIndicators?['totalEvaluations']
+              as num?)
+          ?.toInt() ??
+      0;
+  double get _avgEffectiveness =>
+      (context.read<StatisticsProvider>().dashboardIndicators?['avgEffectiveness']
+              as num?)
+          ?.toDouble() ??
+      0.0;
+  int get _pendingEvaluations =>
+      (context.read<StatisticsProvider>().dashboardIndicators?['pendingEvaluations']
+              as num?)
+          ?.toInt() ??
+      0;
 
-  // Actividad reciente (cuando hay datos)
-  final List<Map<String, dynamic>> _recentActivity = [
-    {
-      'type': 'evaluation',
-      'title': 'Evaluación de Fuerza completada',
-      'subtitle': 'María García · 78% efectividad',
-      'time': 'Hace 2 horas',
-      'icon': Icons.check_circle_outline,
-      'color': AppColors.primary,
-    },
-    {
-      'type': 'athlete',
-      'title': 'Nuevo atleta registrado',
-      'subtitle': 'Carlos López agregado al equipo',
-      'time': 'Hace 5 horas',
-      'icon': Icons.person_add_outlined,
-      'color': AppColors.primary70,
-    },
-    {
-      'type': 'evaluation',
-      'title': 'Evaluación de Dirección en curso',
-      'subtitle': 'Juan Pérez · 18/36 tiros',
-      'time': 'Ayer',
-      'icon': Icons.timer_outlined,
-      'color': AppColors.info,
-    },
-    {
-      'type': 'team',
-      'title': 'Equipo actualizado',
-      'subtitle': 'Se modificó la formación del equipo',
-      'time': 'Hace 2 días',
-      'icon': Icons.group_outlined,
-      'color': AppColors.secondary,
-    },
-  ];
+  // Actividad reciente desde la API
+  List<Map<String, dynamic>> get _recentActivity {
+    final tests = context.read<StatisticsProvider>().recentTests;
+    if (tests.isEmpty) return [];
+    return tests.map((t) {
+      return <String, dynamic>{
+        'type': 'evaluation',
+        'title': t['testType'] ?? 'Evaluación',
+        'subtitle': '${t['athleteName'] ?? ''} · ${t['effectiveness'] ?? ''}%',
+        'time': t['date'] ?? '',
+        'icon': Icons.check_circle_outline,
+        'color': AppColors.primary,
+      };
+    }).toList();
+  }
 
-  // Atletas destacados (cuando hay datos)
-  final List<Map<String, dynamic>> _topAthletes = [
-    {
-      'name': 'María García',
-      'initials': 'MG',
-      'effectiveness': 85.2,
-      'trend': 'up'
-    },
-    {
-      'name': 'Juan Pérez',
-      'initials': 'JP',
-      'effectiveness': 72.1,
-      'trend': 'up'
-    },
-    {
-      'name': 'Carlos López',
-      'initials': 'CL',
-      'effectiveness': 65.8,
-      'trend': 'down'
-    },
-  ];
+  // Atletas destacados desde la API
+  List<Map<String, dynamic>> get _topAthletes {
+    final top = context.read<StatisticsProvider>().topAthletes;
+    if (top.isEmpty) return [];
+    return top.map((a) {
+      final name = a['athleteName'] as String? ?? 'Atleta';
+      final initials = name.length >= 2
+          ? name.split(' ').map((w) => w.isNotEmpty ? w[0] : '').join()
+          : name;
+      return <String, dynamic>{
+        'name': name,
+        'initials': initials.toUpperCase(),
+        'effectiveness': (a['effectiveness'] as num?)?.toDouble() ?? 0.0,
+        'trend': ((a['trend'] as num?)?.toInt() ?? 0) >= 0 ? 'up' : 'down',
+      };
+    }).toList();
+  }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadTeams());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadTeams();
+      _loadDashboardData();
+    });
   }
 
   Future<void> _loadTeams() async {
@@ -137,9 +139,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> _loadDashboardData() async {
+    final session = context.read<SessionProvider>().session;
+    if (session == null) return;
+    final coachId = session.userId;
+    final teamId = context.read<TeamProvider>().selectedTeam?.teamId;
+    final stats = context.read<StatisticsProvider>();
+    await stats.fetchAllDashboardData(coachId: coachId, teamId: teamId);
+  }
+
   @override
   Widget build(BuildContext context) {
     final teamProvider = context.watch<TeamProvider>();
+    // Watch statistics for reactive updates
+    context.watch<StatisticsProvider>();
     final selected = teamProvider.selectedTeam;
     final selectedName = selected?.nameTeam ?? 'Sin equipo';
     final selectedCountry = selected?.country ?? '';
