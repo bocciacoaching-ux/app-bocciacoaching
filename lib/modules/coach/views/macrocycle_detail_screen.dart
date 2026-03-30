@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/macrocycle.dart';
@@ -906,6 +907,7 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
             DataColumn(label: Text('Mesociclo', style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(label: Text('Tipo', style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(label: Text('Fechas', style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text('Sesiones', style: TextStyle(fontWeight: FontWeight.bold))),
           ],
           rows: _macrocycle.microcycles.asMap().entries.map((entry) {
             final micro = entry.value;
@@ -933,6 +935,18 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
                 ),
               ),
               DataCell(Text('${_formatDate(micro.startDate)} – ${_formatDate(micro.endDate)}', style: const TextStyle(fontSize: 12))),
+              DataCell(
+                micro.microcycleId != null
+                    ? IconButton(
+                        icon: const Icon(Icons.fitness_center, size: 18, color: AppColors.primary),
+                        tooltip: 'Ver sesiones',
+                        onPressed: () => Navigator.of(context).pushNamed(
+                          AppRoutes.trainingSessions,
+                          arguments: micro,
+                        ),
+                      )
+                    : const Icon(Icons.block, size: 16, color: AppColors.neutral6),
+              ),
             ]);
           }).toList(),
         ),

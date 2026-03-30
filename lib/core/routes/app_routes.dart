@@ -24,4 +24,9 @@ abstract final class AppRoutes {
   static const String macrocycles = '/macrocycles';
   static const String macrocycleBuilder = '/macrocycle-builder';
   static const String macrocycleDetail = '/macrocycle-detail';
+  static const String trainingSessions = '/training-sessions';
+  static const String trainingSessionDetail = '/training-session-detail';
+  static const String trainingSessionForm = '/training-session-form';
+  static const String sectionForm = '/section-form';
+  static const String microcycleOverview = '/microcycle-overview';
 }

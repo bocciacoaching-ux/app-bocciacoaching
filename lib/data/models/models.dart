@@ -26,4 +26,5 @@ export 'statistics.dart';
 export 'strength_evaluation.dart';
 export 'team.dart';
 export 'team_member.dart';
+export 'training_session.dart';
 export 'user_session.dart';

@@ -5,3 +5,4 @@ export 'saremas_provider.dart';
 export 'session_provider.dart';
 export 'statistics_provider.dart';
 export 'team_provider.dart';
+export 'training_session_provider.dart';

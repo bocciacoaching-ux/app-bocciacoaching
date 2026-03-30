@@ -440,6 +440,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _quickActionButton(
+                icon: Icons.fitness_center_outlined,
+                label: 'Entrenamiento',
+                color: AppColors.accent5,
+                bgColor: AppColors.accent5.withValues(alpha: 0.1),
+                onTap: () => Navigator.of(context)
+                    .pushNamed('/microcycle-overview'),
+              ),
+            ),
           ],
         ),
       ],

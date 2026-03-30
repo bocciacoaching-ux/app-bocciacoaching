@@ -16,7 +16,14 @@ import '../../modules/coach/views/teams_screen.dart';
 import '../../modules/coach/views/macrocycle_list_screen.dart';
 import '../../modules/coach/views/macrocycle_builder_screen.dart';
 import '../../modules/coach/views/macrocycle_detail_screen.dart';
+import '../../modules/coach/views/training_session_list_screen.dart';
+import '../../modules/coach/views/training_session_detail_screen.dart';
+import '../../modules/coach/views/training_session_form_screen.dart';
+import '../../modules/coach/views/section_form_screen.dart';
+import '../../modules/coach/views/microcycle_overview_screen.dart';
 import '../../data/models/macrocycle.dart';
+import '../../data/models/microcycle.dart';
+import '../../data/models/training_session.dart';
 
 // ── Módulo Athlete (pantallas exclusivas del deportista) ───────────
 import '../../modules/athlete/views/athlete_dashboard_screen.dart';
@@ -164,6 +171,58 @@ abstract final class AppPages {
         final macrocycle = Get.arguments as Macrocycle;
         return MacrocycleDetailScreen(macrocycle: macrocycle);
       },
+    ),
+
+    // ── Sesiones de Entrenamiento ────────────────────────────────
+    GetPage(
+      name: AppRoutes.trainingSessions,
+      page: () {
+        final microcycle = Get.arguments as Microcycle;
+        return TrainingSessionListScreen(microcycle: microcycle);
+      },
+    ),
+    GetPage(
+      name: AppRoutes.trainingSessionDetail,
+      page: () {
+        final sessionId = Get.arguments as int;
+        return TrainingSessionDetailScreen(sessionId: sessionId);
+      },
+    ),
+    GetPage(
+      name: AppRoutes.trainingSessionForm,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        final session = args['session'] as TrainingSession?;
+        final microcycleId = args['microcycleId'] as int;
+        final microcycleLabel = args['microcycleLabel'] as String?;
+        return TrainingSessionFormScreen(
+          microcycleId: microcycleId,
+          microcycleLabel: microcycleLabel,
+          session: session,
+        );
+      },
+    ),
+
+    // ── Sección de Sesión ────────────────────────────────────────
+    GetPage(
+      name: AppRoutes.sectionForm,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        final sessionPartId = args['sessionPartId'] as int;
+        final partName = args['partName'] as String?;
+        final section = args['section'] as SessionSection?;
+        return SectionFormScreen(
+          sessionPartId: sessionPartId,
+          partName: partName,
+          section: section,
+        );
+      },
+    ),
+
+    // ── Microciclo Overview (acceso directo) ─────────────────────
+    GetPage(
+      name: AppRoutes.microcycleOverview,
+      page: () => const MicrocycleOverviewScreen(),
     ),
   ];
 }

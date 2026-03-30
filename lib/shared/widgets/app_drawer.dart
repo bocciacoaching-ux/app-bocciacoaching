@@ -5,7 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/navigation_helper.dart';
 
 /// Rutas que tienen entrada en el menú lateral.
-enum AppDrawerRoute { inicio, evaluaciones, atletas, estadisticas, macrociclos }
+enum AppDrawerRoute { inicio, evaluaciones, atletas, estadisticas, macrociclos, entrenamiento }
 
 /// Menú lateral compartido por todas las pantallas de la app.
 ///
@@ -176,6 +176,22 @@ class AppDrawer extends StatelessWidget {
                                   AppDrawerRoute.macrociclos) {
                                 Navigator.of(context)
                                     .pushNamed('/macrocycles');
+                              }
+                            },
+                          ),
+                          _item(
+                            context,
+                            icon: Icons.fitness_center_outlined,
+                            activeIcon: Icons.fitness_center,
+                            label: 'Entrenamiento',
+                            active:
+                                activeRoute == AppDrawerRoute.entrenamiento,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              if (activeRoute !=
+                                  AppDrawerRoute.entrenamiento) {
+                                Navigator.of(context)
+                                    .pushNamed('/microcycle-overview');
                               }
                             },
                           ),
