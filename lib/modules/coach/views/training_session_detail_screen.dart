@@ -57,7 +57,8 @@ class _TrainingSessionDetailScreenState
                 value: 'edit',
                 child: Row(
                   children: [
-                    Icon(Icons.edit_outlined, size: 18, color: AppColors.primary),
+                    Icon(Icons.edit_outlined,
+                        size: 18, color: AppColors.primary),
                     SizedBox(width: 8),
                     Text('Editar sesión'),
                   ],
@@ -68,7 +69,8 @@ class _TrainingSessionDetailScreenState
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(Icons.delete_outline, size: 18, color: AppColors.error),
+                    Icon(Icons.delete_outline,
+                        size: 18, color: AppColors.error),
                     SizedBox(width: 8),
                     Text('Eliminar', style: TextStyle(color: AppColors.error)),
                   ],
@@ -130,15 +132,18 @@ class _TrainingSessionDetailScreenState
           _buildStatusSection(session, provider),
           const SizedBox(height: 20),
           if (session.photoEvidences.isNotEmpty) ...[
-            _sectionTitle('Evidencias Fotográficas', Icons.photo_library_outlined),
+            _sectionTitle(
+                'Evidencias Fotográficas', Icons.photo_library_outlined),
             const SizedBox(height: 8),
             _buildPhotoEvidences(session),
             const SizedBox(height: 20),
           ],
           _sectionTitle('Partes de la Sesión', Icons.view_agenda_outlined),
           const SizedBox(height: 8),
-          ...session.parts.asMap().entries.map(
-                (entry) => _buildPartCard(entry.value, entry.key)),
+          ...session.parts
+              .asMap()
+              .entries
+              .map((entry) => _buildPartCard(entry.value, entry.key)),
           if (session.parts.isEmpty) _buildEmptyParts(),
           const SizedBox(height: 24),
         ],
@@ -198,7 +203,9 @@ class _TrainingSessionDetailScreenState
             const SizedBox(height: 12),
             const Divider(height: 1, color: AppColors.neutral8),
             const SizedBox(height: 12),
-            Row(
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
               children: [
                 if (session.startTime != null)
                   _infoChip(
@@ -206,8 +213,6 @@ class _TrainingSessionDetailScreenState
                     'Inicio: ${_formatDateTime(session.startTime!)}',
                     AppColors.success,
                   ),
-                if (session.startTime != null && session.endTime != null)
-                  const SizedBox(width: 12),
                 if (session.endTime != null)
                   _infoChip(
                     Icons.stop_outlined,
@@ -353,8 +358,8 @@ class _TrainingSessionDetailScreenState
                           provider,
                         ),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? color.withOpacity(0.15)
@@ -460,8 +465,7 @@ class _TrainingSessionDetailScreenState
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          tilePadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           childrenPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           leading: Container(
@@ -481,13 +485,14 @@ class _TrainingSessionDetailScreenState
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textSecondary,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: Icon(Icons.add_circle_outline,
-                    color: color, size: 22),
+                icon: Icon(Icons.add_circle_outline, color: color, size: 22),
                 tooltip: 'Agregar sección',
                 onPressed: () =>
                     _showAddSectionDialog(part.sessionPartId!, part.name),
@@ -509,16 +514,14 @@ class _TrainingSessionDetailScreenState
               )
             else
               ...part.sections.asMap().entries.map(
-                    (entry) =>
-                        _buildSectionTile(entry.value, entry.key, color)),
+                  (entry) => _buildSectionTile(entry.value, entry.key, color)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSectionTile(
-      SessionSection section, int index, Color partColor) {
+  Widget _buildSectionTile(SessionSection section, int index, Color partColor) {
     final statusColor = _statusColor(section.status);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -550,35 +553,48 @@ class _TrainingSessionDetailScreenState
                       style: AppTextStyles.bodyMedium.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
-                    Row(
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 4,
                       children: [
-                        const Icon(Icons.sports_baseball,
-                            size: 13, color: AppColors.textSecondary),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${section.numberOfThrows} lanzamientos',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.sports_baseball,
+                                size: 13, color: AppColors.textSecondary),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${section.numberOfThrows} lanzamientos',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        Icon(
-                          section.isOwnDiagonal
-                              ? Icons.person
-                              : Icons.person_outline,
-                          size: 13,
-                          color: AppColors.textSecondary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          section.isOwnDiagonal
-                              ? 'Diagonal propia'
-                              : 'Diagonal rival',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              section.isOwnDiagonal
+                                  ? Icons.person
+                                  : Icons.person_outline,
+                              size: 13,
+                              color: AppColors.textSecondary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              section.isOwnDiagonal
+                                  ? 'Diag. propia'
+                                  : 'Diag. rival',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -587,8 +603,8 @@ class _TrainingSessionDetailScreenState
               ),
               if (section.status != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: statusColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -804,9 +820,7 @@ class _TrainingSessionDetailScreenState
     );
     // Recargar la sesión si se guardó algo
     if (result == true) {
-      context
-          .read<TrainingSessionProvider>()
-          .loadFullSession(widget.sessionId);
+      context.read<TrainingSessionProvider>().loadFullSession(widget.sessionId);
     }
   }
 
@@ -819,9 +833,7 @@ class _TrainingSessionDetailScreenState
       },
     );
     if (result == true) {
-      context
-          .read<TrainingSessionProvider>()
-          .loadFullSession(widget.sessionId);
+      context.read<TrainingSessionProvider>().loadFullSession(widget.sessionId);
     }
   }
 
@@ -831,8 +843,7 @@ class _TrainingSessionDetailScreenState
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Eliminar sección'),
-        content: Text(
-            '¿Eliminar "${section.name ?? 'esta sección'}"?'),
+        content: Text('¿Eliminar "${section.name ?? 'esta sección'}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),

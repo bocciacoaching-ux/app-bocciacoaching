@@ -29,8 +29,7 @@ class AthleteDashboardScreen extends StatefulWidget {
   });
 
   @override
-  State<AthleteDashboardScreen> createState() =>
-      _AthleteDashboardScreenState();
+  State<AthleteDashboardScreen> createState() => _AthleteDashboardScreenState();
 }
 
 class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
@@ -336,7 +335,6 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
             width: 36,
@@ -347,7 +345,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
             ),
             child: Icon(icon, color: color, size: 20),
           ),
-          const SizedBox(height: 8),
+          const Spacer(),
           Text(
             value,
             maxLines: 1,
@@ -387,8 +385,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
                 label: 'Mis\nEstadísticas',
                 color: AppColors.primary,
                 bgColor: AppColors.primary10,
-                onTap: () =>
-                    Navigator.of(context).pushNamed('/statistics'),
+                onTap: () => Navigator.of(context).pushNamed('/statistics'),
               ),
             ),
             const SizedBox(width: 12),
@@ -408,8 +405,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
                 label: 'Mi\nPerfil',
                 color: AppColors.info,
                 bgColor: AppColors.infoBg,
-                onTap: () =>
-                    Navigator.of(context).pushNamed('/profile'),
+                onTap: () => Navigator.of(context).pushNamed('/profile'),
               ),
             ),
           ],
@@ -561,8 +557,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
                 for (int i = 0; i < upcoming.length; i++) ...[
                   _upcomingSessionItem(upcoming[i]),
                   if (i < upcoming.length - 1)
-                    Divider(
-                        color: AppColors.neutral8, height: 1, indent: 68),
+                    Divider(color: AppColors.neutral8, height: 1, indent: 68),
                 ],
               ],
             ),
@@ -575,8 +570,8 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
     final scheduledDate = AthleteSessionProvider.scheduledDateOf(session);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final sessionDay = DateTime(scheduledDate.year,
-        scheduledDate.month, scheduledDate.day);
+    final sessionDay =
+        DateTime(scheduledDate.year, scheduledDate.month, scheduledDate.day);
     final diff = sessionDay.difference(today).inDays;
 
     String dateLabel;
@@ -587,8 +582,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
     } else if (diff < 7) {
       dateLabel = 'En $diff días';
     } else {
-      dateLabel =
-          '${scheduledDate.day}/${scheduledDate.month}';
+      dateLabel = '${scheduledDate.day}/${scheduledDate.month}';
     }
 
     return InkWell(
@@ -600,8 +594,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
       },
       borderRadius: BorderRadius.circular(14),
       child: Padding(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -645,12 +638,9 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: diff == 0
-                    ? AppColors.primary10
-                    : AppColors.neutral9,
+                color: diff == 0 ? AppColors.primary10 : AppColors.neutral9,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -658,8 +648,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color:
-                      diff == 0 ? AppColors.primary : AppColors.neutral5,
+                  color: diff == 0 ? AppColors.primary : AppColors.neutral5,
                 ),
               ),
             ),
@@ -969,7 +958,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          childAspectRatio: 1.55,
+          childAspectRatio: 1.3,
           children: [
             _emptyStatCard(
               icon: Icons.assignment_outlined,
@@ -1021,7 +1010,6 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
             width: 36,
@@ -1032,7 +1020,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
             ),
             child: Icon(icon, color: color, size: 20),
           ),
-          const SizedBox(height: 8),
+          const Spacer(),
           Text(
             value,
             maxLines: 1,
@@ -1046,7 +1034,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
           const SizedBox(height: 2),
           Text(
             label,
-            maxLines: 2,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontSize: 11,
