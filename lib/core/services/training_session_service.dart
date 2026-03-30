@@ -325,4 +325,150 @@ class TrainingSessionService {
       return false;
     }
   }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // Endpoints de Atleta — /api/TrainingSession/Athlete/*
+  // ═══════════════════════════════════════════════════════════════════
+
+  // ─── POST /api/TrainingSession/Athlete/GetSessionsByDateRange ───
+  /// Obtiene las sesiones planificadas para un atleta en un rango de fechas.
+  /// Body: GetAthleteSessionsDto { athleteId, startDate, endDate }.
+  /// Retorna AthleteSessionSummaryDtoListResponseContract.
+  Future<List<AthleteSessionSummary>?> getAthleteSessionsByDateRange({
+    required int athleteId,
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    try {
+      final body = {
+        'athleteId': athleteId,
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+      };
+      debugPrint(
+          '[TrainingSessionService] POST Athlete/GetSessionsByDateRange body: ${jsonEncode(body)}');
+      final response = await http.post(
+        Uri.parse('$_base/TrainingSession/Athlete/GetSessionsByDateRange'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+      debugPrint(
+          '[TrainingSessionService] GetSessionsByDateRange status: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+        if (decoded['success'] == true && decoded['data'] is List) {
+          return (decoded['data'] as List)
+              .map((e) => AthleteSessionSummary.fromJson(
+                  e as Map<String, dynamic>))
+              .toList();
+        }
+      }
+      return null;
+    } catch (e) {
+      debugPrint(
+          '[TrainingSessionService] GetSessionsByDateRange error: $e');
+      return null;
+    }
+  }
+
+  // ─── GET /api/TrainingSession/Athlete/GetSessionDetail/{sessionId}/{athleteId}
+  /// Obtiene el detalle completo de una sesión para un atleta específico.
+  /// Retorna TrainingSessionResponseDtoResponseContract.
+  Future<TrainingSession?> getAthleteSessionDetail({
+    required int sessionId,
+    required int athleteId,
+  }) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '$_base/TrainingSession/Athlete/GetSessionDetail/$sessionId/$athleteId'),
+      );
+      debugPrint(
+          '[TrainingSessionService] GetSessionDetail status: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+        if (decoded['success'] == true && decoded['data'] != null) {
+          return TrainingSession.fromJson(
+              decoded['data'] as Map<String, dynamic>);
+        }
+      }
+      return null;
+    } catch (e) {
+      debugPrint(
+          '[TrainingSessionService] GetSessionDetail error: $e');
+      return null;
+    }
+  }
+
+  // ─── PUT /api/TrainingSession/Athlete/StartSession ──────────────
+  /// Un atleta inicia una sesión de entrenamiento.
+  /// Body: AthleteUpdateSessionStatusDto { trainingSessionId, athleteId }.
+  /// Retorna TrainingSessionResponseDtoResponseContract.
+  Future<TrainingSession?> athleteStartSession({
+    required int trainingSessionId,
+    required int athleteId,
+  }) async {
+    try {
+      final body = {
+        'trainingSessionId': trainingSessionId,
+        'athleteId': athleteId,
+      };
+      debugPrint(
+          '[TrainingSessionService] PUT Athlete/StartSession body: ${jsonEncode(body)}');
+      final response = await http.put(
+        Uri.parse('$_base/TrainingSession/Athlete/StartSession'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+      debugPrint(
+          '[TrainingSessionService] StartSession status: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+        if (decoded['success'] == true && decoded['data'] != null) {
+          return TrainingSession.fromJson(
+              decoded['data'] as Map<String, dynamic>);
+        }
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[TrainingSessionService] StartSession error: $e');
+      return null;
+    }
+  }
+
+  // ─── PUT /api/TrainingSession/Athlete/FinishSession ─────────────
+  /// Un atleta finaliza una sesión de entrenamiento.
+  /// Body: AthleteUpdateSessionStatusDto { trainingSessionId, athleteId }.
+  /// Retorna TrainingSessionResponseDtoResponseContract.
+  Future<TrainingSession?> athleteFinishSession({
+    required int trainingSessionId,
+    required int athleteId,
+  }) async {
+    try {
+      final body = {
+        'trainingSessionId': trainingSessionId,
+        'athleteId': athleteId,
+      };
+      debugPrint(
+          '[TrainingSessionService] PUT Athlete/FinishSession body: ${jsonEncode(body)}');
+      final response = await http.put(
+        Uri.parse('$_base/TrainingSession/Athlete/FinishSession'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+      debugPrint(
+          '[TrainingSessionService] FinishSession status: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+        if (decoded['success'] == true && decoded['data'] != null) {
+          return TrainingSession.fromJson(
+              decoded['data'] as Map<String, dynamic>);
+        }
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[TrainingSessionService] FinishSession error: $e');
+      return null;
+    }
+  }
 }

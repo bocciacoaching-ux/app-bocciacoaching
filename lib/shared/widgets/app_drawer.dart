@@ -5,7 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/navigation_helper.dart';
 
 /// Rutas que tienen entrada en el menú lateral.
-enum AppDrawerRoute { inicio, evaluaciones, atletas, estadisticas, macrociclos, entrenamiento }
+enum AppDrawerRoute { inicio, evaluaciones, atletas, estadisticas, macrociclos, entrenamiento, miCalendario }
 
 /// Menú lateral compartido por todas las pantallas de la app.
 ///
@@ -23,6 +23,7 @@ class AppDrawer extends StatelessWidget {
   final String teamFlag;
   final VoidCallback? onHomeSelected;
   final VoidCallback? onEvaluationsSelected;
+  final VoidCallback? onCalendarSelected;
 
   const AppDrawer({
     super.key,
@@ -31,6 +32,7 @@ class AppDrawer extends StatelessWidget {
     this.teamFlag = '',
     this.onHomeSelected,
     this.onEvaluationsSelected,
+    this.onCalendarSelected,
   });
 
   @override
@@ -99,24 +101,42 @@ class AppDrawer extends StatelessWidget {
                             }
                           },
                         ),
-                        _item(
-                          context,
-                          icon: Icons.assignment_outlined,
-                          activeIcon: Icons.assignment,
-                          label: isAthlete
-                              ? 'Mis Evaluaciones'
-                              : 'Evaluaciones',
-                          active: activeRoute == AppDrawerRoute.evaluaciones,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            if (onEvaluationsSelected != null) {
-                              onEvaluationsSelected!();
-                            } else {
-                              Navigator.of(context)
-                                  .pushNamed('/evaluations');
-                            }
-                          },
-                        ),
+                        // Atleta ve "Mi Calendario" en vez de "Evaluaciones"
+                        if (isAthlete)
+                          _item(
+                            context,
+                            icon: Icons.calendar_month_outlined,
+                            activeIcon: Icons.calendar_month,
+                            label: 'Mi Calendario',
+                            active: activeRoute == AppDrawerRoute.miCalendario,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              if (onCalendarSelected != null) {
+                                onCalendarSelected!();
+                              } else {
+                                Navigator.of(context)
+                                    .pushNamed('/athlete-calendar');
+                              }
+                            },
+                          ),
+                        // Coach ve "Evaluaciones"
+                        if (!isAthlete)
+                          _item(
+                            context,
+                            icon: Icons.assignment_outlined,
+                            activeIcon: Icons.assignment,
+                            label: 'Evaluaciones',
+                            active: activeRoute == AppDrawerRoute.evaluaciones,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              if (onEvaluationsSelected != null) {
+                                onEvaluationsSelected!();
+                              } else {
+                                Navigator.of(context)
+                                    .pushNamed('/evaluations');
+                              }
+                            },
+                          ),
                         // Solo coach puede ver "Atletas"
                         if (!isAthlete)
                           _item(

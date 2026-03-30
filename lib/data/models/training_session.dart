@@ -517,3 +517,113 @@ class TrainingSessionSummary {
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// AthleteSessionSummary — resumen de sesión con contexto de macrociclo
+// ─────────────────────────────────────────────────────────────────────
+
+/// Resumen de sesión para un atleta (AthleteSessionSummaryDto).
+///
+/// Incluye contexto de macrociclo y microciclo, además de fechas
+/// calculadas por el backend. Se obtiene vía
+/// `POST /api/TrainingSession/Athlete/GetSessionsByDateRange`.
+class AthleteSessionSummary {
+  final int trainingSessionId;
+  final int microcycleId;
+  final String? macrocycleName;
+  final int microcycleNumber;
+  final DateTime? microcycleStartDate;
+  final DateTime? microcycleEndDate;
+  final String? microcycleType;
+  final String? dayOfWeek;
+  final int duration;
+  final String? status;
+  final DateTime? startTime;
+  final DateTime? endTime;
+  final double throwPercentage;
+  final int maxThrows;
+  final int totalParts;
+  final int totalSections;
+  final DateTime? createdAt;
+
+  const AthleteSessionSummary({
+    required this.trainingSessionId,
+    required this.microcycleId,
+    this.macrocycleName,
+    this.microcycleNumber = 0,
+    this.microcycleStartDate,
+    this.microcycleEndDate,
+    this.microcycleType,
+    this.dayOfWeek,
+    this.duration = 0,
+    this.status,
+    this.startTime,
+    this.endTime,
+    this.throwPercentage = 0.0,
+    this.maxThrows = 0,
+    this.totalParts = 0,
+    this.totalSections = 0,
+    this.createdAt,
+  });
+
+  /// True si la sesión aún no se ha completado.
+  bool get isPending =>
+      status == null || status == 'Programada' || status == 'EnProceso';
+
+  /// True si la sesión ya terminó o fue finalizada.
+  bool get isCompleted =>
+      status == 'Terminada' || status == 'Finalizada';
+
+  Map<String, dynamic> toJson() => {
+        'trainingSessionId': trainingSessionId,
+        'microcycleId': microcycleId,
+        'macrocycleName': macrocycleName,
+        'microcycleNumber': microcycleNumber,
+        'microcycleStartDate': microcycleStartDate?.toIso8601String(),
+        'microcycleEndDate': microcycleEndDate?.toIso8601String(),
+        'microcycleType': microcycleType,
+        'dayOfWeek': dayOfWeek,
+        'duration': duration,
+        'status': status,
+        'startTime': startTime?.toIso8601String(),
+        'endTime': endTime?.toIso8601String(),
+        'throwPercentage': throwPercentage,
+        'maxThrows': maxThrows,
+        'totalParts': totalParts,
+        'totalSections': totalSections,
+        'createdAt': createdAt?.toIso8601String(),
+      };
+
+  factory AthleteSessionSummary.fromJson(Map<String, dynamic> json) {
+    return AthleteSessionSummary(
+      trainingSessionId: json['trainingSessionId'] as int? ?? 0,
+      microcycleId: json['microcycleId'] as int? ?? 0,
+      macrocycleName: json['macrocycleName'] as String?,
+      microcycleNumber: json['microcycleNumber'] as int? ?? 0,
+      microcycleStartDate: json['microcycleStartDate'] != null
+          ? DateTime.parse(json['microcycleStartDate'] as String)
+          : null,
+      microcycleEndDate: json['microcycleEndDate'] != null
+          ? DateTime.parse(json['microcycleEndDate'] as String)
+          : null,
+      microcycleType: json['microcycleType'] as String?,
+      dayOfWeek: json['dayOfWeek'] as String?,
+      duration: json['duration'] as int? ?? 0,
+      status: json['status'] as String?,
+      startTime: json['startTime'] != null
+          ? DateTime.parse(json['startTime'] as String)
+          : null,
+      endTime: json['endTime'] != null
+          ? DateTime.parse(json['endTime'] as String)
+          : null,
+      throwPercentage:
+          (json['throwPercentage'] as num?)?.toDouble() ?? 0.0,
+      maxThrows: json['maxThrows'] as int? ?? 0,
+      totalParts: json['totalParts'] as int? ?? 0,
+      totalSections: json['totalSections'] as int? ?? 0,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : null,
+    );
+  }
+}

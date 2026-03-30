@@ -27,6 +27,7 @@ import '../../data/models/training_session.dart';
 
 // ── Módulo Athlete (pantallas exclusivas del deportista) ───────────
 import '../../modules/athlete/views/athlete_dashboard_screen.dart';
+import '../../modules/athlete/views/athlete_session_calendar_screen.dart';
 
 // ── Módulo Shared (pantallas compartidas por ambos roles) ──────────
 import '../../modules/shared/views/home_screen.dart';
@@ -223,6 +224,12 @@ abstract final class AppPages {
     GetPage(
       name: AppRoutes.microcycleOverview,
       page: () => const MicrocycleOverviewScreen(),
+    ),
+
+    // ── Calendario del atleta ────────────────────────────────────
+    GetPage(
+      name: AppRoutes.athleteCalendar,
+      page: () => const AthleteSessionCalendarScreen(),
     ),
   ];
 }

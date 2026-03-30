@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../shared/views/evaluations_screen.dart';
+import 'athlete_session_calendar_screen.dart';
 import '../../../shared/widgets/notifications_bottom_sheet.dart';
 import '../../../shared/widgets/app_drawer.dart';
 import '../../../shared/widgets/profile_menu_button.dart';
 import '../../../shared/widgets/team_selector_chip.dart';
 import '../../../shared/widgets/team_end_drawer.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/models/training_session.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
 import '../../../data/providers/statistics_provider.dart';
+import '../../../data/providers/athlete_session_provider.dart';
 
 /// Dashboard específico para el rol de **atleta** (rolId == 3).
 ///
@@ -34,7 +36,7 @@ class AthleteDashboardScreen extends StatefulWidget {
 class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
   int _notificationCount = 1;
 
-  // 0 = Inicio (Dashboard), 1 = Evaluaciones
+  // 0 = Inicio (Dashboard), 1 = Mi Calendario
   int _selectedIndex = 0;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -58,11 +60,6 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
               as num?)
           ?.toDouble() ??
       0.0;
-  int get _pendingEvaluations =>
-      (context.read<StatisticsProvider>().athleteDashboard?['pendingEvaluations']
-              as num?)
-          ?.toInt() ??
-      0;
   int get _completedSessions =>
       (context.read<StatisticsProvider>().athleteDashboard?['completedSessions']
               as num?)
@@ -93,6 +90,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadTeams();
       _loadAthleteDashboard();
+      _loadAthleteSessions();
     });
   }
 
@@ -110,6 +108,14 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
     if (session == null) return;
     final stats = context.read<StatisticsProvider>();
     await stats.fetchAthleteFullDashboard(session.userId);
+  }
+
+  Future<void> _loadAthleteSessions() async {
+    final session = context.read<SessionProvider>().session;
+    if (session == null) return;
+    await context
+        .read<AthleteSessionProvider>()
+        .loadAthletesSessions(session.userId);
   }
 
   @override
@@ -141,12 +147,12 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
       ),
       drawer: AppDrawer(
         activeRoute: _selectedIndex == 1
-            ? AppDrawerRoute.evaluaciones
+            ? AppDrawerRoute.miCalendario
             : AppDrawerRoute.inicio,
         teamName: selectedName,
         teamFlag: '',
         onHomeSelected: () => setState(() => _selectedIndex = 0),
-        onEvaluationsSelected: () => setState(() => _selectedIndex = 1),
+        onCalendarSelected: () => setState(() => _selectedIndex = 1),
       ),
       endDrawer: TeamEndDrawer(
         showAdminSection: false,
@@ -158,7 +164,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
         top: false,
         bottom: false,
         child: _selectedIndex == 1
-            ? const EvaluationsBody()
+            ? const AthleteSessionCalendarScreen(embedded: true)
             : _buildMobileLayout(),
       ),
     );
@@ -253,6 +259,10 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
         _buildMyPerformanceSection(),
         const SizedBox(height: 20),
 
+        // ── Próximas sesiones ─────────────────────────────────────────
+        _buildUpcomingSessionsSection(),
+        const SizedBox(height: 20),
+
         // ── Actividad reciente ──────────────────────────────────────
         _buildRecentActivitySection(),
         const SizedBox(height: 24),
@@ -261,6 +271,9 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
   }
 
   Widget _buildStatsGrid() {
+    final sessionProv = context.watch<AthleteSessionProvider>();
+    final upcomingCount = sessionProv.upcomingSessions.length;
+
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -270,9 +283,9 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
       childAspectRatio: 1.4,
       children: [
         _statCard(
-          icon: Icons.assignment_outlined,
-          label: 'Evaluaciones',
-          value: '$_totalEvaluations',
+          icon: Icons.calendar_today_outlined,
+          label: 'Próximas Sesiones',
+          value: '$upcomingCount',
           color: AppColors.primary,
           bgColor: AppColors.primary10,
         ),
@@ -285,15 +298,15 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
         ),
         _statCard(
           icon: Icons.fitness_center_rounded,
-          label: 'Sesiones',
+          label: 'Sesiones Completadas',
           value: '$_completedSessions',
           color: AppColors.primary70,
           bgColor: AppColors.primary20,
         ),
         _statCard(
-          icon: Icons.pending_actions_outlined,
-          label: 'Pendientes',
-          value: '$_pendingEvaluations',
+          icon: Icons.assignment_outlined,
+          label: 'Evaluaciones',
+          value: '$_totalEvaluations',
           color: AppColors.info,
           bgColor: AppColors.infoBg,
         ),
@@ -381,8 +394,8 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _quickActionButton(
-                icon: Icons.assignment_outlined,
-                label: 'Mis\nEvaluaciones',
+                icon: Icons.calendar_month_outlined,
+                label: 'Mi\nCalendario',
                 color: AppColors.primary70,
                 bgColor: AppColors.primary20,
                 onTap: () => setState(() => _selectedIndex = 1),
@@ -448,6 +461,206 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
                 height: 1.3,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Próximas Sesiones ────────────────────────────────────────────────
+
+  Widget _buildUpcomingSessionsSection() {
+    final sessionProvider = context.watch<AthleteSessionProvider>();
+    final upcoming = sessionProvider.upcomingSessions.take(3).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionHeader('Próximas Sesiones', actionLabel: 'Ver calendario',
+            onAction: () {
+          setState(() => _selectedIndex = 1);
+        }),
+        const SizedBox(height: 12),
+        if (sessionProvider.isLoading)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: CircularProgressIndicator(
+                color: AppColors.primary,
+                strokeWidth: 2,
+              ),
+            ),
+          )
+        else if (upcoming.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.neutral8),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary10,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.event_available_outlined,
+                    color: AppColors.primary,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Sin sesiones próximas',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.neutral4,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Tu entrenador te asignará sesiones pronto',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.neutral5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.black.withValues(alpha: 0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                for (int i = 0; i < upcoming.length; i++) ...[
+                  _upcomingSessionItem(upcoming[i]),
+                  if (i < upcoming.length - 1)
+                    Divider(
+                        color: AppColors.neutral8, height: 1, indent: 68),
+                ],
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _upcomingSessionItem(AthleteSessionSummary session) {
+    final scheduledDate = AthleteSessionProvider.scheduledDateOf(session);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final sessionDay = DateTime(scheduledDate.year,
+        scheduledDate.month, scheduledDate.day);
+    final diff = sessionDay.difference(today).inDays;
+
+    String dateLabel;
+    if (diff == 0) {
+      dateLabel = 'Hoy';
+    } else if (diff == 1) {
+      dateLabel = 'Mañana';
+    } else if (diff < 7) {
+      dateLabel = 'En $diff días';
+    } else {
+      dateLabel =
+          '${scheduledDate.day}/${scheduledDate.month}';
+    }
+
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).pushNamed(
+          '/training-session-detail',
+          arguments: session.trainingSessionId,
+        );
+      },
+      borderRadius: BorderRadius.circular(14),
+      child: Padding(
+        padding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.primary10,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.fitness_center_rounded,
+                color: AppColors.primary,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${session.dayOfWeek ?? "Sesión"} · ${session.duration} min',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${session.macrocycleName ?? 'Macrociclo'} · Micro ${session.microcycleNumber}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: diff == 0
+                    ? AppColors.primary10
+                    : AppColors.neutral9,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                dateLabel,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color:
+                      diff == 0 ? AppColors.primary : AppColors.neutral5,
+                ),
               ),
             ),
           ],

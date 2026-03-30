@@ -184,4 +184,29 @@ abstract final class ApiEndpoints {
   static const String subscriptionWebhookStripe = '/Subscription/webhooks/stripe';
   static const String subscriptionAdminAll = '/Subscription/admin/all';
   static const String subscriptionAdminStatistics = '/Subscription/admin/statistics';
+
+  // ── TrainingSession ──────────────────────────────────────────────
+  static const String trainingSessionCreate = '/TrainingSession/Create';
+  static String trainingSessionGetById(int sessionId) =>
+      '/TrainingSession/GetById/$sessionId';
+  static String trainingSessionGetByMicrocycle(int microcycleId) =>
+      '/TrainingSession/GetByMicrocycle/$microcycleId';
+  static const String trainingSessionUpdate = '/TrainingSession/Update';
+  static String trainingSessionDelete(int sessionId) =>
+      '/TrainingSession/Delete/$sessionId';
+  static const String trainingSessionAddSection = '/TrainingSession/AddSection';
+  static const String trainingSessionUpdateSection =
+      '/TrainingSession/UpdateSection';
+  static String trainingSessionDeleteSection(int sectionId) =>
+      '/TrainingSession/DeleteSection/$sectionId';
+
+  // ── TrainingSession / Athlete ────────────────────────────────────
+  static const String athleteGetSessionsByDateRange =
+      '/TrainingSession/Athlete/GetSessionsByDateRange';
+  static String athleteGetSessionDetail(int sessionId, int athleteId) =>
+      '/TrainingSession/Athlete/GetSessionDetail/$sessionId/$athleteId';
+  static const String athleteStartSession =
+      '/TrainingSession/Athlete/StartSession';
+  static const String athleteFinishSession =
+      '/TrainingSession/Athlete/FinishSession';
 }
