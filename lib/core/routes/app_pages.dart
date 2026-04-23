@@ -31,6 +31,9 @@ import '../../data/models/training_session.dart';
 import '../../modules/athlete/views/athlete_dashboard_screen.dart';
 import '../../modules/athlete/views/athlete_session_calendar_screen.dart';
 
+// ── Módulo Onboarding (carrusel de bienvenida) ─────────────────────
+import '../../modules/onboarding/views/onboarding_intro_screen.dart';
+
 // ── Módulo Shared (pantallas compartidas por ambos roles) ──────────
 import '../../modules/shared/views/home_screen.dart';
 import '../../modules/shared/views/notifications_screen.dart';
@@ -239,6 +242,12 @@ abstract final class AppPages {
     GetPage(
       name: AppRoutes.athleteCalendar,
       page: () => const AthleteSessionCalendarScreen(),
+    ),
+
+    // ── Onboarding (intro) ───────────────────────────────────────
+    GetPage(
+      name: AppRoutes.onboardingIntro,
+      page: () => const OnboardingIntroScreen(),
     ),
   ];
 }

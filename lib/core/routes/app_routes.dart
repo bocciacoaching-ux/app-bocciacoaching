@@ -31,4 +31,5 @@ abstract final class AppRoutes {
   static const String sectionForm = '/section-form';
   static const String microcycleOverview = '/microcycle-overview';
   static const String athleteCalendar = '/athlete-calendar';
+  static const String onboardingIntro = '/onboarding-intro';
 }

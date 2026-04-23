@@ -12,6 +12,8 @@ import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
 import '../../../data/providers/statistics_provider.dart';
 import '../../../data/providers/athlete_session_provider.dart';
+import '../../../data/providers/onboarding_provider.dart';
+import '../../onboarding/views/onboarding_intro_screen.dart';
 
 /// Dashboard específico para el rol de **atleta** (rolId == 3).
 ///
@@ -42,10 +44,14 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
 
   // ── Datos del dashboard del atleta desde la API ─────────────────────
   bool get _isNewUser {
-    final dashboard = context.read<StatisticsProvider>().athleteDashboard;
-    if (dashboard == null) return false;
-    final total = (dashboard['totalEvaluations'] as num?) ?? 0;
-    return total == 0;
+    final session = context.read<SessionProvider>().session;
+    if (session == null) return true;
+    final steps = context.read<OnboardingProvider>().stepsFor(
+          session: session,
+          teamProvider: context.read<TeamProvider>(),
+          statsProvider: context.read<StatisticsProvider>(),
+        );
+    return !context.read<OnboardingProvider>().isComplete(steps);
   }
 
   // Stats personales desde la API
@@ -90,6 +96,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
       _loadTeams();
       _loadAthleteDashboard();
       _loadAthleteSessions();
+      maybeShowOnboardingIntro(context);
     });
   }
 
@@ -863,12 +870,20 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Tu entrenador aún no te ha asignado evaluaciones',
+          'Comienza a configurar tu perfil y tus evaluaciones',
           style: Theme.of(context)
               .textTheme
               .bodyMedium
               ?.copyWith(color: AppColors.textSecondary),
         ),
+        const SizedBox(height: 24),
+
+        // ── Onboarding progress ─────────────────────────────────────
+        _buildOnboardingProgress(),
+        const SizedBox(height: 24),
+
+        // ── Pasos para empezar ──────────────────────────────────────
+        _buildGettingStartedSteps(),
         const SizedBox(height: 24),
 
         // ── Info card ───────────────────────────────────────────────
@@ -883,6 +898,260 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
         _buildTipCard(),
         const SizedBox(height: 24),
       ],
+    );
+  }
+
+  // ── Onboarding (atleta) ────────────────────────────────────────────────
+
+  Widget _buildOnboardingProgress() {
+    final session = context.watch<SessionProvider>().session;
+    if (session == null) return const SizedBox.shrink();
+    final onboarding = context.watch<OnboardingProvider>();
+    final steps = onboarding.stepsFor(
+      session: session,
+      teamProvider: context.watch<TeamProvider>(),
+      statsProvider: context.watch<StatisticsProvider>(),
+    );
+    final completed = onboarding.completedCount(steps);
+    final total = steps.length;
+    final pct = total == 0 ? 0 : (completed / total * 100).round();
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.primary20),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary10,
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.primary10,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.rocket_launch_rounded,
+                    color: AppColors.primary, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Tu progreso de configuración',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$completed de $total pasos completados',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.accent2x10,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '$pct%',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.accent2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: total == 0 ? 0 : completed / total,
+              minHeight: 8,
+              backgroundColor: AppColors.neutral8,
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(AppColors.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGettingStartedSteps() {
+    final session = context.watch<SessionProvider>().session;
+    if (session == null) return const SizedBox.shrink();
+    final onboarding = context.watch<OnboardingProvider>();
+    final steps = onboarding.stepsFor(
+      session: session,
+      teamProvider: context.watch<TeamProvider>(),
+      statsProvider: context.watch<StatisticsProvider>(),
+    );
+
+    final visualByStepId = <String, Map<String, dynamic>>{
+      'account': {
+        'icon': Icons.check_circle_rounded,
+        'color': AppColors.success,
+        'onTap': null,
+      },
+      'team': {
+        'icon': Icons.groups_2_outlined,
+        'color': AppColors.primary,
+        'onTap': () => Navigator.of(context).pushNamed('/notifications'),
+      },
+      'profile': {
+        'icon': Icons.person_outline,
+        'color': AppColors.primary70,
+        'onTap': () => Navigator.of(context).pushNamed('/profile'),
+      },
+      'evaluation': {
+        'icon': Icons.assignment_outlined,
+        'color': AppColors.info,
+        'onTap': () => Navigator.of(context).pushNamed('/evaluations'),
+      },
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionHeader('Primeros Pasos'),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              for (int i = 0; i < steps.length; i++) ...[
+                _onboardingStepTile(
+                  steps[i],
+                  visual: visualByStepId[steps[i].id] ?? const {},
+                ),
+                if (i < steps.length - 1)
+                  Divider(color: AppColors.neutral8, height: 1, indent: 68),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _onboardingStepTile(
+    OnboardingStep step, {
+    required Map<String, dynamic> visual,
+  }) {
+    final completed = step.completed;
+    final color = (visual['color'] as Color?) ?? AppColors.primary;
+    final icon = (visual['icon'] as IconData?) ?? Icons.circle_outlined;
+    final onTap = visual['onTap'] as VoidCallback?;
+
+    return InkWell(
+      onTap: completed ? null : onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: completed
+                    ? AppColors.successBg
+                    : color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: completed ? AppColors.success : color,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    step.title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: completed
+                          ? AppColors.textSecondary
+                          : AppColors.textPrimary,
+                      decoration:
+                          completed ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    step.subtitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (completed)
+              const Icon(Icons.check_circle_rounded,
+                  color: AppColors.success, size: 22)
+            else
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Iniciar',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
