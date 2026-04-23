@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/utils/navigation_helper.dart';
+import '../../../core/services/user_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -32,8 +32,10 @@ class _RegisterScreenState extends State<RegisterScreen>
       List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _codeNodes = List.generate(6, (_) => FocusNode());
 
+  // bool _loading = false; // Usado por step 1 (verificación de correo) — comentado
   bool _loading = false;
-  int _step = 0; // 0 = email, 1 = code, 2 = password, 3 = profile
+  String? _errorMessage;
+  int _step = 0; // 0 = email, 1 = code (comentado), 2 = password, 3 = profile
 
   late AnimationController _animController;
   late Animation<double> _fadeIn;
@@ -54,17 +56,18 @@ class _RegisterScreenState extends State<RegisterScreen>
     ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
 
-    for (var i = 0; i < _codeCtrls.length; i++) {
-      _codeCtrls[i].addListener(() {
-        final text = _codeCtrls[i].text;
-        if (text.isNotEmpty && i < _codeCtrls.length - 1) {
-          _codeNodes[i + 1].requestFocus();
-        }
-        if (_codeCtrls.every((c) => c.text.trim().isNotEmpty)) {
-          _verifyCode();
-        }
-      });
-    }
+    // Step 1 (verificación de correo) comentado — listeners de código desactivados
+    // for (var i = 0; i < _codeCtrls.length; i++) {
+    //   _codeCtrls[i].addListener(() {
+    //     final text = _codeCtrls[i].text;
+    //     if (text.isNotEmpty && i < _codeCtrls.length - 1) {
+    //       _codeNodes[i + 1].requestFocus();
+    //     }
+    //     if (_codeCtrls.every((c) => c.text.trim().isNotEmpty)) {
+    //       _verifyCode();
+    //     }
+    //   });
+    // }
   }
 
   @override
@@ -100,33 +103,91 @@ class _RegisterScreenState extends State<RegisterScreen>
       RegExp(r'^[a-zA-Z0-9]+$').hasMatch(_passwordCtrl.text);
   bool get _pwValid => _pwAtLeast8 && _pwHasNumber && _pwNoSpecial;
 
-  Future<void> _verifyCode() async {
-    final code = _codeCtrls.map((c) => c.text.trim()).join();
-    if (code.length < 6) return;
-    setState(() => _loading = true);
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() => _loading = false);
-    if (!mounted) return;
-    _goToStep(2);
-  }
+  // Step 1 (verificación de correo) comentado
+  // Future<void> _verifyCode() async {
+  //   final code = _codeCtrls.map((c) => c.text.trim()).join();
+  //   if (code.length < 6) return;
+  //   setState(() => _loading = true);
+  //   await Future.delayed(const Duration(seconds: 1));
+  //   setState(() => _loading = false);
+  //   if (!mounted) return;
+  //   _goToStep(2);
+  // }
 
-  void _resendCode() {
-    for (final c in _codeCtrls) {
-      c.clear();
+  // void _resendCode() {
+  //   for (final c in _codeCtrls) {
+  //     c.clear();
+  //   }
+  //   _codeNodes.first.requestFocus();
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: const Text('Código reenviado'),
+  //       backgroundColor: AppColors.success,
+  //       behavior: SnackBarBehavior.floating,
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+  //     ),
+  //   );
+  // }
+
+  // ── Mapeo de rol ──────────────────────────────────────────────────
+  int _roleToInt(String? role) {
+    switch (role) {
+      case 'Entrenador':
+        return 1;
+      case 'Árbitro':
+        return 2;
+      case 'Deportista':
+      default:
+        return 3;
     }
-    _codeNodes.first.requestFocus();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Código reenviado'),
-        backgroundColor: AppColors.success,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
   }
 
-  void _showSelectionSheet(BuildContext ctx, String title, List<String> items,
-      ValueChanged<String> onSelected) {
+  // ── Registro ──────────────────────────────────────────────────────
+  Future<void> _register() async {
+    setState(() {
+      _loading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final result = await UserService().addInfoUser(
+        email: _emailCtrl.text.trim(),
+        password: _passwordCtrl.text,
+        region: _selectedRegion,
+        rol: _roleToInt(_selectedRole),
+        category: _selectedCategory,
+      );
+
+      if (!mounted) return;
+      setState(() => _loading = false);
+
+      if (result != null && result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('¡Cuenta creada exitosamente!'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+        Navigator.of(context).pushReplacementNamed('/');
+      } else {
+        final message = (result != null && result['message'] != null)
+            ? result['message'] as String
+            : 'No se pudo crear la cuenta. Inténtalo de nuevo.';
+        setState(() => _errorMessage = message);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _errorMessage = 'Error de conexión. Verifica tu internet e inténtalo de nuevo.';
+      });
+    }
+  }
+
+  void _showSelectionSheet(BuildContext ctx, String title, List<String> items,      ValueChanged<String> onSelected) {
     showModalBottomSheet(
       context: ctx,
       shape: const RoundedRectangleBorder(
@@ -272,6 +333,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     required VoidCallback? onNext,
     VoidCallback? onBack,
     String nextLabel = 'Siguiente',
+    bool loading = false,
   }) {
     return Row(
       children: [
@@ -280,7 +342,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             child: SizedBox(
               height: 50,
               child: OutlinedButton(
-                onPressed: onBack,
+                onPressed: loading ? null : onBack,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   side: const BorderSide(color: AppColors.primary),
@@ -299,7 +361,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           child: SizedBox(
             height: 50,
             child: ElevatedButton(
-              onPressed: onNext,
+              onPressed: loading ? null : onNext,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.actionPrimaryDefault,
                 foregroundColor: AppColors.white,
@@ -313,7 +375,16 @@ class _RegisterScreenState extends State<RegisterScreen>
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              child: Text(nextLabel),
+              child: loading
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: AppColors.white,
+                      ),
+                    )
+                  : Text(nextLabel),
             ),
           ),
         ),
@@ -339,7 +410,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         ),
         const SizedBox(height: 24),
         _buildNavButtons(
-          onNext: _emailValid ? () => _goToStep(1) : null,
+          onNext: _emailValid ? () => _goToStep(2) : null, // Step 1 (verificación de correo) comentado
         ),
         const SizedBox(height: 28),
 
@@ -386,146 +457,12 @@ class _RegisterScreenState extends State<RegisterScreen>
     );
   }
 
-  Widget _buildStep1Code() {
-    final email =
-        _emailCtrl.text.trim().isEmpty ? 'tu correo' : _emailCtrl.text.trim();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Icono representativo
-        Center(
-          child: Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: AppColors.primary10,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.mark_email_read_outlined,
-                size: 32, color: AppColors.primary),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'Verifica tu correo',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Enviamos un código de 6 dígitos a\n$email',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-              color: AppColors.textSecondary, fontSize: 13, height: 1.4),
-        ),
-        const SizedBox(height: 24),
-
-        // Code boxes
-        LayoutBuilder(builder: (context, constraints) {
-          const gap = 8.0;
-          final totalGap = gap * 5;
-          var boxW = (constraints.maxWidth - totalGap) / 6;
-          boxW = boxW.clamp(40.0, 52.0);
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(6, (i) {
-              return Padding(
-                padding: EdgeInsets.only(right: i < 5 ? gap : 0),
-                child: SizedBox(
-                  width: boxW,
-                  height: boxW * 1.2,
-                  child: TextField(
-                    controller: _codeCtrls[i],
-                    focusNode: _codeNodes[i],
-                    keyboardType: TextInputType.number,
-                    textAlign: TextAlign.center,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    maxLength: 1,
-                    decoration: InputDecoration(
-                      counterText: '',
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      filled: true,
-                      fillColor: AppColors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: AppColors.inputBorder)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: AppColors.inputBorder)),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                              color: AppColors.primary, width: 1.5)),
-                    ),
-                    textAlignVertical: TextAlignVertical.center,
-                    style: const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.w700),
-                    onChanged: (v) {
-                      if (v.isEmpty && i > 0) {
-                        _codeNodes[i - 1].requestFocus();
-                      }
-                    },
-                  ),
-                ),
-              );
-            }),
-          );
-        }),
-
-        const SizedBox(height: 16),
-        if (_loading)
-          const Center(
-            child: SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                  strokeWidth: 2.5, color: AppColors.primary),
-            ),
-          ),
-        const SizedBox(height: 12),
-
-        Center(
-          child: RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              style:
-                  const TextStyle(color: AppColors.textSecondary, fontSize: 12),
-              children: [
-                const TextSpan(text: '¿No recibiste el código? '),
-                WidgetSpan(
-                  child: GestureDetector(
-                    onTap: _resendCode,
-                    child: const Text(
-                      'Reenviar',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 28),
-        _buildNavButtons(
-          onBack: () => _goToStep(0),
-          onNext: () => _goToStep(2),
-        ),
-      ],
-    );
-  }
+  // ── Step 1: Verificación de correo (COMENTADO) ───────────────────
+  // Widget _buildStep1Code() {
+  //   final email =
+  //       _emailCtrl.text.trim().isEmpty ? 'tu correo' : _emailCtrl.text.trim();
+  //   // ... (paso de verificación de correo desactivado temporalmente)
+  // }
 
   Widget _buildStep2Password() {
     return Column(
@@ -592,7 +529,7 @@ class _RegisterScreenState extends State<RegisterScreen>
 
         const SizedBox(height: 28),
         _buildNavButtons(
-          onBack: () => _goToStep(1),
+          onBack: () => _goToStep(0),
           onNext: _pwValid ? () => _goToStep(3) : null,
         ),
       ],
@@ -693,14 +630,45 @@ class _RegisterScreenState extends State<RegisterScreen>
         ),
         const SizedBox(height: 28),
 
+        if (_errorMessage != null) ...[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.errorBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.error.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.error_outline,
+                    color: AppColors.error, size: 18),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+        ],
+
         _buildNavButtons(
           onBack: () => _goToStep(2),
           nextLabel: 'Finalizar',
           onNext: (_selectedRegion != null &&
                   _selectedRole != null &&
-                  _selectedCategory != null)
-              ? () => NavigationHelper.goToDashboard(context)
+                  _selectedCategory != null &&
+                  !_loading)
+              ? _register
               : null,
+          loading: _loading,
         ),
       ],
     );
@@ -870,7 +838,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                               _buildStepper(),
                               const SizedBox(height: 24),
                               if (_step == 0) _buildStep0Email(),
-                              if (_step == 1) _buildStep1Code(),
+                              // if (_step == 1) _buildStep1Code(),
                               if (_step == 2) _buildStep2Password(),
                               if (_step == 3) _buildStep3Profile(),
                             ],
