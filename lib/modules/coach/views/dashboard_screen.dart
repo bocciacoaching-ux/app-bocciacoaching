@@ -142,9 +142,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final session = context.read<SessionProvider>().session;
     if (session == null) return;
     final teamProvider = context.read<TeamProvider>();
-    if (teamProvider.teams.isEmpty) {
-      await teamProvider.fetchTeams(session.userId);
-    }
+    await teamProvider.fetchTeams(session.userId);
   }
 
   Future<void> _loadDashboardData() async {

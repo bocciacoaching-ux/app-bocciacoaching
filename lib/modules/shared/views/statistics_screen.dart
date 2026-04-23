@@ -31,9 +31,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     if (session == null) return;
 
     // Cargar equipos si no se han cargado
-    if (teamProvider.teams.isEmpty) {
-      await teamProvider.fetchTeams(session.userId);
-    }
+    await teamProvider.fetchTeams(session.userId);
 
     // Cargar evaluaciones del equipo seleccionado
     final selectedTeam = teamProvider.selectedTeam;

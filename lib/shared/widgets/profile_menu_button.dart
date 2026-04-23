@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../data/providers/session_provider.dart';
+import '../../data/providers/team_provider.dart';
 import '../../data/models/user_session.dart';
 import '../../core/theme/app_colors.dart';
 import 'app_dialog.dart';
@@ -43,6 +44,7 @@ class _ProfileMenuButtonState extends State<ProfileMenuButton> {
       if (!confirmed || !mounted) return;
       await context.read<SessionProvider>().clearSession();
       if (!mounted) return;
+      context.read<TeamProvider>().clear();
       Navigator.of(context).pushReplacementNamed('/');
     }
   }
