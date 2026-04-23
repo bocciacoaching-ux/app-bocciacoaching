@@ -71,6 +71,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           teamName: selectedName,
           teamFlag: '',
           teamSubtitle: selectedCountry,
+          teamImageUrl: selected?.image,
           onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
         ),
         actions: const [

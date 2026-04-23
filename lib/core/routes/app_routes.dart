@@ -10,6 +10,7 @@ abstract final class AppRoutes {
   static const String athleteDashboard = '/athlete-dashboard';
   static const String notifications = '/notifications';
   static const String teams = '/teams';
+  static const String teamForm = '/team-form';
   static const String athletes = '/athletes';
   static const String athleteProfile = '/athlete-profile';
   static const String profile = '/profile';

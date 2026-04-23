@@ -13,6 +13,8 @@ import '../../modules/coach/views/athletes_screen.dart';
 import '../../modules/coach/views/athlete_profile_screen.dart';
 import '../../modules/coach/views/athlete_selection_screen.dart';
 import '../../modules/coach/views/teams_screen.dart';
+import '../../modules/coach/views/team_form_screen.dart';
+import '../../data/models/team.dart';
 import '../../modules/coach/views/macrocycle_list_screen.dart';
 import '../../modules/coach/views/macrocycle_builder_screen.dart';
 import '../../modules/coach/views/macrocycle_detail_screen.dart';
@@ -83,6 +85,13 @@ abstract final class AppPages {
     GetPage(
       name: AppRoutes.teams,
       page: () => const TeamsScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.teamForm,
+      page: () {
+        final team = Get.arguments is Team ? Get.arguments as Team : null;
+        return TeamFormScreen(team: team);
+      },
     ),
     GetPage(
       name: AppRoutes.profile,

@@ -136,6 +136,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
           teamName: selectedName,
           teamFlag: '',
           teamSubtitle: selectedCountry,
+          teamImageUrl: selected?.image,
           onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
         ),
         actions: [

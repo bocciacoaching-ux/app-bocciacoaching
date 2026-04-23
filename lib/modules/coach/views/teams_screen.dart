@@ -4,6 +4,7 @@ import '../../../data/models/team.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/routes/app_routes.dart';
 
 class TeamsScreen extends StatefulWidget {
   const TeamsScreen({super.key});
@@ -223,22 +224,120 @@ class _TeamsScreenState extends State<TeamsScreen> {
           title: 'Crear nuevo equipo',
           subtitle: 'Registra un nuevo equipo de boccia',
           icon: Icons.add_circle_outline_rounded,
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Función de crear equipo en desarrollo')),
-          ),
+          onTap: () => _openTeamForm(),
         ),
         const SizedBox(height: 12),
         _AdminCard(
           title: 'Administrar equipos',
           subtitle: 'Edita miembros y configuración',
           icon: Icons.settings_outlined,
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Función de administrar equipos en desarrollo')),
-          ),
+          onTap: () => _showManageTeamsSheet(teams),
         ),
       ],
+    );
+  }
+
+  // ── Crear / Editar equipo ─────────────────────────────────────────────────
+
+  Future<void> _openTeamForm({Team? team}) async {
+    final result = await Navigator.of(context).pushNamed(
+      AppRoutes.teamForm,
+      arguments: team,
+    );
+    if (result == true && mounted) {
+      await _loadTeams();
+    }
+  }
+
+  void _showManageTeamsSheet(List<Team> teams) {
+    if (teams.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Aún no tienes equipos para administrar.'),
+        ),
+      );
+      return;
+    }
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.neutral7,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  'Editar equipo',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              const Divider(height: 1, color: AppColors.neutral8),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: teams.length,
+                  itemBuilder: (_, i) {
+                    final team = teams[i];
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: AppColors.primary10,
+                        child: Text(
+                          team.nameTeam.isNotEmpty
+                              ? team.nameTeam[0].toUpperCase()
+                              : '?',
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        team.nameTeam,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${team.memberCount} integrantes',
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                      trailing: const Icon(Icons.edit_outlined,
+                          color: AppColors.primary, size: 20),
+                      onTap: () {
+                        Navigator.of(ctx).pop();
+                        _openTeamForm(team: team);
+                      },
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
     );
   }
 

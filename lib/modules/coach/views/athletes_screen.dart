@@ -237,6 +237,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
 
   // ── AppBar con hamburguesa (drawer) + chip de equipo (endDrawer) ─────────
   PreferredSizeWidget _buildAppBar() {
+    final selectedTeamModel = context.watch<TeamProvider>().selectedTeam;
     return AppBar(
       backgroundColor: AppColors.surface,
       elevation: 0,
@@ -249,6 +250,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
           teamName: _selectedTeam,
           teamFlag: _selectedFlag,
           teamSubtitle: _selectedSubtitle,
+          teamImageUrl: selectedTeamModel?.image,
           onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
         ),
       actions: [

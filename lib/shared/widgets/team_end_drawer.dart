@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../data/models/team.dart';
 import '../../data/providers/team_provider.dart';
+import '../../data/providers/session_provider.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/routes/app_routes.dart';
 
 /// Modelo de datos para un equipo en el selector (legacy / datos estáticos).
 class TeamOption {
@@ -136,6 +138,26 @@ class TeamEndDrawer extends StatelessWidget {
                                     Navigator.of(context).pop();
                                     onTeamSelected(team);
                                   },
+                                  onEdit: showAdminSection
+                                      ? () async {
+                                          Navigator.of(context).pop();
+                                          final result =
+                                              await Navigator.of(context)
+                                                  .pushNamed(
+                                            AppRoutes.teamForm,
+                                            arguments: team,
+                                          );
+                                          if (result == true && context.mounted) {
+                                            final session =
+                                                context.read<SessionProvider>().session;
+                                            if (session != null) {
+                                              context
+                                                  .read<TeamProvider>()
+                                                  .fetchTeams(session.userId);
+                                            }
+                                          }
+                                        }
+                                      : null,
                                 )),
                             if (showAdminSection) ...[
                               const SizedBox(height: 24),
@@ -154,13 +176,19 @@ class TeamEndDrawer extends StatelessWidget {
                               _AdminItem(
                                 icon: Icons.add_circle_outline,
                                 label: 'Crear nuevo equipo',
-                                onTap: () {
+                                onTap: () async {
                                   Navigator.of(context).pop();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Función de crear equipo en desarrollo'),
-                                    ),
-                                  );
+                                  final result = await Navigator.of(context)
+                                      .pushNamed(AppRoutes.teamForm);
+                                  if (result == true && context.mounted) {
+                                    final session =
+                                        context.read<SessionProvider>().session;
+                                    if (session != null) {
+                                      context
+                                          .read<TeamProvider>()
+                                          .fetchTeams(session.userId);
+                                    }
+                                  }
                                 },
                               ),
                               _AdminItem(
@@ -302,11 +330,13 @@ class _TeamItem extends StatelessWidget {
   final Team team;
   final bool isSelected;
   final VoidCallback onTap;
+  final VoidCallback? onEdit;
 
   const _TeamItem({
     required this.team,
     required this.isSelected,
     required this.onTap,
+    this.onEdit,
   });
 
   @override
@@ -400,6 +430,25 @@ class _TeamItem extends StatelessWidget {
                   isSelected
                       ? const Icon(Icons.check_circle, color: AppColors.primary, size: 20)
                       : const Icon(Icons.radio_button_unchecked, color: AppColors.neutral5, size: 20),
+                  if (onEdit != null) ...[
+                    const SizedBox(width: 6),
+                    GestureDetector(
+                      onTap: onEdit,
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary10,
+                          borderRadius: BorderRadius.circular(7),
+                        ),
+                        child: const Icon(
+                          Icons.edit_outlined,
+                          color: AppColors.primary,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
