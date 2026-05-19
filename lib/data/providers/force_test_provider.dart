@@ -209,6 +209,24 @@ class ForceTestProvider extends ChangeNotifier {
     _resetCurrentShotState();
   }
 
+  /// Cancela la evaluación activa en la API y limpia el estado local.
+  /// [assessStrengthId] es el ID de la evaluación a cancelar.
+  /// [coachId] es el ID del coach que realiza la cancelación.
+  /// [reason] es un mensaje opcional de motivo.
+  Future<bool> cancelEvaluation({
+    required int assessStrengthId,
+    required int coachId,
+    String? reason,
+  }) async {
+    final result = await _service.cancel(
+      assessStrengthId: assessStrengthId,
+      coachId: coachId,
+      reason: reason,
+    );
+    await resetForNewEvaluation();
+    return result != null;
+  }
+
   Future<void> startNewEvaluation(String name, int teamId, int coachId) async {
     _isLoading = true;
     _evaluationName = name;

@@ -123,8 +123,22 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
       icon: Icons.delete_outline_rounded,
     );
     if (!confirmed || !mounted) return;
+
     final provider = context.read<ForceTestProvider>();
-    await provider.resetForNewEvaluation();
+    final session = context.read<SessionProvider>().session;
+    final coachId = session?.userId ?? 0;
+    final evalId = _activeEval?.assessStrengthId;
+
+    if (evalId != null) {
+      await provider.cancelEvaluation(
+        assessStrengthId: evalId,
+        coachId: coachId,
+        reason: 'Descartada por el coach desde la pantalla de evaluaciones',
+      );
+    } else {
+      await provider.resetForNewEvaluation();
+    }
+
     if (!mounted) return;
     setState(() => _activeEval = null);
   }
