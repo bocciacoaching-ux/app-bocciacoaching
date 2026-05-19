@@ -14,6 +14,7 @@ import 'data/providers/statistics_provider.dart';
 import 'data/providers/training_session_provider.dart';
 import 'data/providers/athlete_session_provider.dart';
 import 'data/providers/onboarding_provider.dart';
+import 'data/providers/notification_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => TrainingSessionProvider()),
         ChangeNotifierProvider(create: (_) => AthleteSessionProvider()),
         ChangeNotifierProvider(create: (_) => OnboardingProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: const App(),
     ),
