@@ -517,33 +517,29 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
-          // Zone number badge
+          // Zona chip
           Container(
-            width: 52,
-            height: 52,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: AppColors.neutral8,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Center(
-              child: Text(
-                '${provider.currentScore ?? '-'}',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.white,
-                ),
+            child: Text(
+              'Zona ${config.boxNumber}',
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: AppColors.neutral1,
               ),
             ),
           ),
-          const SizedBox(width: 12),
-          // Distance badge
+          const SizedBox(width: 10),
+          // Distance chip
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: AppColors.neutral8,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -551,9 +547,9 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                 const Icon(Icons.straighten, size: 16, color: AppColors.neutral3),
                 const SizedBox(width: 6),
                 Text(
-                  '${config.targetDistance.toStringAsFixed(1)}m',
+                  '${config.targetDistance.toStringAsFixed(1)} m.',
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: AppColors.neutral1,
                   ),
@@ -561,63 +557,38 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          // Zone info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Zona n°${provider.currentScore ?? '-'}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.neutral1,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Distancia: ${config.targetDistance.toStringAsFixed(1)} m.',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
+          const Spacer(),
+          // Puntuación label + circle
+          const Text(
+            'Puntuación:',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondary,
             ),
           ),
-          // Score circle
-          if (provider.currentScore != null)
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: _scoreColor(provider.currentScore!),
-                shape: BoxShape.circle,
-                border: Border.all(
+          const SizedBox(width: 10),
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: provider.currentScore != null
+                  ? _scoreColor(provider.currentScore!)
+                  : AppColors.neutral6,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                provider.currentScore != null
+                    ? '${provider.currentScore}'
+                    : '-',
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
                   color: AppColors.white,
-                  width: 2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: _scoreColor(provider.currentScore!)
-                        .withValues(alpha: 0.3),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  '${provider.currentScore}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.white,
-                  ),
                 ),
               ),
             ),
+          ),
         ],
       ),
     );
@@ -727,6 +698,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
             onPressed:
                 provider.canGoNext && !provider.isLoading
                     ? () {
+                        _targetKey.currentState?.reset();
                         provider.nextShot();
                       }
                     : null,

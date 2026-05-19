@@ -111,6 +111,25 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
   }
 
   // ─────────────────────────────────────────────────────────────────
+  //  Descartar la evaluación pendiente de fuerza definitivamente
+  // ─────────────────────────────────────────────────────────────────
+  Future<void> _discardActiveEvaluation() async {
+    final confirmed = await AppDialog.confirm(
+      context,
+      title: 'Descartar evaluación',
+      message:
+          '¿Estás seguro de que deseas descartar esta evaluación? Se perderán todos los lanzamientos registrados y no podrás recuperarlos.',
+      confirmLabel: 'Descartar',
+      icon: Icons.delete_outline_rounded,
+    );
+    if (!confirmed || !mounted) return;
+    final provider = context.read<ForceTestProvider>();
+    await provider.resetForNewEvaluation();
+    if (!mounted) return;
+    setState(() => _activeEval = null);
+  }
+
+  // ─────────────────────────────────────────────────────────────────
   //  Clic en la tarjeta de Evaluación de Control de Dirección
   // ─────────────────────────────────────────────────────────────────
   Future<void> _onDirectionCardTap() async {
@@ -360,7 +379,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Text(
-                      'NUEVO',
+                      'FUERZA',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -374,7 +393,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
           ),
           const SizedBox(height: 16),
           const Text(
-            'Evaluación de Fuerza (Boccia)',
+            'Evaluación de control de fuerza',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -385,7 +404,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
           Text(
             _checking
                 ? 'Verificando evaluaciones pendientes…'
-                : 'Módulo completo de 36 tiros con estadísticas en tiempo real y mapa de calor.',
+                : 'Descripción de la evaluación de fuerza, con detalles sobre su estructura y objetivos.',
             style: TextStyle(
               fontSize: 14,
               color: _checking ? AppColors.primary : AppColors.textSecondary,
@@ -450,7 +469,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Text(
-                    'Evaluación Pendiente',
+                    'Evaluación pendiente',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -546,30 +565,58 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
 
                 const SizedBox(height: 16),
 
-                // ── Botón continuar ────────────────────────────────
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _continueActiveEvaluation,
-                    icon: const Icon(Icons.play_arrow_rounded, size: 20),
-                    label: const Text(
-                      'CONTINUAR EVALUACIÓN',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.8,
+                // ── Botones ────────────────────────────────────────
+                Row(
+                  children: [
+                    // Botón descartar
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _discardActiveEvaluation,
+                        icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                        label: const Text(
+                          'Descartar',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.neutral3,
+                          side: const BorderSide(color: AppColors.neutral7),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                       ),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    const SizedBox(width: 12),
+                    // Botón continuar
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton.icon(
+                        onPressed: _continueActiveEvaluation,
+                        icon: const Icon(Icons.play_arrow_rounded, size: 20),
+                        label: const Text(
+                          'CONTINUAR',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
                       ),
-                      elevation: 0,
                     ),
-                  ),
+                  ],
                 ),
                 const SizedBox(height: 16),
               ],
@@ -667,7 +714,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
           ),
           const SizedBox(height: 16),
           const Text(
-            'Evaluación de Control de Dirección',
+            'Evaluación de control de dirección',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -678,7 +725,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
           Text(
             _checkingDirection
                 ? 'Verificando evaluaciones pendientes…'
-                : 'Módulo de 36 tiros para evaluar la precisión y el control de dirección del atleta.',
+                : 'Descripción de la evaluación de control de dirección, con detalles sobre su estructura y objetivos.',
             style: TextStyle(
               fontSize: 14,
               color: _checkingDirection
@@ -750,7 +797,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Text(
-                    'Evaluación de Dirección Pendiente',
+                    'Evaluación de dirección pendiente',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,

@@ -62,7 +62,12 @@ class ForceTestProvider extends ChangeNotifier {
 
   bool get canGoNext {
     if (_currentScore == null) return false;
-    if (_currentScore! <= 2 && _observationsController.text.trim().isEmpty) return false;
+    if (_currentScore! <= 2) {
+      // Basta con haber seleccionado al menos un chip de causa O haber escrito observación
+      final hasChip = _causeDirection || _causeForce || _causeTrajectory || _causeCadence;
+      final hasNote = _observationsController.text.trim().isNotEmpty;
+      if (!hasChip && !hasNote) return false;
+    }
     return true;
   }
 

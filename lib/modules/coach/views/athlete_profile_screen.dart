@@ -250,9 +250,9 @@ class AthleteProfileScreen extends StatelessWidget {
         _evaluationCard(
           context,
           icon: '⚡',
-          title: 'Evaluación de Fuerza',
+          title: 'Evaluación de fuerza',
           description: 'Módulo de 36 tiros con estadísticas en tiempo real y mapa de calor.',
-          badgeLabel: 'NUEVO',
+          badgeLabel: 'FUERZA',
           badgeColor: AppColors.infoBg,
           badgeTextColor: AppColors.primary,
           onTap: () => _startForceEvaluation(context),
@@ -261,7 +261,7 @@ class AthleteProfileScreen extends StatelessWidget {
         _evaluationCard(
           context,
           icon: '📖',
-          title: 'Evaluación de Dirección',
+          title: 'Evaluación de dirección',
           description: 'Evalúa la precisión y el control de dirección del atleta.',
           badgeLabel: 'TÉCNICA',
           badgeColor: AppColors.accent4x10,

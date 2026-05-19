@@ -39,24 +39,18 @@ class ForceTargetWidgetState extends State<ForceTargetWidget> {
     const ballRadius = 4.5;
 
     // Radios de las zonas circulares (basados en painter)
-    const greenCenterRadius = 14.0;  // circle5Radius = w * 0.14
-    const greenOuterRadius = 24.0;   // circle4Radius = w * 0.24
+    const greenCenterRadius = 14.0; // circle5Radius = w * 0.14
+    const greenOuterRadius = 24.0; // circle4Radius = w * 0.24
 
     // Borde del cuadro interior (half-size)
-    const squareHalfSize = 34.0;     // innerSquareSize = w * 0.68 → half = 34%
+    const squareHalfSize = 34.0; // innerSquareSize = w * 0.68 → half = 34%
 
     // Borde de la zona crema (half-size)
-    const creamHalfSize = 44.0;      // zone1Inset = w * 0.06 → half = 50 - 6 = 44%
+    const creamHalfSize = 44.0; // zone1Inset = w * 0.06 → half = 50 - 6 = 44%
 
-    // Grosor de la línea del cuadro en coordenadas relativas
-    const lineHalfThickness = 1.0;
-
-    // ── Distancias clave de la pelota ──
     final ballFarEdge = distance + ballRadius;
     final ballFarEdgeX = dx.abs() + ballRadius;
     final ballFarEdgeY = dy.abs() + ballRadius;
-    final ballNearEdgeX = dx.abs() - ballRadius;
-    final ballNearEdgeY = dy.abs() - ballRadius;
 
     // ── 5 pts ── pelota dentro del círculo verde central
     if (ballFarEdge <= greenCenterRadius) return 5;
@@ -64,26 +58,28 @@ class ForceTargetWidgetState extends State<ForceTargetWidget> {
     // ── 4 pts ── pelota dentro del círculo verde exterior
     if (ballFarEdge <= greenOuterRadius) return 4;
 
-    // ── 3 pts ── pelota completamente dentro del cuadrado verde
-    //             (sin tocar la línea del borde)
-    if (ballFarEdgeX < squareHalfSize - lineHalfThickness &&
-        ballFarEdgeY < squareHalfSize - lineHalfThickness) return 3;
+    // Distancia del centro de la pelota al punto más cercano DEL interior
+    // del cuadrado (clamping al rect ±squareHalfSize).
+    // distToSquare == 0  → el centro está dentro del cuadrado.
+    // distToSquare  > 0  → el centro está fuera del cuadrado.
+    final clampedX = dx.abs().clamp(0.0, squareHalfSize);
+    final clampedY = dy.abs().clamp(0.0, squareHalfSize);
+    final distToSquare = sqrt(
+      pow(dx.abs() - clampedX, 2) + pow(dy.abs() - clampedY, 2),
+    );
 
-    // ── 2 pts ── pelota toca/está sobre la línea del cuadro
-    //             (alguna parte de la pelota está sobre la línea del borde)
-    if (ballNearEdgeX <= squareHalfSize + lineHalfThickness &&
-        ballNearEdgeY <= squareHalfSize + lineHalfThickness) {
-      // Verificar que la pelota realmente toca la línea
-      final touchesLineX = ballFarEdgeX >= squareHalfSize - lineHalfThickness;
-      final touchesLineY = ballFarEdgeY >= squareHalfSize - lineHalfThickness;
-      final insideX = ballNearEdgeX <= squareHalfSize + lineHalfThickness;
-      final insideY = ballNearEdgeY <= squareHalfSize + lineHalfThickness;
-      if ((touchesLineX || touchesLineY) && insideX && insideY) return 2;
-    }
+    // ── 3 pts ── pelota completamente dentro del cuadrado sin tocar la línea
+    //             (centro dentro + ningún borde de la pelota alcanza el límite)
+    if (distToSquare == 0 &&
+        ballFarEdgeX < squareHalfSize &&
+        ballFarEdgeY < squareHalfSize) return 3;
 
-    // ── 1 pt ── pelota fuera del cuadro, dentro de la zona crema
-    if (ballFarEdgeX <= creamHalfSize &&
-        ballFarEdgeY <= creamHalfSize) return 1;
+    // ── 2 pts ── pelota toca o cruza la línea del cuadro
+    //             (la pelota intersecta el perímetro del cuadrado)
+    if (distToSquare <= ballRadius) return 2;
+
+    // ── 1 pt ── pelota completamente fuera del cuadro, dentro de la zona crema
+    if (ballFarEdgeX <= creamHalfSize && ballFarEdgeY <= creamHalfSize) return 1;
 
     // ── 0 pts ── FUERA DE ZONA (franja ámbar)
     return 0;
