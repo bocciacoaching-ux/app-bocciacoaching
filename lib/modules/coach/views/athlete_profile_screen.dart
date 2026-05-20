@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../../data/providers/force_test_provider.dart';
 import '../../../data/models/athlete.dart' as model;
 import '../../../core/theme/app_colors.dart';
-// El modelo UI de atleta viene de athletes_screen.dart
 import 'athletes_screen.dart' show Athlete;
 
 // ---------------------------------------------------------------------------
@@ -13,9 +12,6 @@ class AthleteProfileScreen extends StatelessWidget {
   final Athlete athlete;
 
   const AthleteProfileScreen({super.key, required this.athlete});
-
-  // Color principal de la app
-  static const _primary = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
@@ -27,20 +23,34 @@ class AthleteProfileScreen extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(
+                16,
                 20,
-                20,
-                20,
-                20 + MediaQuery.of(context).padding.bottom,
+                16,
+                32 + MediaQuery.of(context).padding.bottom,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildInfoCard(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 14),
                   _buildStatsRow(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {},
+                      child: const Text(
+                        'Mostrar más',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: AppColors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   _buildEvaluationsSection(context),
-                  const SizedBox(height: 32),
                 ],
               ),
             ),
@@ -50,90 +60,108 @@ class AthleteProfileScreen extends StatelessWidget {
     );
   }
 
-  // ── SliverAppBar con avatar grande ──────────────────────────────────────
+  // ── SliverAppBar con foto de fondo a pantalla completa ──────────────────
   Widget _buildSliverAppBar(BuildContext context) {
-    final initials = athlete.name.split(' ').where((w) => w.isNotEmpty).map((w) => w[0]).take(2).join();
-    final statusColor = _getStatusColor(athlete.status);
+    final hasPhoto = athlete.image != null && athlete.image!.isNotEmpty;
+    final initials = athlete.name
+        .split(' ')
+        .where((w) => w.isNotEmpty)
+        .map((w) => w[0])
+        .take(2)
+        .join();
 
     return SliverAppBar(
-      expandedHeight: 220,
+      expandedHeight: 300,
       pinned: true,
-      backgroundColor: _primary,
-      iconTheme: const IconThemeData(color: AppColors.white),
+      backgroundColor: Colors.black,
+      // Bordes redondeados en la parte inferior
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.chevron_left, color: AppColors.white, size: 32),
+        ),
+      ),
       flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [AppColors.actionPrimaryActive, AppColors.primary],
-            ),
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 40),
-                Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    CircleAvatar(
-                      radius: 44,
-                      backgroundColor: AppColors.white.withAlpha(38),
-                      child: Text(
-                        initials,
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.white,
-                        ),
-                      ),
-                    ),
-                    // Indicador de estado
-                    Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: statusColor,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.white, width: 2.5),
-                      ),
-                    ),
-                  ],
+        collapseMode: CollapseMode.pin,
+        background: ClipRRect(
+          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+          child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Foto o fondo de color
+            hasPhoto
+                ? Image.network(
+                    athlete.image!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _fallbackBackground(initials),
+                  )
+                : _fallbackBackground(initials),
+            // Gradiente oscuro inferior
+            const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.4, 1.0],
+                  colors: [Colors.transparent, Colors.black87],
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  athlete.name,
-                  style: const TextStyle(
-                    color: AppColors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+              ),
+            ),
+            // Nombre y subtítulo sobre la foto
+            Positioned(
+              left: 20,
+              right: 20,
+              bottom: 24,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    athlete.name,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(athlete.flag, style: const TextStyle(fontSize: 14)),
-                    const SizedBox(width: 6),
-                    Text(
-                      athlete.nationality,
-                      style: TextStyle(
-                        color: AppColors.white.withAlpha(200),
-                        fontSize: 13,
-                      ),
+                  const SizedBox(height: 4),
+                  Text(
+                    athlete.nationality.isNotEmpty
+                        ? ' Ciudad | ${athlete.nationality}'
+                        : '—',
+                    style: TextStyle(
+                      color: AppColors.white.withAlpha(210),
+                      fontSize: 14,
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
+          ],
+        ),
+        ), // ClipRRect
+      ),
+    );
+  }
+
+  Widget _fallbackBackground(String initials) {
+    return Container(
+      color: AppColors.primary,
+      child: Center(
+        child: Text(
+          initials,
+          style: const TextStyle(
+            fontSize: 64,
+            fontWeight: FontWeight.bold,
+            color: AppColors.white,
           ),
         ),
-        title: Text(
-          athlete.name,
-          style: const TextStyle(color: AppColors.white, fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 16),
       ),
     );
   }
@@ -145,87 +173,137 @@ class AthleteProfileScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.05), blurRadius: 8, offset: Offset(0, 2))],
+        boxShadow: const [
+          BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.05),
+              blurRadius: 8,
+              offset: Offset(0, 2)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Información del atleta',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.black)),
+          // Encabezado: título + chip de estado
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Información del atleta',
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.black),
+                ),
+              ),
+              _StatusChipSmall(status: athlete.status),
+            ],
+          ),
+          const SizedBox(height: 18),
+          // Fila 1
+          Row(
+            children: [
+              Expanded(
+                  child: _infoField(
+                      'Clasificación',
+                      athlete.classification.isNotEmpty
+                          ? athlete.classification
+                          : '—')),
+              Expanded(
+                  child: _infoField(
+                      'Posición',
+                      athlete.position.isNotEmpty
+                          ? athlete.position
+                          : '—')),
+            ],
+          ),
           const SizedBox(height: 16),
-          _infoRow(Icons.category_outlined,      'Clasificación', athlete.classification),
-          _infoRow(Icons.sports_outlined,         'Posición',      athlete.position),
-          _infoRow(Icons.cake_outlined,            'Edad',          '${athlete.age} años'),
-          _infoRow(Icons.flag_outlined,            'Nacionalidad',  '${athlete.flag} ${athlete.nationality}'),
-          _infoRow(Icons.circle, 'Estado', athlete.status,
-              valueColor: _getStatusColor(athlete.status)),
+          // Fila 2
+          Row(
+            children: [
+              Expanded(
+                  child: _infoField(
+                      'Edad',
+                      athlete.age > 0
+                          ? '${athlete.age} años'
+                          : '—')),
+              Expanded(
+                  child: _infoField(
+                      'Nacionalidad',
+                      athlete.nationality.isNotEmpty
+                          ? athlete.nationality
+                          : '—')),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _infoRow(IconData icon, String label, String value, {Color? valueColor}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
-      child: Row(
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: _primary.withAlpha(20),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 17, color: _primary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(label, style: const TextStyle(fontSize: 13, color: AppColors.neutral5)),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: valueColor ?? AppColors.black,
-            ),
-          ),
-        ],
-      ),
+  Widget _infoField(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: const TextStyle(
+                fontSize: 12, color: AppColors.textSecondary)),
+        const SizedBox(height: 4),
+        Text(value,
+            style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: AppColors.black)),
+      ],
     );
   }
 
   // ── Fila de estadísticas rápidas ─────────────────────────────────────────
   Widget _buildStatsRow() {
+    final precision = athlete.avgScore > 0
+        ? '${(athlete.avgScore * 14).clamp(0, 100).toStringAsFixed(0)}%'
+        : '—';
     return Row(
       children: [
-        _statCard('⭐ Promedio', athlete.avgScore.toStringAsFixed(1), 'pts'),
-        const SizedBox(width: 12),
-        _statCard('🎯 Precisión', '${(athlete.avgScore * 10).toStringAsFixed(0)}%', ''),
-        const SizedBox(width: 12),
-        _statCard('📋 Sesiones', '12', 'total'),
+        _statCard('Promedio',
+            athlete.avgScore > 0 ? athlete.avgScore.toStringAsFixed(1) : '—'),
+        const SizedBox(width: 10),
+        _statCard('Precisión', precision),
+        const SizedBox(width: 10),
+        _statCard('Sesiones', '12'),
       ],
     );
   }
 
-  Widget _statCard(String label, String value, String unit) {
+  Widget _statCard(String label, String value) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(14),
-          boxShadow: const [BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.05), blurRadius: 8, offset: Offset(0, 2))],
+          boxShadow: const [
+            BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.05),
+                blurRadius: 8,
+                offset: Offset(0, 2)),
+          ],
         ),
         child: Column(
           children: [
-            Text(label, style: const TextStyle(fontSize: 10, color: AppColors.neutral5, fontWeight: FontWeight.w500),
-                textAlign: TextAlign.center),
+            Text(
+              label,
+              style: const TextStyle(
+                  fontSize: 11, color: AppColors.textSecondary),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 6),
-            Text(value,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.black)),
-            if (unit.isNotEmpty)
-              Text(unit, style: const TextStyle(fontSize: 10, color: AppColors.neutral6)),
+            Text(
+              value,
+              style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.black),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
@@ -234,38 +312,39 @@ class AthleteProfileScreen extends StatelessWidget {
 
   // ── Sección de evaluaciones ──────────────────────────────────────────────
   Widget _buildEvaluationsSection(BuildContext context) {
+    final firstName = athlete.name.split(' ').first;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Iniciar evaluación',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.black),
+        Text(
+          'Iniciar evaluación de $firstName',
+          style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.black),
         ),
         const SizedBox(height: 4),
-        Text(
-          'Selecciona el tipo de evaluación para ${athlete.name.split(' ').first}',
-          style: const TextStyle(fontSize: 12, color: AppColors.neutral5),
+        const Text(
+          'Selecciona el tipo de evaluación que quieres comenzar',
+          style: TextStyle(
+              fontSize: 13, color: AppColors.textSecondary, height: 1.4),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
         _evaluationCard(
           context,
-          icon: '⚡',
-          title: 'Evaluación de fuerza',
-          description: 'Módulo de 36 tiros con estadísticas en tiempo real y mapa de calor.',
-          badgeLabel: 'FUERZA',
-          badgeColor: AppColors.infoBg,
-          badgeTextColor: AppColors.primary,
+          iconColor: const Color(0xFFD6E8F5),
+          title: 'Control de Fuerza',
+          description:
+              'Módulo de 36 tiros con estadísticas en tiempo real y mapa de calor.',
           onTap: () => _startForceEvaluation(context),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         _evaluationCard(
           context,
-          icon: '📖',
-          title: 'Evaluación de dirección',
-          description: 'Evalúa la precisión y el control de dirección del atleta.',
-          badgeLabel: 'TÉCNICA',
-          badgeColor: AppColors.accent4x10,
-          badgeTextColor: AppColors.accent4,
+          iconColor: const Color(0xFFD6E8F5),
+          title: 'Control de Dirección',
+          description:
+              'Módulo de 36 tiros para evaluar la presisión y el control de dirección.',
           onTap: () => _startDirectionEvaluation(context),
         ),
       ],
@@ -274,34 +353,35 @@ class AthleteProfileScreen extends StatelessWidget {
 
   Widget _evaluationCard(
     BuildContext context, {
-    required String icon,
+    required Color iconColor,
     required String title,
     required String description,
-    required String badgeLabel,
-    required Color badgeColor,
-    required Color badgeTextColor,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: const [BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.05), blurRadius: 8, offset: Offset(0, 2))],
+          boxShadow: const [
+            BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.05),
+                blurRadius: 8,
+                offset: Offset(0, 2)),
+          ],
         ),
         child: Row(
           children: [
-            // Icono
+            // Ícono cuadrado de color
             Container(
-              width: 52,
-              height: 52,
+              width: 60,
+              height: 60,
               decoration: BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.circular(14),
+                color: iconColor,
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: Center(child: Text(icon, style: const TextStyle(fontSize: 26))),
             ),
             const SizedBox(width: 14),
             // Texto
@@ -309,67 +389,71 @@ class AthleteProfileScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(title,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.black)),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: badgeColor,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(badgeLabel,
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: badgeTextColor)),
-                      ),
-                    ],
+                  Text(
+                    title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: AppColors.black),
                   ),
                   const SizedBox(height: 4),
-                  Text(description,
-                      style: const TextStyle(fontSize: 12, color: AppColors.neutral5, height: 1.3)),
+                  Text(
+                    description,
+                    style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                        height: 1.4),
+                  ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.primary),
+            const Icon(Icons.chevron_right_rounded,
+                size: 26, color: AppColors.primary),
           ],
         ),
       ),
     );
   }
 
-  // ── Navegación a evaluaciones ────────────────────────────────────────────
-
+  // ── Acciones ─────────────────────────────────────────────────────────────
   void _startForceEvaluation(BuildContext context) async {
-    // Construimos el Athlete del modelo del provider con los datos del atleta UI
     final providerAthlete = model.Athlete(
       id: int.tryParse(athlete.id) ?? 0,
       name: athlete.name,
     );
-
     final provider = context.read<ForceTestProvider>();
     await provider.resetForNewEvaluation();
-
     if (!context.mounted) return;
-
-    // Pre-seleccionamos el atleta en el provider
     provider.addAthlete(providerAthlete);
-
     Navigator.of(context).pushNamed('/force-test-module');
   }
 
   void _startDirectionEvaluation(BuildContext context) {
-    Navigator.of(context).pushNamed(
-      '/athlete-selection',
-      arguments: 'direction',
-    );
+    Navigator.of(context)
+        .pushNamed('/athlete-selection', arguments: 'direction');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Chip de estado para la tarjeta de info
+// ---------------------------------------------------------------------------
+class _StatusChipSmall extends StatelessWidget {
+  final String status;
+  const _StatusChipSmall({required this.status});
+
+  Color get _bg {
+    switch (status) {
+      case 'Lesionado':
+        return AppColors.warning.withAlpha(30);
+      case 'Inactivo':
+        return AppColors.error.withAlpha(30);
+      default:
+        return AppColors.success.withAlpha(30);
+    }
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
-  Color _getStatusColor(String status) {
+  Color get _fg {
     switch (status) {
       case 'Lesionado':
         return AppColors.warning;
@@ -378,5 +462,21 @@ class AthleteProfileScreen extends StatelessWidget {
       default:
         return AppColors.success;
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      decoration: BoxDecoration(
+        color: _bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+            fontSize: 12, fontWeight: FontWeight.w600, color: _fg),
+      ),
+    );
   }
 }

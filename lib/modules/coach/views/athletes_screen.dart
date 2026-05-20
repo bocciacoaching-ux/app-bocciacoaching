@@ -91,7 +91,7 @@ class AthletesScreen extends StatefulWidget {
 enum _ViewMode { cards, table }
 
 class _AthletesScreenState extends State<AthletesScreen> {
-  _ViewMode _viewMode = _ViewMode.cards;
+  _ViewMode _viewMode = _ViewMode.table;
   String _search = '';
   String? _filterStatus; // null = todos
   int _notificationCount = 3;
@@ -376,62 +376,90 @@ class _AthletesScreenState extends State<AthletesScreen> {
 
   // ── Barra de búsqueda + filtros + toggle de vista ────────────────────────
   Widget _buildToolbar() {
+    final totalMembers = context.watch<TeamProvider>().members.length;
     return Container(
       color: AppColors.surface,
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Título
+          // ── Encabezado: nombre de equipo + contador ────────────────
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.group, color: AppColors.primary, size: 20),
-              const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  'Atletas · $_selectedTeam',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.black),
-                  overflow: TextOverflow.ellipsis,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _selectedTeam,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.black,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _selectedSubtitle,
+                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    ),
+                  ],
                 ),
               ),
-              // Contador de atletas filtrados
+              // Contador de miembros
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary10,
-                  borderRadius: BorderRadius.circular(20),
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                child: Text(
-                  '${_filtered.length} atletas',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primary),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Mini avatares apilados (hasta 3)
+                    _MiniAvatarStack(
+                      members: context.watch<TeamProvider>().members.take(3).toList(),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '$totalMembers',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          // Barra de búsqueda + toggle
+          const SizedBox(height: 14),
+          // ── Búsqueda + toggle de vista ─────────────────────────────
           Row(
             children: [
               Expanded(
                 child: TextField(
                   onChanged: (v) => setState(() => _search = v),
                   decoration: InputDecoration(
-                    hintText: 'Buscar atleta o clasificación…',
+                    hintText: 'Busca atleta o clasificación',
                     hintStyle: const TextStyle(fontSize: 13, color: AppColors.textDisabled),
                     prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.neutral5),
                     filled: true,
                     fillColor: AppColors.background,
                     contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: AppColors.neutral7),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: AppColors.neutral7),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: AppColors.primary),
                     ),
                   ),
@@ -442,20 +470,20 @@ class _AthletesScreenState extends State<AthletesScreen> {
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.background,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.neutral7),
                 ),
                 child: Row(
                   children: [
                     _viewToggleBtn(Icons.grid_view_rounded, _ViewMode.cards),
-                    _viewToggleBtn(Icons.table_rows_rounded, _ViewMode.table),
+                    _viewToggleBtn(Icons.view_list_rounded, _ViewMode.table),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          // Chips de filtro por estado
+          const SizedBox(height: 10),
+          // ── Chips de filtro por estado ─────────────────────────────
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -522,89 +550,25 @@ class _AthletesScreenState extends State<AthletesScreen> {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     return GridView.builder(
       padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomPadding),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 220,
-        mainAxisExtent: 210,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
+        childAspectRatio: 0.78,
       ),
       itemCount: _filtered.length,
       itemBuilder: (_, i) => _AthleteCard(athlete: _filtered[i]),
     );
   }
 
-  // ── Vista en tabla ───────────────────────────────────────────────────────
+  // ── Vista en lista (cards por fila) ─────────────────────────────────────
   Widget _buildTableView() {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    return SingleChildScrollView(
+    return ListView.separated(
       padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomPadding),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: const Color.fromRGBO(0, 0, 0, 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.hardEdge,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            headingRowColor: WidgetStateProperty.all(AppColors.background),
-            headingTextStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-              color: AppColors.neutral2,
-            ),
-            dataTextStyle: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
-            columnSpacing: 18,
-            horizontalMargin: 16,
-            dividerThickness: 0.8,
-            columns: const [
-              DataColumn(label: Text('Atleta')),
-              DataColumn(label: Text('Clasificación')),
-              DataColumn(label: Text('Posición')),
-              DataColumn(label: Text('Edad')),
-              DataColumn(label: Text('Prom.')),
-              DataColumn(label: Text('Estado')),
-            ],
-            rows: _filtered.map((a) {
-              return DataRow(
-                onSelectChanged: (_) =>
-                    Navigator.of(context).pushNamed('/athlete-profile', arguments: a),
-                cells: [
-                // Nombre con avatar
-                DataCell(Row(children: [
-                  _miniAvatar(a),
-                  const SizedBox(width: 8),
-                  Text(a.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                ])),
-                DataCell(_ClassBadge(classification: a.classification)),
-                DataCell(Text(a.position)),
-                DataCell(Text('${a.age} a')),
-                DataCell(Text(a.avgScore.toStringAsFixed(1),
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary))),
-                DataCell(_StatusChip(status: a.status)),
-              ]);
-            }).toList(),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _miniAvatar(Athlete a) {
-    return CircleAvatar(
-      radius: 15,
-      backgroundColor: AppColors.primary10,
-      child: Text(
-        a.name.split(' ').where((w) => w.isNotEmpty).map((w) => w[0]).take(2).join(),
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary),
-      ),
+      itemCount: _filtered.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (_, i) => _AthleteListRow(athlete: _filtered[i]),
     );
   }
 
@@ -635,80 +599,310 @@ class _AthleteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final inactive = athlete.status == 'Inactivo';
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pushNamed('/athlete-profile', arguments: athlete);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: const Color.fromRGBO(0, 0, 0, 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Avatar con iniciales
-            CircleAvatar(
-              radius: 28,
-              backgroundColor: AppColors.primary10,
-              child: Text(
-                athlete.name.split(' ').where((w) => w.isNotEmpty).map((w) => w[0]).take(2).join(),
-                style: const TextStyle(
-                  fontSize: 18,
+      onTap: () => Navigator.of(context).pushNamed('/athlete-profile', arguments: athlete),
+      child: Opacity(
+        opacity: inactive ? 0.5 : 1.0,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: const Color.fromRGBO(0, 0, 0, 0.06),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Avatar con punto de estado
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  _buildAvatar(),
+                  if (!inactive)
+                    Positioned(
+                      bottom: 2,
+                      right: 2,
+                      child: Container(
+                        width: 13,
+                        height: 13,
+                        decoration: BoxDecoration(
+                          color: _dotColor(athlete.status),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.white, width: 2),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Nombre
+              Text(
+                athlete.name,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+                  fontSize: 14,
+                  color: inactive ? AppColors.textSecondary : AppColors.black,
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              athlete.name,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.black),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '${athlete.flag}  ${athlete.nationality}',
-              style: const TextStyle(fontSize: 11, color: AppColors.neutral5),
-            ),
-            const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _ClassBadge(classification: athlete.classification),
-                _StatusChip(status: athlete.status),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(children: [
-                  const Icon(Icons.star_rounded, size: 14, color: AppColors.accent2),
-                  const SizedBox(width: 2),
-                  Text(
-                    athlete.avgScore.toStringAsFixed(1),
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.black),
-                  ),
-                ]),
-                Text(
-                  athlete.position,
-                  style: const TextStyle(fontSize: 10, color: AppColors.neutral5),
-                ),
-              ],
-            ),
-          ],
+              const SizedBox(height: 4),
+              // País
+              Text(
+                athlete.nationality,
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
+              const Spacer(),
+              // Chips: clasificación + score + estado
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  if (athlete.classification.isNotEmpty)
+                    _ClassBadge(classification: athlete.classification),
+                  if (athlete.avgScore > 0)
+                    _ScoreChip(score: athlete.avgScore),
+                  _StatusChip(status: athlete.status),
+                ],
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAvatar() {
+    final initials = athlete.name
+        .split(' ')
+        .where((w) => w.isNotEmpty)
+        .map((w) => w[0])
+        .take(2)
+        .join();
+
+    if (athlete.image != null && athlete.image!.isNotEmpty) {
+      return CircleAvatar(
+        radius: 46,
+        backgroundImage: NetworkImage(athlete.image!),
+        backgroundColor: AppColors.primary10,
+      );
+    }
+    return CircleAvatar(
+      radius: 46,
+      backgroundColor: AppColors.primary10,
+      child: Text(
+        initials,
+        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary),
+      ),
+    );
+  }
+
+  Color _dotColor(String status) {
+    switch (status) {
+      case 'Lesionado':
+        return AppColors.warning;
+      case 'Inactivo':
+        return AppColors.neutral5;
+      default:
+        return AppColors.success;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Widget: fila de atleta en vista lista
+// ---------------------------------------------------------------------------
+class _AthleteListRow extends StatelessWidget {
+  final Athlete athlete;
+  const _AthleteListRow({required this.athlete});
+
+  @override
+  Widget build(BuildContext context) {
+    final inactive = athlete.status == 'Inactivo';
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pushNamed('/athlete-profile', arguments: athlete),
+      child: Opacity(
+        opacity: inactive ? 0.5 : 1.0,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: const Color.fromRGBO(0, 0, 0, 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // Avatar
+              Stack(
+                children: [
+                  _buildAvatar(),
+                  if (!inactive)
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        width: 11,
+                        height: 11,
+                        decoration: BoxDecoration(
+                          color: _statusDotColor(athlete.status),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.white, width: 1.5),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 12),
+              // Nombre + país
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      athlete.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: inactive ? AppColors.textSecondary : AppColors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      athlete.nationality,
+                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              // Badge clasificación
+              if (athlete.classification.isNotEmpty && !inactive) ...[
+                _ClassBadge(classification: athlete.classification),
+                const SizedBox(width: 8),
+              ],
+              // Estrella + score (solo si tiene datos)
+              if (athlete.avgScore > 0 && !inactive) ...[
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.star_rounded, size: 15, color: AppColors.accent2),
+                    const SizedBox(width: 2),
+                    Text(
+                      athlete.avgScore.toStringAsFixed(1),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.black),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 8),
+              ],
+              // Chip de estado
+              _StatusChip(status: athlete.status),
+              const SizedBox(width: 8),
+              // Chevron
+              const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.neutral5),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvatar() {
+    final initials = athlete.name
+        .split(' ')
+        .where((w) => w.isNotEmpty)
+        .map((w) => w[0])
+        .take(2)
+        .join();
+
+    if (athlete.image != null && athlete.image!.isNotEmpty) {
+      return CircleAvatar(
+        radius: 24,
+        backgroundImage: NetworkImage(athlete.image!),
+        backgroundColor: AppColors.primary10,
+        child: null,
+      );
+    }
+    return CircleAvatar(
+      radius: 24,
+      backgroundColor: AppColors.primary10,
+      child: Text(
+        initials,
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary),
+      ),
+    );
+  }
+
+  Color _statusDotColor(String status) {
+    switch (status) {
+      case 'Lesionado':
+        return AppColors.warning;
+      case 'Inactivo':
+        return AppColors.neutral5;
+      default:
+        return AppColors.success;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Widget: mini avatares apilados para el contador del header
+// ---------------------------------------------------------------------------
+class _MiniAvatarStack extends StatelessWidget {
+  final List<TeamMember> members;
+  const _MiniAvatarStack({required this.members});
+
+  @override
+  Widget build(BuildContext context) {
+    const double size = 26;
+    const double overlap = 10;
+    final count = members.length.clamp(0, 3);
+    if (count == 0) return const SizedBox.shrink();
+    return SizedBox(
+      width: size + (count - 1) * (size - overlap),
+      height: size,
+      child: Stack(
+        children: List.generate(count, (i) {
+          final m = members[i];
+          return Positioned(
+            left: i * (size - overlap),
+            child: Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.white, width: 1.5),
+                color: AppColors.primary10,
+              ),
+              child: ClipOval(
+                child: m.image != null && m.image!.isNotEmpty
+                    ? Image.network(m.image!, fit: BoxFit.cover)
+                    : Center(
+                        child: Text(
+                          m.fullName.split(' ').where((w) => w.isNotEmpty).map((w) => w[0]).take(1).join(),
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary),
+                        ),
+                      ),
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -752,6 +946,33 @@ class _StatusChip extends StatelessWidget {
       child: Text(
         status,
         style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: _statusColor(status)),
+      ),
+    );
+  }
+}
+
+class _ScoreChip extends StatelessWidget {
+  final double score;
+  const _ScoreChip({required this.score});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E1),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.star_rounded, size: 12, color: AppColors.accent2),
+          const SizedBox(width: 3),
+          Text(
+            score.toStringAsFixed(1),
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.black),
+          ),
+        ],
       ),
     );
   }
