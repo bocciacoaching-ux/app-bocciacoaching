@@ -60,6 +60,12 @@ class ForceTestProvider extends ChangeNotifier {
           ? _testConfig[_currentShotIndex] 
           : null;
 
+  int? get previousBoxNumber =>
+      _currentShotIndex > 0 ? _testConfig[_currentShotIndex - 1].boxNumber : null;
+
+  int? get nextBoxNumber =>
+      _currentShotIndex + 1 < _testConfig.length ? _testConfig[_currentShotIndex + 1].boxNumber : null;
+
   bool get canGoNext {
     if (_currentScore == null) return false;
     if (_currentScore! <= 2) {

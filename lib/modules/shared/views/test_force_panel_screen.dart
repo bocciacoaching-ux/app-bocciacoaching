@@ -529,21 +529,6 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                             // ── Navigation buttons ──
                             _buildNavigationButtons(provider, config),
 
-                            // ── Current box label ──
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  'Cajón n° ${config.boxNumber}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ),
-                            ),
-
                             const SizedBox(height: 24),
                           ],
                         ),
@@ -760,14 +745,34 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                 ? () => provider.previousShot()
                 : null,
             style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
+              minimumSize: const Size(double.infinity, 58),
+              padding: const EdgeInsets.symmetric(vertical: 10),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
               side: const BorderSide(color: AppColors.neutral7),
               foregroundColor: AppColors.neutral4,
             ),
-            child: const Text('Anterior'),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Anterior',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                if (provider.previousBoxNumber != null)
+                  Text(
+                    'Zona n° ${provider.previousBoxNumber}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
         const SizedBox(width: 16),
@@ -784,7 +789,8 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: AppColors.white,
-              minimumSize: const Size(double.infinity, 50),
+              minimumSize: const Size(double.infinity, 58),
+              padding: const EdgeInsets.symmetric(vertical: 10),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -799,13 +805,28 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                       color: AppColors.white,
                     ),
                   )
-                : Text(
-                    provider.currentShotNumber == provider.totalShots
-                        ? 'Finalizar'
-                        : 'Siguiente',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        provider.currentShotNumber == provider.totalShots
+                            ? 'Finalizar'
+                            : 'Siguiente',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      if (provider.currentShotNumber != provider.totalShots &&
+                          provider.nextBoxNumber != null)
+                        Text(
+                          'Zona n° ${provider.nextBoxNumber}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                    ],
                   ),
           ),
         ),
