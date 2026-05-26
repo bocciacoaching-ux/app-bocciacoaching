@@ -42,7 +42,8 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen>
+    with WidgetsBindingObserver {
   int _notificationCount = 3;
 
   // 0 = Inicio (Dashboard), 1 = Entrenamiento (Evaluaciones)
@@ -131,11 +132,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadTeams();
       _loadDashboardData();
       maybeShowOnboardingIntro(context);
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadDashboardData();
+    }
   }
 
   Future<void> _loadTeams() async {
@@ -152,6 +167,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final teamId = context.read<TeamProvider>().selectedTeam?.teamId;
     final stats = context.read<StatisticsProvider>();
     await stats.fetchAllDashboardData(coachId: coachId, teamId: teamId);
+    // Reload onboarding flags (e.g. local evaluation-done flag set by test providers)
+    if (mounted) {
+      await context.read<OnboardingProvider>().loadFor(coachId);
+    }
   }
 
   @override
@@ -190,7 +209,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             : AppDrawerRoute.inicio,
         teamName: selectedName,
         teamFlag: '',
-        onHomeSelected: () => setState(() => _selectedIndex = 0),
+        onHomeSelected: () {
+          setState(() => _selectedIndex = 0);
+          _loadDashboardData();
+        },
         onEvaluationsSelected: () => setState(() => _selectedIndex = 1),
       ),
       endDrawer: TeamEndDrawer(

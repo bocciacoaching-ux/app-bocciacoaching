@@ -502,6 +502,7 @@ class SaremasProvider extends ChangeNotifier {
       // Evaluación finalizada – limpiar persistencia
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('saremasEvalId');
+      await prefs.setBool('onboarding.evaluationDone', true);
     }
 
     _isLoading = false;

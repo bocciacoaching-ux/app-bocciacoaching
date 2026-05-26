@@ -269,6 +269,7 @@ class DirectionTestProvider extends ChangeNotifier {
     } else {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('assessDirectionId');
+      await prefs.setBool('onboarding.evaluationDone', true);
       _assessDirectionId = null;
     }
 

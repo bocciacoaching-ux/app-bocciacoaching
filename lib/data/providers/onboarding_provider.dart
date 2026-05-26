@@ -28,13 +28,16 @@ class OnboardingStep {
 class OnboardingProvider extends ChangeNotifier {
   static const _kIntroSeenPrefix = 'onboarding.introSeen.';
   static const _kRemindLaterPrefix = 'onboarding.remindLater.';
+  static const _kEvalDone = 'onboarding.evaluationDone';
 
   bool _introSeen = false;
   bool _remindLater = false;
+  bool _hasCompletedEvaluation = false;
   int? _userId;
 
   bool get introSeen => _introSeen;
   bool get remindLater => _remindLater;
+  bool get hasCompletedEvaluation => _hasCompletedEvaluation;
   int? get userId => _userId;
 
   /// Carga las banderas para el usuario indicado.
@@ -43,6 +46,17 @@ class OnboardingProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     _introSeen = prefs.getBool('$_kIntroSeenPrefix$userId') ?? false;
     _remindLater = prefs.getBool('$_kRemindLaterPrefix$userId') ?? false;
+    _hasCompletedEvaluation =
+        prefs.getBool(_kEvalDone) ?? false;
+    notifyListeners();
+  }
+
+  /// Marca que el coach ya realizó al menos una evaluación (persiste localmente).
+  Future<void> markEvaluationCompleted() async {
+    if (_hasCompletedEvaluation) return;
+    _hasCompletedEvaluation = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kEvalDone, true);
     notifyListeners();
   }
 
@@ -73,6 +87,7 @@ class OnboardingProvider extends ChangeNotifier {
     _userId = null;
     _introSeen = false;
     _remindLater = false;
+    _hasCompletedEvaluation = false;
     notifyListeners();
   }
 
@@ -100,7 +115,7 @@ class OnboardingProvider extends ChangeNotifier {
         tp.teams.any((t) => t.memberCount > 0);
     final totalEvals =
         (sp.dashboardIndicators?['totalEvaluations'] as num?)?.toInt() ?? 0;
-    final hasEvaluation = totalEvals > 0;
+    final hasEvaluation = totalEvals > 0 || _hasCompletedEvaluation;
 
     return [
       OnboardingStep(

@@ -318,6 +318,7 @@ class ForceTestProvider extends ChangeNotifier {
     } else {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('assessStrengthId');
+      await prefs.setBool('onboarding.evaluationDone', true);
       _assessStrengthId = null;
     }
 
