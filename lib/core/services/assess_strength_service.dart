@@ -226,4 +226,19 @@ class AssessStrengthService {
       return null;
     }
   }
+
+  // GET /api/AssessStrength/CoachHasEvaluations/{coachId}
+  Future<Map<String, dynamic>?> coachHasEvaluations(int coachId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_base/AssessStrength/CoachHasEvaluations/$coachId'),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
 }

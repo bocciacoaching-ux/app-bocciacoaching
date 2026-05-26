@@ -167,9 +167,12 @@ class _DashboardScreenState extends State<DashboardScreen>
     final teamId = context.read<TeamProvider>().selectedTeam?.teamId;
     final stats = context.read<StatisticsProvider>();
     await stats.fetchAllDashboardData(coachId: coachId, teamId: teamId);
-    // Reload onboarding flags (e.g. local evaluation-done flag set by test providers)
+    // Sincroniza el flag local con las APIs CoachHasEvaluations y recarga
+    // las banderas de onboarding para reflejar el estado real del servidor.
     if (mounted) {
-      await context.read<OnboardingProvider>().loadFor(coachId);
+      final onboarding = context.read<OnboardingProvider>();
+      await onboarding.loadFor(coachId);
+      await onboarding.syncEvaluationFlagFrom(stats);
     }
   }
 
@@ -320,6 +323,10 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildStatsGrid() {
+    final stats = context.watch<StatisticsProvider>();
+    final hasEvals = stats.coachHasAnyEvaluations;
+    final isLoading = stats.isLoadingCoachHasEvaluations;
+
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -342,13 +349,24 @@ class _DashboardScreenState extends State<DashboardScreen>
           color: AppColors.primary70,
           bgColor: AppColors.primary20,
         ),
-        _statCard(
-          icon: Icons.trending_up_rounded,
-          label: 'Efectividad Prom.',
-          value: '${_avgEffectiveness.toStringAsFixed(1)}%',
-          color: AppColors.secondary,
-          bgColor: AppColors.secondary20,
-        ),
+        // Efectividad promedio solo si tiene evaluaciones
+        if (isLoading)
+          _statCardPlaceholder(label: 'Efectividad Prom.')
+        else if (hasEvals)
+          _statCard(
+            icon: Icons.trending_up_rounded,
+            label: 'Efectividad Prom.',
+            value: '${_avgEffectiveness.toStringAsFixed(1)}%',
+            color: AppColors.secondary,
+            bgColor: AppColors.secondary20,
+          )
+        else
+          _statCardLocked(
+            icon: Icons.trending_up_rounded,
+            label: 'Efectividad Prom.',
+            color: AppColors.secondary,
+            bgColor: AppColors.secondary20,
+          ),
         _statCard(
           icon: Icons.pending_actions_outlined,
           label: 'Pendientes',
@@ -413,6 +431,147 @@ class _DashboardScreenState extends State<DashboardScreen>
             style: const TextStyle(
               fontSize: 11,
               color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Tarjeta de estadística con un indicador de carga.
+  Widget _statCardPlaceholder({required String label}) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AppColors.secondary20,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.all(8),
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            width: 48,
+            height: 16,
+            decoration: BoxDecoration(
+              color: AppColors.textSecondary.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Tarjeta de estadística bloqueada (sin evaluaciones aún).
+  Widget _statCardLocked({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required Color bgColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: bgColor.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color.withValues(alpha: 0.4), size: 20),
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  width: 14,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.lock_rounded,
+                      size: 10, color: AppColors.textSecondary),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '—',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textSecondary.withValues(alpha: 0.5),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          Text(
+            'Sin evaluaciones',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 9,
+              color: AppColors.textSecondary.withValues(alpha: 0.7),
             ),
           ),
         ],

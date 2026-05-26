@@ -1,11 +1,15 @@
 import 'package:flutter/foundation.dart';
 import '../../core/services/assess_strength_service.dart';
+import '../../core/services/assess_direction_service.dart';
+import '../../core/services/assess_saremas_service.dart';
 import '../../core/services/statistics_service.dart';
 
 enum StatsLoadingStatus { idle, loading, success, error }
 
 class StatisticsProvider extends ChangeNotifier {
   final AssessStrengthService _service = AssessStrengthService();
+  final AssessDirectionService _directionService = AssessDirectionService();
+  final AssessSaremasService _saremasService = AssessSaremasService();
   final StatisticsService _statisticsService = StatisticsService();
 
   // ── Estado de evaluaciones del equipo ──────────────────────────────
@@ -385,7 +389,63 @@ class StatisticsProvider extends ChangeNotifier {
       fetchTopPerformanceAthletes(coachId: coachId, teamId: teamId),
       fetchRecentTests(coachId: coachId, teamId: teamId),
       fetchMonthlyEvolution(coachId: coachId, teamId: teamId),
+      if (coachId != null) fetchCoachHasEvaluations(coachId),
     ]);
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // COACH HAS EVALUATIONS (Strength + Direction + Saremas)
+  // ══════════════════════════════════════════════════════════════════
+
+  bool _coachHasStrengthEvaluations = false;
+  bool _coachHasDirectionEvaluations = false;
+  bool _coachHasSaremasEvaluations = false;
+  StatsLoadingStatus _coachHasEvaluationsStatus = StatsLoadingStatus.idle;
+
+  bool get coachHasStrengthEvaluations => _coachHasStrengthEvaluations;
+  bool get coachHasDirectionEvaluations => _coachHasDirectionEvaluations;
+  bool get coachHasSaremasEvaluations => _coachHasSaremasEvaluations;
+
+  /// `true` si el coach tiene al menos una evaluación en cualquier módulo.
+  bool get coachHasAnyEvaluations =>
+      _coachHasStrengthEvaluations ||
+      _coachHasDirectionEvaluations ||
+      _coachHasSaremasEvaluations;
+
+  StatsLoadingStatus get coachHasEvaluationsStatus =>
+      _coachHasEvaluationsStatus;
+  bool get isLoadingCoachHasEvaluations =>
+      _coachHasEvaluationsStatus == StatsLoadingStatus.loading;
+
+  /// Consulta las tres APIs `CoachHasEvaluations` en paralelo.
+  Future<void> fetchCoachHasEvaluations(int coachId) async {
+    _coachHasEvaluationsStatus = StatsLoadingStatus.loading;
+    notifyListeners();
+
+    try {
+      final results = await Future.wait([
+        _service.coachHasEvaluations(coachId),
+        _directionService.coachHasEvaluations(coachId),
+        _saremasService.coachHasEvaluations(coachId),
+      ]);
+
+      final strength = results[0];
+      final direction = results[1];
+      final saremas = results[2];
+
+      _coachHasStrengthEvaluations =
+          (strength?['data']?['hasEvaluations'] as bool?) ?? false;
+      _coachHasDirectionEvaluations =
+          (direction?['data']?['hasEvaluations'] as bool?) ?? false;
+      _coachHasSaremasEvaluations =
+          (saremas?['data']?['hasEvaluations'] as bool?) ?? false;
+
+      _coachHasEvaluationsStatus = StatsLoadingStatus.success;
+    } catch (_) {
+      _coachHasEvaluationsStatus = StatsLoadingStatus.error;
+    }
+
+    notifyListeners();
   }
 
   /// Limpia el estado (útil al cerrar sesión o cambiar de equipo).
@@ -414,6 +474,11 @@ class StatisticsProvider extends ChangeNotifier {
     _monthlyEvolutionStatus = StatsLoadingStatus.idle;
     _athleteDashboard = null;
     _athleteDashboardStatus = StatsLoadingStatus.idle;
+    // Coach has evaluations
+    _coachHasStrengthEvaluations = false;
+    _coachHasDirectionEvaluations = false;
+    _coachHasSaremasEvaluations = false;
+    _coachHasEvaluationsStatus = StatsLoadingStatus.idle;
     notifyListeners();
   }
 }

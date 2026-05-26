@@ -51,6 +51,15 @@ class OnboardingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Sincroniza el flag local de evaluación completada con el resultado
+  /// de las APIs [CoachHasEvaluations]. Llamar después de
+  /// [StatisticsProvider.fetchCoachHasEvaluations].
+  Future<void> syncEvaluationFlagFrom(StatisticsProvider sp) async {
+    if (!_hasCompletedEvaluation && sp.coachHasAnyEvaluations) {
+      await markEvaluationCompleted();
+    }
+  }
+
   /// Marca que el coach ya realizó al menos una evaluación (persiste localmente).
   Future<void> markEvaluationCompleted() async {
     if (_hasCompletedEvaluation) return;
@@ -115,7 +124,11 @@ class OnboardingProvider extends ChangeNotifier {
         tp.teams.any((t) => t.memberCount > 0);
     final totalEvals =
         (sp.dashboardIndicators?['totalEvaluations'] as num?)?.toInt() ?? 0;
-    final hasEvaluation = totalEvals > 0 || _hasCompletedEvaluation;
+    // Usa las APIs CoachHasEvaluations como fuente principal de verdad.
+    // Como fallback usa totalEvaluations del dashboard o el flag local.
+    final hasEvaluation = sp.coachHasAnyEvaluations ||
+        totalEvals > 0 ||
+        _hasCompletedEvaluation;
 
     return [
       OnboardingStep(
