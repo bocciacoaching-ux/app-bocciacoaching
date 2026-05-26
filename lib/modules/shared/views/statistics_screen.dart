@@ -823,6 +823,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 _buildDistanceStatRow(
                   'Corta',
                   shortThrow,
+                  (shortThrow * shortEffectiveness / 100).round(),
                   shortEffectiveness,
                   shortAccuracy,
                   shortThrowAccuracy,
@@ -833,6 +834,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 _buildDistanceStatRow(
                   'Media',
                   mediumThrow,
+                  (mediumThrow * mediumEffectiveness / 100).round(),
                   mediumEffectiveness,
                   mediumAccuracy,
                   mediumThrowAccuracy,
@@ -843,6 +845,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 _buildDistanceStatRow(
                   'Larga',
                   longThrow,
+                  (longThrow * longEffectiveness / 100).round(),
                   longEffectiveness,
                   longAccuracy,
                   longThrowAccuracy,
@@ -999,6 +1002,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Widget _buildDistanceStatRow(
     String label,
     int throws,
+    int hits,
     double effectiveness,
     double accuracy,
     double throwAccuracy,
@@ -1042,7 +1046,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  '$throws tiros',
+                  '$hits/$throws aciertos',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
