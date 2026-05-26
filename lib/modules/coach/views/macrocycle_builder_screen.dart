@@ -5,7 +5,9 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/macrocycle.dart';
 import '../../../data/models/macrocycle_event.dart';
 import '../../../data/models/mesocycle.dart';
+import '../../../data/models/microcycle_type_dto.dart';
 import '../../../data/providers/macrocycle_provider.dart';
+import '../../../data/providers/microcycle_type_provider.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
 
@@ -39,6 +41,18 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
   int _currentStep = 0;
   bool _isCalculating = false;
   Macrocycle? _previewMacrocycle;
+
+  /// Mapa de número de microciclo → tipo de microciclo seleccionado del backend.
+  final Map<int, MicrocycleTypeDto> _microcycleTypeAssignments = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Cargar tipos de microciclo desde la API al abrir el builder
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<MicrocycleTypeProvider>().loadAll();
+    });
+  }
 
   @override
   void dispose() {
@@ -879,6 +893,8 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
     }
 
     final macro = _previewMacrocycle!;
+    final typeProvider = context.watch<MicrocycleTypeProvider>();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -927,6 +943,54 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
           const SizedBox(height: 12),
         ],
 
+        // ── Tipos de microciclo por semana ──────────────────────────
+        if (macro.microcycles.isNotEmpty) ...[
+          _previewSectionTitle('Tipo de microciclo por semana'),
+          if (typeProvider.isLoading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+            )
+          else ...[
+            if (typeProvider.usingDefaults)
+              Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary10,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline,
+                        color: AppColors.primary, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Usando tipos de microciclo por defecto. Podrás editar los porcentajes una vez creado el macrociclo.',
+                        style: AppTextStyles.bodySmall
+                            .copyWith(color: AppColors.primary),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => typeProvider.loadAll(force: true),
+                      child: const Text('Actualizar'),
+                    ),
+                  ],
+                ),
+              ),
+            ...macro.microcycles
+                .map((micro) => _buildMicrocycleTypeSelector(
+                      micro,
+                      typeProvider.types,
+                    )),
+          ],
+          const SizedBox(height: 12),
+        ],
+
         const SizedBox(height: 20),
 
         // Botón guardar
@@ -947,6 +1011,132 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  /// Tarjeta con selector de tipo de microciclo para una semana.
+  Widget _buildMicrocycleTypeSelector(
+    dynamic micro,
+    List<MicrocycleTypeDto> types,
+  ) {
+    final assigned = _microcycleTypeAssignments[micro.number];
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: assigned != null
+              ? AppColors.primary.withOpacity(0.4)
+              : AppColors.neutral8,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Encabezado: semana y período
+          Row(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.primary10,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  'Sem ${micro.weekNumber}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '${_formatDate(micro.startDate)} – ${_formatDate(micro.endDate)}',
+                  style: AppTextStyles.bodySmall
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+              ),
+              if (micro.periodName != null)
+                Text(
+                  micro.periodName!,
+                  style: AppTextStyles.bodySmall
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Dropdown de tipos
+          DropdownButtonFormField<String>(
+            value: assigned?.microcycleTypeId,
+            isExpanded: true,
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide:
+                    const BorderSide(color: AppColors.neutral7),
+              ),
+              hintText: 'Seleccionar tipo de microciclo',
+              hintStyle: AppTextStyles.bodySmall
+                  .copyWith(color: AppColors.neutral5),
+            ),
+            items: types
+                .where((t) => t.status)
+                .map((t) => DropdownMenuItem(
+                      value: t.microcycleTypeId,
+                      child: Text(
+                        t.name,
+                        style: const TextStyle(fontSize: 13),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ))
+                .toList(),
+            onChanged: (value) {
+              if (value == null) return;
+              final selected =
+                  types.firstWhere((t) => t.microcycleTypeId == value);
+              setState(() {
+                _microcycleTypeAssignments[micro.number] = selected;
+              });
+            },
+          ),
+
+          // Detalle de días del tipo seleccionado
+          if (assigned != null && assigned.days.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: assigned.daysOrdered.map((day) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary10,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    '${day.dayOfWeek}: ${day.throwPercentage}%',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -1199,9 +1389,29 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
   Future<void> _saveMacrocycle() async {
     if (_previewMacrocycle == null) return;
 
+    // Aplicar los tipos de microciclo seleccionados al macrociclo preview
+    final enrichedMicrocycles =
+        _previewMacrocycle!.microcycles.map((micro) {
+      final selected = _microcycleTypeAssignments[micro.number];
+      if (selected == null) return micro;
+      return micro.copyWith(
+        microcycleTypeId: selected.microcycleTypeId,
+        days: selected.days
+            .map((d) => {
+                  'dayOfWeek': d.dayOfWeek,
+                  'throwPercentage': d.throwPercentage,
+                  'isCustom': d.isCustom,
+                })
+            .toList(),
+      );
+    }).toList();
+
+    final macrocycleToSave =
+        _previewMacrocycle!.copyWith(microcycles: enrichedMicrocycles);
+
     final error = await context
         .read<MacrocycleProvider>()
-        .addMacrocycle(_previewMacrocycle!);
+        .addMacrocycle(macrocycleToSave);
 
     if (!mounted) return;
 
@@ -1223,7 +1433,7 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-            'Macrociclo "${_previewMacrocycle!.name}" guardado exitosamente'),
+            'Macrociclo "${macrocycleToSave.name}" guardado exitosamente'),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(

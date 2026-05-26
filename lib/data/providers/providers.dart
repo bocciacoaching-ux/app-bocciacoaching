@@ -2,6 +2,7 @@
 export 'athlete_session_provider.dart';
 export 'direction_test_provider.dart';
 export 'force_test_provider.dart';
+export 'microcycle_type_provider.dart';
 export 'notification_provider.dart';
 export 'saremas_provider.dart';
 export 'session_provider.dart';

@@ -144,6 +144,14 @@ class Microcycle {
   final String? macrocycleId;
   final TrainingDistribution trainingDistribution;
 
+  /// ID del tipo de microciclo definido en el backend
+  /// (obtenido desde /api/MicrocycleType/GetAll).
+  final String? microcycleTypeId;
+
+  /// Distribución de lanzamientos por día de la semana,
+  /// proveniente del tipo de microciclo seleccionado en el backend.
+  final List<Map<String, dynamic>> days;
+
   const Microcycle({
     this.microcycleId,
     required this.number,
@@ -157,6 +165,8 @@ class Microcycle {
     this.hasPeakPerformance = false,
     this.macrocycleId,
     this.trainingDistribution = const TrainingDistribution(),
+    this.microcycleTypeId,
+    this.days = const [],
   });
 
   /// Nombre descriptivo del microciclo.
@@ -175,6 +185,8 @@ class Microcycle {
     bool? hasPeakPerformance,
     String? macrocycleId,
     TrainingDistribution? trainingDistribution,
+    String? microcycleTypeId,
+    List<Map<String, dynamic>>? days,
   }) {
     return Microcycle(
       microcycleId: microcycleId ?? this.microcycleId,
@@ -189,6 +201,8 @@ class Microcycle {
       hasPeakPerformance: hasPeakPerformance ?? this.hasPeakPerformance,
       macrocycleId: macrocycleId ?? this.macrocycleId,
       trainingDistribution: trainingDistribution ?? this.trainingDistribution,
+      microcycleTypeId: microcycleTypeId ?? this.microcycleTypeId,
+      days: days ?? this.days,
     );
   }
 
@@ -205,6 +219,8 @@ class Microcycle {
         'hasPeakPerformance': hasPeakPerformance,
         'macrocycleId': macrocycleId,
         'trainingDistribution': trainingDistribution.toJson(),
+        'microcycleTypeId': microcycleTypeId,
+        'days': days,
       };
 
   /// JSON para CreateMicrocycleDto (sin microcycleId, macrocycleId, notes).
@@ -218,6 +234,8 @@ class Microcycle {
         'mesocycleName': mesocycleName,
         'hasPeakPerformance': hasPeakPerformance,
         'trainingDistribution': trainingDistribution.toJson(),
+        if (microcycleTypeId != null) 'microcycleTypeId': microcycleTypeId,
+        if (days.isNotEmpty) 'days': days,
       };
 
   factory Microcycle.fromJson(Map<String, dynamic> json) {
@@ -241,6 +259,11 @@ class Microcycle {
           ? TrainingDistribution.fromJson(
               json['trainingDistribution'] as Map<String, dynamic>)
           : TrainingDistribution.forMicrocycleType(type),
+      microcycleTypeId: json['microcycleTypeId'] as String?,
+      days: (json['days'] as List<dynamic>?)
+              ?.map((d) => d as Map<String, dynamic>)
+              .toList() ??
+          [],
     );
   }
 }

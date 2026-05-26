@@ -15,6 +15,7 @@ import 'data/providers/training_session_provider.dart';
 import 'data/providers/athlete_session_provider.dart';
 import 'data/providers/onboarding_provider.dart';
 import 'data/providers/notification_provider.dart';
+import 'data/providers/microcycle_type_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AthleteSessionProvider()),
         ChangeNotifierProvider(create: (_) => OnboardingProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => MicrocycleTypeProvider()),
       ],
       child: const App(),
     ),
