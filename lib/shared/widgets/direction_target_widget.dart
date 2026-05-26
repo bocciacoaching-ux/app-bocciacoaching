@@ -2,18 +2,21 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
-/// Widget that draws the Boccia direction evaluation court.
+/// Widget que dibuja el componente de evaluación de control de dirección.
 ///
-/// The real-life component measures 60 cm wide with 6 boccia balls
-/// (each ~10 cm). The scoring zones are **vertical stripes**:
-/// - Center stripe → 5 pts
-/// - Stripes immediately to each side → 4 pts
-/// - Next pair → 3 pts, then 2, 1, 0.
+/// Configuración real: 5 boccias alineadas horizontalmente, separadas ~5 cm
+/// entre sí. El puntaje se asigna según la zona donde pasa la pelota lanzada:
 ///
-/// Total: 11 vertical stripes (one center + 5 on each side).
+///  ┌─────┬────┬───┬────┬───┬────┬───┬────┬───┬────┬─────┐
+///  │FUERA│bola│gap│bola│gap│JACK│gap│bola│gap│bola│FUERA│
+///  │  0  │ 1  │ 2 │ 3  │ 4 │ 5  │ 4 │ 3  │ 2 │ 1  │  0  │
+///  └─────┴────┴───┴────┴───┴────┴───┴────┴───┴────┴─────┘
 ///
-/// The user taps to place a ball. The widget returns the coordinates
-/// and the calculated stripe score via [onTargetTap].
+/// Proporciones basadas en la disposición física:
+///   boccia ≈ 8.6 cm, separación ≈ 5 cm → ratio gap/bola ≈ 0.6
+///
+/// El usuario toca para colocar la pelota; el widget devuelve coordenadas y
+/// puntaje calculado mediante [onTargetTap].
 class DirectionTargetWidget extends StatefulWidget {
   final void Function(double x, double y, int score)? onTargetTap;
   final Offset? selection;
@@ -35,64 +38,51 @@ class DirectionTargetWidgetState extends State<DirectionTargetWidget> {
 
   Offset? get selection => widget.selection ?? _internalSelection;
 
-  /// Number of stripes on each side of center (excluding center).
-  static const int _sidesCount = 5;
+  // ── Proporciones de las 11 zonas (en "unidades bola") ────────────
+  // fuera | b1 | gap | b1 | gap | JACK | gap | b1 | gap | b1 | fuera
+  static const _zoneUnits = [
+    1.0, 1.0, 0.6, 1.0, 0.6, 1.0, 0.6, 1.0, 0.6, 1.0, 1.0,
+  ];
+  static const _zoneScores = [0, 1, 2, 3, 4, 5, 4, 3, 2, 1, 0];
+  static const _totalUnits = 9.4; // sum of _zoneUnits
 
-  /// Total number of stripes: 1 center + 5 left + 5 right = 11.
-  static const int _totalStripes = 2 * _sidesCount + 1;
+  /// Límites de cada zona como porcentaje 0-100 del ancho.
+  static List<double> get _zoneBoundaries {
+    final bounds = <double>[0.0];
+    double acc = 0;
+    for (final u in _zoneUnits) {
+      acc += u;
+      bounds.add(acc / _totalUnits * 100);
+    }
+    return bounds;
+  }
 
-  /// Calculates the zone score (0-5) based on relative X coordinate.
-  ///
-  /// Each stripe occupies 1/_totalStripes of the widget width.
-  /// The center stripe (index 5) = 5 pts, adjacent (4,6) = 4 pts, etc.
-  /// Ball radius is taken into account — the score is determined by
-  /// where the **center** of the placed ball falls.
+  /// Puntaje según posición X relativa (0-100).
   int _calculateScore(double relativeX, double _relativeY) {
-    // Width percentage occupied by each stripe
-    const stripeWidth = 100.0 / _totalStripes; // ~9.09 %
-
-    // Determine which stripe index the center of the ball falls in
-    int stripeIndex = (relativeX / stripeWidth).floor();
-    stripeIndex = stripeIndex.clamp(0, _totalStripes - 1);
-
-    // Map stripe index to score. Center stripe is index 5 → score 5.
-    // Distance from center index gives score: score = 5 - |index - 5|.
-    final distFromCenter = (stripeIndex - _sidesCount).abs();
-    final score = (_sidesCount - distFromCenter).clamp(0, 5);
-
-    return score;
+    final bounds = _zoneBoundaries;
+    for (int i = 0; i < _zoneScores.length; i++) {
+      if (relativeX < bounds[i + 1]) return _zoneScores[i];
+    }
+    return _zoneScores.last;
   }
 
   void _handleTapDown(TapDownDetails details) {
     final localPosition = details.localPosition;
-    // The widget aspect ratio is 4:5 (width:height) so we scale accordingly
     final relativeX = (localPosition.dx / widget.size) * 100;
     final relativeY = (localPosition.dy / (widget.size * 0.75)) * 100;
-
-    int score = _calculateScore(relativeX, relativeY);
-
-    setState(() {
-      _internalSelection = Offset(relativeX, relativeY);
-    });
-
+    final score = _calculateScore(relativeX, relativeY);
+    setState(() => _internalSelection = Offset(relativeX, relativeY));
     widget.onTargetTap?.call(relativeX, relativeY, score);
   }
 
-  void reset() {
-    setState(() {
-      _internalSelection = null;
-    });
-  }
+  void reset() => setState(() => _internalSelection = null);
 
-  void setPosition(double x, double y, int score) {
-    setState(() {
-      _internalSelection = Offset(x, y);
-    });
-  }
+  void setPosition(double x, double y, int score) =>
+      setState(() => _internalSelection = Offset(x, y));
 
   @override
   Widget build(BuildContext context) {
-    final height = widget.size * 0.75; // wider, more compact vertically
+    final height = widget.size * 0.75;
     return Center(
       child: GestureDetector(
         onTapDown: _handleTapDown,
@@ -106,7 +96,7 @@ class DirectionTargetWidgetState extends State<DirectionTargetWidget> {
                 color: AppColors.black.withValues(alpha: 0.12),
                 blurRadius: 12,
                 spreadRadius: 2,
-              )
+              ),
             ],
           ),
           child: ClipRRect(
@@ -122,128 +112,122 @@ class DirectionTargetWidgetState extends State<DirectionTargetWidget> {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════
+//  Painter
+// ═══════════════════════════════════════════════════════════════════
+
 class DirectionCourtPainter extends CustomPainter {
   final Offset? selection;
+  const DirectionCourtPainter({this.selection});
 
-  DirectionCourtPainter({this.selection});
+  static const _zoneUnits = [
+    1.0, 1.0, 0.6, 1.0, 0.6, 1.0, 0.6, 1.0, 0.6, 1.0, 1.0,
+  ];
+  static const _zoneScores = [0, 1, 2, 3, 4, 5, 4, 3, 2, 1, 0];
+  static const _totalUnits = 9.4;
 
-  /// Stripe scores mapped from left to right (11 stripes).
-  /// Index:  0  1  2  3  4  5  6  7  8  9  10
-  /// Score:  0  1  2  3  4  5  4  3  2  1   0
-  static const List<int> _stripeScores = [0, 1, 2, 3, 4, 5, 4, 3, 2, 1, 0];
-
-  /// Colours per score for the stripe fill (lighter in center, darker outside).
-  static const Map<int, Color> _stripeColors = {
-    0: Color(0xFFC9944A), // brown – out of zone
-    1: Color(0xFFE8D5A8), // light tan
-    2: Color(0xFFE0D49E), // warm beige
-    3: Color(0xFFD4CC8E), // olive-beige
-    4: Color(0xFFC5D6A0), // light green
-    5: Color(0xFF8FBF6F), // green – center/jack zone
+  static const Map<int, Color> _zoneColors = {
+    0: Color(0xFFC9944A), // marrón – fuera de zona
+    1: Color(0xFFE8D5A8), // tan claro – bola exterior (directo)
+    2: Color(0xFFE0D49E), // beige cálido – gap exterior
+    3: Color(0xFFD4CC8E), // oliva-beige – bola lateral (directo)
+    4: Color(0xFFC5D6A0), // verde claro – ranura junto al jack
+    5: Color(0xFF8FBF6F), // verde – centro / jack
   };
+
+  /// Anchos absolutos de cada zona dado el ancho total.
+  List<double> _zoneWidths(double totalWidth) => _zoneUnits
+      .map((u) => u / _totalUnits * totalWidth)
+      .toList();
 
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
-    final centerX = w / 2;
-    // Balls row sits near the top, with a small breathing margin
-    final ballRowY = h * 0.22;
-    final stripeW = w / 11;
+    final ballRowY = h * 0.28;
+    final zw = _zoneWidths(w);
 
-    // ── 1) Draw vertical stripes ──────────────────────────────────
-    for (int i = 0; i < 11; i++) {
-      final score = _stripeScores[i];
-      final rect = Rect.fromLTWH(stripeW * i, 0, stripeW, h);
-      canvas.drawRect(rect, Paint()..color = _stripeColors[score]!);
+    // ── 1) Fondos de zona (ancho proporcional) ────────────────────
+    double xCursor = 0;
+    for (int i = 0; i < _zoneScores.length; i++) {
+      canvas.drawRect(
+        Rect.fromLTWH(xCursor, 0, zw[i], h),
+        Paint()..color = _zoneColors[_zoneScores[i]]!,
+      );
+      xCursor += zw[i];
     }
 
-    // ── 2) Stripe border lines ────────────────────────────────────
+    // ── 2) Líneas divisorias ──────────────────────────────────────
     final borderPaint = Paint()
       ..color = const Color(0xFF8B7355).withValues(alpha: 0.45)
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
 
-    for (int i = 1; i < 11; i++) {
-      final x = stripeW * i;
-      canvas.drawLine(Offset(x, 0), Offset(x, h), borderPaint);
+    xCursor = 0;
+    for (int i = 0; i < _zoneScores.length - 1; i++) {
+      xCursor += zw[i];
+      canvas.drawLine(Offset(xCursor, 0), Offset(xCursor, h), borderPaint);
     }
 
-    // ── 3) Score labels at top and bottom of each stripe ──────────
-    _drawStripeScoreLabels(canvas, size, stripeW);
+    // ── 3) Etiquetas de puntaje ───────────────────────────────────
+    _drawScoreLabels(canvas, size, zw);
 
-    // ── 4) Dashed horizontal center line ──────────────────────────
+    // ── 4) Línea horizontal punteada (fila de bolas) ──────────────
     final axisPaint = Paint()
       ..color = const Color(0xFF555555).withValues(alpha: 0.5)
       ..strokeWidth = w * 0.004
       ..style = PaintingStyle.stroke;
 
-    _drawDashedLine(
-      canvas,
-      Offset(0, ballRowY),
-      Offset(w, ballRowY),
-      axisPaint,
-      dashWidth: w * 0.02,
-      dashSpace: w * 0.01,
-    );
+    _drawDashedLine(canvas, Offset(0, ballRowY), Offset(w, ballRowY), axisPaint,
+        dashWidth: w * 0.02, dashSpace: w * 0.01);
 
-    // ── 5) Dashed vertical center line ────────────────────────────
-    _drawDashedLine(
-      canvas,
-      Offset(centerX, 0),
-      Offset(centerX, h),
-      axisPaint,
-      dashWidth: h * 0.015,
-      dashSpace: h * 0.008,
-    );
+    // ── 5) Línea vertical central punteada ───────────────────────
+    _drawDashedLine(canvas, Offset(w / 2, 0), Offset(w / 2, h), axisPaint,
+        dashWidth: h * 0.015, dashSpace: h * 0.008);
 
-    // ── 6) Boccia balls along top row ────────────────────────────
-    _drawBocciaBallsOnCenterLine(canvas, size, Offset(centerX, ballRowY));
+    // ── 6) Las 5 boccias ─────────────────────────────────────────
+    _drawFiveBocciaBalls(canvas, size, zw, ballRowY);
 
-    // ── 7) "FUERA DE ZONA" labels on outermost stripes ────────────
-    _drawOutOfZoneLabels(canvas, size, stripeW);
+    // ── 7) "FUERA DE ZONA" en extremos ───────────────────────────
+    _drawOutOfZoneLabels(canvas, size, zw);
 
-    // ── 8) User-selected ball ─────────────────────────────────────
-    if (selection != null) {
-      _drawSelectedBall(canvas, size, selection!);
-    }
+    // ── 8) Pelota seleccionada por el usuario ─────────────────────
+    if (selection != null) _drawSelectedBall(canvas, size, selection!);
   }
 
-  // ── Score labels ──────────────────────────────────────────────────
-  void _drawStripeScoreLabels(Canvas canvas, Size size, double stripeW) {
+  // ── Etiquetas de puntaje ─────────────────────────────────────────
+  void _drawScoreLabels(Canvas canvas, Size size, List<double> zw) {
     final w = size.width;
     final h = size.height;
     final tp = TextPainter(textDirection: TextDirection.ltr);
-
-    for (int i = 0; i < 11; i++) {
-      final score = _stripeScores[i];
-      if (score == 0) continue; // we draw "FUERA DE ZONA" instead
-
-      final cx = stripeW * i + stripeW / 2;
-      final labelColor = score >= 4 ? AppColors.white : const Color(0xFF555555);
-
-      tp.text = TextSpan(
-        text: '$score',
-        style: TextStyle(
-          color: labelColor,
-          fontSize: w * 0.04,
-          fontWeight: FontWeight.bold,
-        ),
-      );
-      tp.layout();
-
-      // Top label
-      tp.paint(canvas, Offset(cx - tp.width / 2, h * 0.03));
-      // Bottom label
-      tp.paint(canvas, Offset(cx - tp.width / 2, h * 0.95));
+    double xCursor = 0;
+    for (int i = 0; i < _zoneScores.length; i++) {
+      final score = _zoneScores[i];
+      if (score != 0) {
+        final cx = xCursor + zw[i] / 2;
+        final labelColor =
+            score >= 4 ? AppColors.white : const Color(0xFF555555);
+        tp.text = TextSpan(
+          text: '$score',
+          style: TextStyle(
+            color: labelColor,
+            fontSize: w * 0.045,
+            fontWeight: FontWeight.bold,
+          ),
+        );
+        tp.layout();
+        tp.paint(canvas, Offset(cx - tp.width / 2, h * 0.03));
+        tp.paint(canvas, Offset(cx - tp.width / 2, h * 0.92));
+      }
+      xCursor += zw[i];
     }
   }
 
-  // ── "FUERA DE ZONA" on left and right outermost stripes ───────────
-  void _drawOutOfZoneLabels(Canvas canvas, Size size, double stripeW) {
+  // ── "FUERA DE ZONA" en extremos izq/der ──────────────────────────
+  void _drawOutOfZoneLabels(Canvas canvas, Size size, List<double> zw) {
     final h = size.height;
     final tp = TextPainter(textDirection: TextDirection.ltr);
-    final fontSize = stripeW * 0.30;
+    final fontSize = zw[0] * 0.27;
 
     void drawVertical(String text, Offset offset) {
       canvas.save();
@@ -255,7 +239,7 @@ class DirectionCourtPainter extends CustomPainter {
           color: AppColors.white,
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
-          letterSpacing: 1.5,
+          letterSpacing: 1.2,
         ),
       );
       tp.layout();
@@ -263,74 +247,72 @@ class DirectionCourtPainter extends CustomPainter {
       canvas.restore();
     }
 
-    // Left stripe center
-    drawVertical('FUERA DE ZONA', Offset(stripeW / 2, h / 2));
-    // Right stripe center
-    drawVertical('FUERA DE ZONA', Offset(stripeW * 10 + stripeW / 2, h / 2));
+    // Extremo izquierdo
+    drawVertical('FUERA DE ZONA', Offset(zw[0] / 2, h / 2));
+
+    // Extremo derecho
+    final rightStart = zw.sublist(0, zw.length - 1).fold(0.0, (a, b) => a + b);
+    drawVertical('FUERA DE ZONA', Offset(rightStart + zw.last / 2, h / 2));
   }
 
-  // ── Dashed line helper ────────────────────────────────────────────
-  void _drawDashedLine(
-    Canvas canvas,
-    Offset p1,
-    Offset p2,
-    Paint paint, {
-    double dashWidth = 4,
-    double dashSpace = 4,
-  }) {
-    final totalDistance = (p2 - p1).distance;
-    final dx = (p2.dx - p1.dx) / totalDistance;
-    final dy = (p2.dy - p1.dy) / totalDistance;
-    double currentDist = 0;
-    while (currentDist < totalDistance) {
-      final end = min(currentDist + dashWidth, totalDistance);
-      canvas.drawLine(
-        Offset(p1.dx + dx * currentDist, p1.dy + dy * currentDist),
-        Offset(p1.dx + dx * end, p1.dy + dy * end),
-        paint,
-      );
-      currentDist += dashWidth + dashSpace;
+  // ── Las 5 boccias (b1=azul/roja exteriores, jack verde al centro) ─
+  void _drawFiveBocciaBalls(
+      Canvas canvas, Size size, List<double> zw, double ballRowY) {
+    // Centro de cada zona por acumulación
+    double acc = 0;
+    final centers = <double>[];
+    for (final z in zw) {
+      centers.add(acc + z / 2);
+      acc += z;
     }
+
+    // El radio queda contenido dentro de la zona de bola
+    final ballRadius = zw[1] * 0.46;
+
+    // Bolas en los índices de zona 1, 3, 5(jack), 7, 9
+    // Colores alternados: azul, rojo, jack, azul, rojo
+    _drawDecorativeBall(canvas, Offset(centers[1], ballRowY), ballRadius,
+        const Color(0xFF2E5B8B)); // azul exterior izq (score 1)
+    _drawDecorativeBall(canvas, Offset(centers[3], ballRowY), ballRadius,
+        const Color(0xFFB03A2E)); // roja interior izq (score 3)
+    _drawGreenJackBall(canvas, Offset(centers[5], ballRowY), ballRadius);
+    _drawDecorativeBall(canvas, Offset(centers[7], ballRowY), ballRadius,
+        const Color(0xFFB03A2E)); // roja interior der (score 3)
+    _drawDecorativeBall(canvas, Offset(centers[9], ballRowY), ballRadius,
+        const Color(0xFF2E5B8B)); // azul exterior der (score 1)
+
+    // Mini-etiquetas de puntaje debajo de cada bola
+    final labelY = ballRowY + ballRadius + 4;
+    _miniLabel(canvas, '1', centers[1], labelY,
+        const Color(0xFF2E5B8B), size.width);
+    _miniLabel(canvas, '3', centers[3], labelY,
+        const Color(0xFFB03A2E), size.width);
+    _miniLabel(canvas, '5', centers[5], labelY,
+        const Color(0xFF2E7A2E), size.width);
+    _miniLabel(canvas, '3', centers[7], labelY,
+        const Color(0xFFB03A2E), size.width);
+    _miniLabel(canvas, '1', centers[9], labelY,
+        const Color(0xFF2E5B8B), size.width);
   }
 
-  // ── Boccia balls on center line (6 balls = 60 cm) ─────────────────
-  void _drawBocciaBallsOnCenterLine(Canvas canvas, Size size, Offset center) {
-    final w = size.width;
-    final stripeW = w / 11;
-    // Ball radius ≈ half a stripe (each ball ~ 10 cm, each stripe ~ 10 cm)
-    // We use a slightly smaller radius so there is a small gap between balls.
-    final ballRadius = stripeW * 0.42;
-
-    // 6 balls: placed at stripe centers 2,3,4 (left) and 6,7,8 (right)
-    // plus the green jack ball at stripe 5 (center).
-    // Stripe indices: [2]=score3, [3]=score4 (left), [5]=jack, [6]=score4, [7]=score3, [8]=score2
-    // We draw 4 coloured balls + 1 green jack.
-    // Let's place them nicely: indices 3, 4 (left of center) and 6, 7 (right of center)
-    // plus two outer ones at 2 and 8.
-    final ballInfos = <_BallInfo>[
-      _BallInfo(stripeIndex: 2, color: const Color(0xFF2E5B8B)), // blue
-      _BallInfo(stripeIndex: 3, color: const Color(0xFFB03A2E)), // red
-      _BallInfo(stripeIndex: 4, color: const Color(0xFF2E5B8B)), // blue
-      // index 5 = green jack
-      _BallInfo(stripeIndex: 6, color: const Color(0xFFB03A2E)), // red
-      _BallInfo(stripeIndex: 7, color: const Color(0xFF2E5B8B)), // blue
-      _BallInfo(stripeIndex: 8, color: const Color(0xFFB03A2E)), // red
-    ];
-
-    for (final info in ballInfos) {
-      final bx = stripeW * info.stripeIndex + stripeW / 2;
-      _drawDecorativeBall(
-          canvas, Offset(bx, center.dy), ballRadius, info.color);
-    }
-
-    // Green jack ball at center stripe (index 5)
-    final jackX = stripeW * 5 + stripeW / 2;
-    _drawGreenJackBall(canvas, Offset(jackX, center.dy), ballRadius);
+  void _miniLabel(Canvas canvas, String text, double cx, double top,
+      Color color, double totalWidth) {
+    final tp = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: color,
+          fontSize: totalWidth * 0.031,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, Offset(cx - tp.width / 2, top));
   }
 
   // ── Green jack ball ───────────────────────────────────────────────
   void _drawGreenJackBall(Canvas canvas, Offset center, double radius) {
-    // Shadow
     canvas.drawCircle(
       Offset(center.dx + 1, center.dy + 1.5),
       radius,
@@ -338,91 +320,65 @@ class DirectionCourtPainter extends CustomPainter {
         ..color = AppColors.black.withValues(alpha: 0.2)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.5),
     );
-
-    // Body gradient – green
     canvas.drawCircle(
       center,
       radius,
       Paint()
         ..shader = RadialGradient(
           center: const Alignment(-0.3, -0.3),
-          colors: [
-            const Color(0xFF7EC87E),
-            const Color(0xFF4A8B4A),
-            const Color(0xFF2E6B2E),
-          ],
+          colors: const [Color(0xFF7EC87E), Color(0xFF4A8B4A), Color(0xFF2E6B2E)],
           stops: const [0.0, 0.55, 1.0],
         ).createShader(Rect.fromCircle(center: center, radius: radius)),
     );
-
-    // Seams
     final seamPaint = Paint()
       ..color = const Color(0xFF1A4A1A).withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = radius * 0.07;
-
+    canvas.drawPath(
+        Path()
+          ..moveTo(center.dx - radius * 0.6, center.dy - radius * 0.5)
+          ..quadraticBezierTo(center.dx, center.dy - radius * 0.8,
+              center.dx + radius * 0.6, center.dy - radius * 0.5),
+        seamPaint);
+    canvas.drawPath(
+        Path()
+          ..moveTo(center.dx - radius * 0.6, center.dy + radius * 0.5)
+          ..quadraticBezierTo(center.dx, center.dy + radius * 0.8,
+              center.dx + radius * 0.6, center.dy + radius * 0.5),
+        seamPaint);
+    canvas.drawPath(
+        Path()
+          ..moveTo(center.dx - radius * 0.5, center.dy - radius * 0.6)
+          ..quadraticBezierTo(center.dx - radius * 0.3, center.dy,
+              center.dx - radius * 0.5, center.dy + radius * 0.6),
+        seamPaint);
+    canvas.drawPath(
+        Path()
+          ..moveTo(center.dx + radius * 0.5, center.dy - radius * 0.6)
+          ..quadraticBezierTo(center.dx + radius * 0.3, center.dy,
+              center.dx + radius * 0.5, center.dy + radius * 0.6),
+        seamPaint);
+    canvas.drawCircle(center, radius * 0.35,
+        Paint()..color = AppColors.white.withValues(alpha: 0.85));
     canvas.drawPath(
       Path()
-        ..moveTo(center.dx - radius * 0.6, center.dy - radius * 0.5)
-        ..quadraticBezierTo(center.dx, center.dy - radius * 0.8,
-            center.dx + radius * 0.6, center.dy - radius * 0.5),
-      seamPaint,
-    );
-    canvas.drawPath(
-      Path()
-        ..moveTo(center.dx - radius * 0.6, center.dy + radius * 0.5)
-        ..quadraticBezierTo(center.dx, center.dy + radius * 0.8,
-            center.dx + radius * 0.6, center.dy + radius * 0.5),
-      seamPaint,
-    );
-    canvas.drawPath(
-      Path()
-        ..moveTo(center.dx - radius * 0.5, center.dy - radius * 0.6)
-        ..quadraticBezierTo(center.dx - radius * 0.3, center.dy,
-            center.dx - radius * 0.5, center.dy + radius * 0.6),
-      seamPaint,
-    );
-    canvas.drawPath(
-      Path()
-        ..moveTo(center.dx + radius * 0.5, center.dy - radius * 0.6)
-        ..quadraticBezierTo(center.dx + radius * 0.3, center.dy,
-            center.dx + radius * 0.5, center.dy + radius * 0.6),
-      seamPaint,
-    );
-
-    // White center logo circle
-    canvas.drawCircle(
-      center,
-      radius * 0.35,
-      Paint()..color = AppColors.white.withValues(alpha: 0.85),
-    );
-
-    // Highlight
-    final highlightPath = Path()
-      ..moveTo(center.dx - radius * 0.45, center.dy - radius * 0.3)
-      ..quadraticBezierTo(center.dx, center.dy - radius * 0.7,
-          center.dx + radius * 0.45, center.dy - radius * 0.3);
-    canvas.drawPath(
-      highlightPath,
+        ..moveTo(center.dx - radius * 0.45, center.dy - radius * 0.3)
+        ..quadraticBezierTo(center.dx, center.dy - radius * 0.7,
+            center.dx + radius * 0.45, center.dy - radius * 0.3),
       Paint()
         ..color = AppColors.white.withValues(alpha: 0.3)
         ..style = PaintingStyle.stroke
         ..strokeWidth = radius * 0.25
         ..strokeCap = StrokeCap.round,
     );
-
-    // Border
     canvas.drawCircle(
-      center,
-      radius,
-      Paint()
-        ..color = const Color(0xFF1A4A1A)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = radius * 0.07,
-    );
-
-    // "5" label
-    final textPainter = TextPainter(
+        center,
+        radius,
+        Paint()
+          ..color = const Color(0xFF1A4A1A)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = radius * 0.07);
+    final tp = TextPainter(
       text: TextSpan(
         text: '5',
         style: TextStyle(
@@ -433,16 +389,14 @@ class DirectionCourtPainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    textPainter.paint(
-      canvas,
-      center - Offset(textPainter.width / 2, textPainter.height / 2),
-    );
+    tp.paint(canvas, center - Offset(tp.width / 2, tp.height / 2));
   }
 
-  // ── Decorative ball ───────────────────────────────────────────────
+  // ── Bola decorativa ───────────────────────────────────────────────
   void _drawDecorativeBall(
       Canvas canvas, Offset center, double radius, Color baseColor) {
-    // Shadow
+    final lighter = Color.lerp(baseColor, AppColors.white, 0.3)!;
+    final darker = Color.lerp(baseColor, AppColors.black, 0.2)!;
     canvas.drawCircle(
       Offset(center.dx + 1, center.dy + 1),
       radius,
@@ -450,11 +404,6 @@ class DirectionCourtPainter extends CustomPainter {
         ..color = AppColors.black.withValues(alpha: 0.2)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2),
     );
-
-    // Main body gradient
-    final lighter = Color.lerp(baseColor, AppColors.white, 0.3)!;
-    final darker = Color.lerp(baseColor, AppColors.black, 0.2)!;
-
     canvas.drawCircle(
       center,
       radius,
@@ -465,91 +414,69 @@ class DirectionCourtPainter extends CustomPainter {
           stops: const [0.0, 0.5, 1.0],
         ).createShader(Rect.fromCircle(center: center, radius: radius)),
     );
-
-    // Seams (cross pattern)
     final seamPaint = Paint()
       ..color = darker.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = radius * 0.06;
-
+    canvas.drawPath(
+        Path()
+          ..moveTo(center.dx - radius * 0.6, center.dy - radius * 0.5)
+          ..quadraticBezierTo(center.dx, center.dy - radius * 0.8,
+              center.dx + radius * 0.6, center.dy - radius * 0.5),
+        seamPaint);
+    canvas.drawPath(
+        Path()
+          ..moveTo(center.dx - radius * 0.6, center.dy + radius * 0.5)
+          ..quadraticBezierTo(center.dx, center.dy + radius * 0.8,
+              center.dx + radius * 0.6, center.dy + radius * 0.5),
+        seamPaint);
+    canvas.drawPath(
+        Path()
+          ..moveTo(center.dx - radius * 0.5, center.dy - radius * 0.6)
+          ..quadraticBezierTo(center.dx - radius * 0.3, center.dy,
+              center.dx - radius * 0.5, center.dy + radius * 0.6),
+        seamPaint);
+    canvas.drawPath(
+        Path()
+          ..moveTo(center.dx + radius * 0.5, center.dy - radius * 0.6)
+          ..quadraticBezierTo(center.dx + radius * 0.3, center.dy,
+              center.dx + radius * 0.5, center.dy + radius * 0.6),
+        seamPaint);
+    canvas.drawCircle(center, radius * 0.35,
+        Paint()..color = AppColors.white.withValues(alpha: 0.85));
     canvas.drawPath(
       Path()
-        ..moveTo(center.dx - radius * 0.6, center.dy - radius * 0.5)
-        ..quadraticBezierTo(center.dx, center.dy - radius * 0.8,
-            center.dx + radius * 0.6, center.dy - radius * 0.5),
-      seamPaint,
-    );
-    canvas.drawPath(
-      Path()
-        ..moveTo(center.dx - radius * 0.6, center.dy + radius * 0.5)
-        ..quadraticBezierTo(center.dx, center.dy + radius * 0.8,
-            center.dx + radius * 0.6, center.dy + radius * 0.5),
-      seamPaint,
-    );
-    canvas.drawPath(
-      Path()
-        ..moveTo(center.dx - radius * 0.5, center.dy - radius * 0.6)
-        ..quadraticBezierTo(center.dx - radius * 0.3, center.dy,
-            center.dx - radius * 0.5, center.dy + radius * 0.6),
-      seamPaint,
-    );
-    canvas.drawPath(
-      Path()
-        ..moveTo(center.dx + radius * 0.5, center.dy - radius * 0.6)
-        ..quadraticBezierTo(center.dx + radius * 0.3, center.dy,
-            center.dx + radius * 0.5, center.dy + radius * 0.6),
-      seamPaint,
-    );
-
-    // Center logo circle (white)
-    canvas.drawCircle(
-      center,
-      radius * 0.35,
-      Paint()..color = AppColors.white.withValues(alpha: 0.85),
-    );
-
-    // Highlight
-    final highlightPath = Path()
-      ..moveTo(center.dx - radius * 0.45, center.dy - radius * 0.3)
-      ..quadraticBezierTo(center.dx, center.dy - radius * 0.7,
-          center.dx + radius * 0.45, center.dy - radius * 0.3);
-    canvas.drawPath(
-      highlightPath,
+        ..moveTo(center.dx - radius * 0.45, center.dy - radius * 0.3)
+        ..quadraticBezierTo(center.dx, center.dy - radius * 0.7,
+            center.dx + radius * 0.45, center.dy - radius * 0.3),
       Paint()
         ..color = AppColors.white.withValues(alpha: 0.3)
         ..style = PaintingStyle.stroke
         ..strokeWidth = radius * 0.25
         ..strokeCap = StrokeCap.round,
     );
-
-    // Border
     canvas.drawCircle(
-      center,
-      radius,
-      Paint()
-        ..color = darker
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = radius * 0.06,
-    );
+        center,
+        radius,
+        Paint()
+          ..color = darker
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = radius * 0.06);
   }
 
-  // ── User-selected ball ────────────────────────────────────────────
+  // ── Pelota colocada por el usuario ────────────────────────────────
   void _drawSelectedBall(Canvas canvas, Size size, Offset position) {
     final w = size.width;
     final ballX = (position.dx / 100) * w;
     final ballY = (position.dy / 100) * size.height;
     final ballRadius = w * 0.04;
 
-    // ── Arrow pointing straight up from the selected ball ─────────
     final arrowStartY = ballY - ballRadius - 2;
-    // End the arrow near the ball row (h * 0.22) with a small gap
-    final arrowEndY = size.height * 0.22 + w / 11 * 0.42 + 4;
+    final arrowEndY = size.height * 0.28 - w * 0.065;
 
     if (arrowStartY > arrowEndY) {
-      const arrowColor = Color(0xFF477D9E); // AppColors.primary
+      const arrowColor = Color(0xFF477D9E);
       final strokeW = w * 0.018;
-
-      // Shaft
       canvas.drawLine(
         Offset(ballX, arrowStartY),
         Offset(ballX, arrowEndY),
@@ -559,26 +486,17 @@ class DirectionCourtPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round,
       );
-
-      // Arrowhead (pointing up: angle = -pi/2)
       const headLen = 12.0;
-      const headAngle = 0.42; // ~24°
+      const headAngle = 0.42;
       const angle = -pi / 2;
-
-      final path = Path()
-        ..moveTo(ballX, arrowEndY)
-        ..lineTo(
-          ballX - headLen * cos(angle - headAngle),
-          arrowEndY - headLen * sin(angle - headAngle),
-        )
-        ..moveTo(ballX, arrowEndY)
-        ..lineTo(
-          ballX - headLen * cos(angle + headAngle),
-          arrowEndY - headLen * sin(angle + headAngle),
-        );
-
       canvas.drawPath(
-        path,
+        Path()
+          ..moveTo(ballX, arrowEndY)
+          ..lineTo(ballX - headLen * cos(angle - headAngle),
+              arrowEndY - headLen * sin(angle - headAngle))
+          ..moveTo(ballX, arrowEndY)
+          ..lineTo(ballX - headLen * cos(angle + headAngle),
+              arrowEndY - headLen * sin(angle + headAngle)),
         Paint()
           ..color = arrowColor
           ..strokeWidth = strokeW
@@ -588,7 +506,6 @@ class DirectionCourtPainter extends CustomPainter {
       );
     }
 
-    // Shadow
     canvas.drawCircle(
       Offset(ballX + 1.5, ballY + 1.5),
       ballRadius,
@@ -596,25 +513,17 @@ class DirectionCourtPainter extends CustomPainter {
         ..color = AppColors.black.withValues(alpha: 0.3)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
     );
-
-    // Main body – bright red/orange highlight
     canvas.drawCircle(
       Offset(ballX, ballY),
       ballRadius,
       Paint()
         ..shader = RadialGradient(
           center: const Alignment(-0.3, -0.3),
-          colors: [
-            const Color(0xFFFF6B35),
-            const Color(0xFFEF4444),
-            const Color(0xFFCC2222),
-          ],
+          colors: const [Color(0xFFFF6B35), Color(0xFFEF4444), Color(0xFFCC2222)],
           stops: const [0.0, 0.5, 1.0],
         ).createShader(
             Rect.fromCircle(center: Offset(ballX, ballY), radius: ballRadius)),
     );
-
-    // Glow ring to indicate selection
     canvas.drawCircle(
       Offset(ballX, ballY),
       ballRadius + 3,
@@ -623,15 +532,8 @@ class DirectionCourtPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.5,
     );
-
-    // White center dot
     canvas.drawCircle(
-      Offset(ballX, ballY),
-      ballRadius * 0.3,
-      Paint()..color = AppColors.white,
-    );
-
-    // Border
+        Offset(ballX, ballY), ballRadius * 0.3, Paint()..color = AppColors.white);
     canvas.drawCircle(
       Offset(ballX, ballY),
       ballRadius,
@@ -642,15 +544,22 @@ class DirectionCourtPainter extends CustomPainter {
     );
   }
 
-  @override
-  bool shouldRepaint(DirectionCourtPainter oldDelegate) {
-    return oldDelegate.selection != selection;
+  // ── Línea punteada ────────────────────────────────────────────────
+  void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint,
+      {double dashWidth = 4, double dashSpace = 4}) {
+    final totalDistance = (p2 - p1).distance;
+    final dx = (p2.dx - p1.dx) / totalDistance;
+    final dy = (p2.dy - p1.dy) / totalDistance;
+    double d = 0;
+    while (d < totalDistance) {
+      final end = min(d + dashWidth, totalDistance);
+      canvas.drawLine(Offset(p1.dx + dx * d, p1.dy + dy * d),
+          Offset(p1.dx + dx * end, p1.dy + dy * end), paint);
+      d += dashWidth + dashSpace;
+    }
   }
-}
 
-/// Helper class for ball placement info.
-class _BallInfo {
-  final int stripeIndex;
-  final Color color;
-  const _BallInfo({required this.stripeIndex, required this.color});
+  @override
+  bool shouldRepaint(DirectionCourtPainter oldDelegate) =>
+      oldDelegate.selection != selection;
 }
