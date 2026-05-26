@@ -46,7 +46,7 @@ class ForceTargetWidgetState extends State<ForceTargetWidget> {
     const squareHalfSize = 34.0; // innerSquareSize = w * 0.68 → half = 34%
 
     // Borde de la zona crema (half-size)
-    const creamHalfSize = 44.0; // zone1Inset = w * 0.06 → half = 50 - 6 = 44%
+    const creamHalfSize = 43.0; // zone1Inset = w * 0.10 → half = 50 - 10 = 40%
 
     final ballFarEdge = distance + ballRadius;
     final ballFarEdgeX = dx.abs() + ballRadius;
@@ -74,14 +74,25 @@ class ForceTargetWidgetState extends State<ForceTargetWidget> {
         ballFarEdgeX < squareHalfSize &&
         ballFarEdgeY < squareHalfSize) return 3;
 
-    // ── 2 pts ── pelota toca o cruza la línea del cuadro
-    //             (la pelota intersecta el perímetro del cuadrado)
-    if (distToSquare <= ballRadius) return 2;
+    // ── 2 pts ── pelota toca la línea del cuadro, desde cualquier lado:
+    //             · centro dentro pero borde alcanza/cruza la línea
+    //             · centro fuera pero borde alcanza/cruza la línea (desde zona 1)
+    final touchesLineFromInside =
+        distToSquare == 0 &&
+        (ballFarEdgeX >= squareHalfSize || ballFarEdgeY >= squareHalfSize);
+    final touchesLineFromOutside = distToSquare > 0 && distToSquare <= ballRadius;
+    if (touchesLineFromInside || touchesLineFromOutside) return 2;
 
-    // ── 1 pt ── pelota completamente fuera del cuadro, dentro de la zona crema
-    if (ballFarEdgeX <= creamHalfSize && ballFarEdgeY <= creamHalfSize) return 1;
+    // ── 1 pt ── pelota dentro de la zona crema O tocando su borde desde
+    //            la franja ámbar (distancia del centro al rect crema ≤ radio)
+    final clampedCreamX = dx.abs().clamp(0.0, creamHalfSize);
+    final clampedCreamY = dy.abs().clamp(0.0, creamHalfSize);
+    final distToCream = sqrt(
+      pow(dx.abs() - clampedCreamX, 2) + pow(dy.abs() - clampedCreamY, 2),
+    );
+    if (distToCream <= ballRadius) return 1;
 
-    // ── 0 pts ── FUERA DE ZONA (franja ámbar)
+    // ── 0 pts ── FUERA DE ZONA (franja ámbar, sin tocar el borde crema)
     return 0;
   }
 
@@ -153,7 +164,7 @@ class ForceTargetPainter extends CustomPainter {
     );
 
     // ── 1) Zone 1: cream area inside amber border ──────────────────
-    final zone1Inset = w * 0.06;
+    final zone1Inset = w * 0.07;
     final zone1Rect = Rect.fromLTWH(
       zone1Inset, zone1Inset,
       w - zone1Inset * 2, h - zone1Inset * 2,
@@ -189,13 +200,13 @@ class ForceTargetPainter extends CustomPainter {
       Paint()..color = const Color(0xFF4E9A3D),
     );
 
-    // ── 2) Zone 2: the square border line (stroke) ─────────────────
+    // ── 2) Zone 2: the square border line (stroke) – grosor de cinta ──
     canvas.drawRect(
       innerSquareRect,
       Paint()
         ..color = const Color(0xFFBDB89A)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = w * 0.006,
+        ..strokeWidth = w * 0.018,
     );
 
     // ── Dashed black crosshair lines ───────────────────────────────
@@ -310,8 +321,8 @@ class ForceTargetPainter extends CustomPainter {
     // "1" – top-right area in cream zone (between amber border and square line)
     drawText('1', Offset(w * 0.87, h * 0.11), labelSize, labelColor);
 
-    // "2" – on the square line, top-right corner area
-    drawText('2', Offset(w * 0.78, h * 0.19), labelSize, labelColor);
+    // "2" – sobre la línea del cuadro, esquina superior-derecha
+    drawText('2', Offset(w * 0.84, h * 0.16), labelSize, labelColor);
 
     // "3" – inside the green square, upper-right
     drawText('3', Offset(w * 0.70, h * 0.27), labelSize, labelColor);
