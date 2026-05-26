@@ -52,9 +52,9 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
       ),
       body: SafeArea(
         top: false,
-        bottom: false,
+        bottom: true,
         child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + MediaQuery.of(context).padding.bottom),
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -394,7 +394,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
       ),
       body: SafeArea(
         top: false,
-        bottom: false,
+        bottom: true,
         child: LayoutBuilder(
           builder: (context, constraints) {
           final isWide = constraints.maxWidth > 900;
@@ -415,12 +415,7 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
                     ),
                     Expanded(
                       child: SingleChildScrollView(
-                        padding: EdgeInsets.fromLTRB(
-                          16,
-                          16,
-                          16,
-                          16 + MediaQuery.of(context).padding.bottom,
-                        ),
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -578,80 +573,93 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Row(
         children: [
           // Zona chip
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: AppColors.neutral8,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              'Zona ${config.boxNumber}',
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: AppColors.neutral1,
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.neutral8,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                'Zona ${config.boxNumber}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.neutral1,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           // Distance chip
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: AppColors.neutral8,
-              borderRadius: BorderRadius.circular(10),
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.neutral8,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.straighten, size: 15, color: AppColors.neutral3),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      '${config.targetDistance.toStringAsFixed(1)} m.',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.neutral1,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.straighten, size: 16, color: AppColors.neutral3),
-                const SizedBox(width: 6),
-                Text(
-                  '${config.targetDistance.toStringAsFixed(1)} m.',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.neutral1,
+          ),
+          const SizedBox(width: 8),
+          // Puntuación label + circle
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Puntuación:',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: provider.currentScore != null
+                      ? _scoreColor(provider.currentScore!)
+                      : AppColors.neutral6,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    provider.currentScore != null
+                        ? '${provider.currentScore}'
+                        : '-',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.white,
+                    ),
                   ),
                 ),
-              ],
-            ),
-          ),
-          const Spacer(),
-          // Puntuación label + circle
-          const Text(
-            'Puntuación:',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: provider.currentScore != null
-                  ? _scoreColor(provider.currentScore!)
-                  : AppColors.neutral6,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                provider.currentScore != null
-                    ? '${provider.currentScore}'
-                    : '-',
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.white,
-                ),
               ),
-            ),
+            ],
           ),
         ],
       ),
