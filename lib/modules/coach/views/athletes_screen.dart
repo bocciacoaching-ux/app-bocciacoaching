@@ -550,11 +550,11 @@ class _AthletesScreenState extends State<AthletesScreen> {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     return GridView.builder(
       padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomPadding),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.78,
+        childAspectRatio: MediaQuery.of(context).size.width < 360 ? 0.72 : 0.90,
       ),
       itemCount: _filtered.length,
       itemBuilder: (_, i) => _AthleteCard(athlete: _filtered[i]),
@@ -616,9 +616,10 @@ class _AthleteCard extends StatelessWidget {
               ),
             ],
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Avatar con punto de estado
               Stack(
@@ -641,7 +642,7 @@ class _AthleteCard extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               // Nombre
               Text(
                 athlete.name,
@@ -650,22 +651,26 @@ class _AthleteCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                  fontSize: 13,
                   color: inactive ? AppColors.textSecondary : AppColors.black,
                 ),
               ),
-              const SizedBox(height: 4),
-              // País
-              Text(
-                athlete.nationality,
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-              ),
-              const Spacer(),
+              if (athlete.nationality.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                // País
+                Text(
+                  athlete.nationality,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                ),
+              ],
+              const SizedBox(height: 6),
               // Chips: clasificación + score + estado
               Wrap(
                 alignment: WrapAlignment.center,
-                spacing: 6,
-                runSpacing: 6,
+                spacing: 4,
+                runSpacing: 4,
                 children: [
                   if (athlete.classification.isNotEmpty)
                     _ClassBadge(classification: athlete.classification),
@@ -691,17 +696,17 @@ class _AthleteCard extends StatelessWidget {
 
     if (athlete.image != null && athlete.image!.isNotEmpty) {
       return CircleAvatar(
-        radius: 46,
+        radius: 38,
         backgroundImage: NetworkImage(athlete.image!),
         backgroundColor: AppColors.primary10,
       );
     }
     return CircleAvatar(
-      radius: 46,
+      radius: 38,
       backgroundColor: AppColors.primary10,
       child: Text(
         initials,
-        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary),
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.primary),
       ),
     );
   }
