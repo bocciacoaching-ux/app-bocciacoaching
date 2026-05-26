@@ -26,8 +26,9 @@ class ForceTargetWidgetState extends State<ForceTargetWidget> {
   /// Score zones (all values in relative coordinates 0-100, center at 50,50):
   ///
   /// 5 pts – pelota dentro del círculo verde central (oscuro)
-  /// 4 pts – pelota dentro del círculo verde exterior (claro)
-  /// 3 pts – pelota dentro del cuadrado verde (sin tocar la línea del cuadro)
+  /// 4 pts – pelota completamente dentro del círculo verde exterior (sin tocar su línea)
+  /// 3 pts – pelota toca la línea del círculo verde exterior
+  ///          O pelota dentro del cuadrado verde (sin tocar la línea del cuadro)
   /// 2 pts – pelota toca/está sobre la línea del cuadro
   /// 1 pt  – pelota fuera del cuadro pero dentro de la zona crema
   /// 0 pts – pelota en la franja ámbar (FUERA DE ZONA)
@@ -55,8 +56,14 @@ class ForceTargetWidgetState extends State<ForceTargetWidget> {
     // ── 5 pts ── pelota dentro del círculo verde central
     if (ballFarEdge <= greenCenterRadius) return 5;
 
-    // ── 4 pts ── pelota dentro del círculo verde exterior
-    if (ballFarEdge <= greenOuterRadius) return 4;
+    // ── 4 pts ── pelota completamente dentro del círculo verde exterior
+    //             (ningún borde de la pelota toca la línea del círculo)
+    if (ballFarEdge < greenOuterRadius) return 4;
+
+    // ── 3 pts ── pelota toca la línea del círculo verde exterior
+    //             (borde lejano >= radio del círculo pero borde cercano <= radio)
+    final ballNearEdge = distance - ballRadius;
+    if (ballNearEdge <= greenOuterRadius) return 3;
 
     // Distancia del centro de la pelota al punto más cercano DEL interior
     // del cuadrado (clamping al rect ±squareHalfSize).
