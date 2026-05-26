@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/direction_target_widget.dart';
 import '../../../shared/widgets/statistics_panel.dart';
 import '../../../data/models/athlete.dart';
+import '../../../data/models/team_member.dart';
 
 class TestDirectionPanelScreen extends StatefulWidget {
   const TestDirectionPanelScreen({super.key});
@@ -206,42 +207,118 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
   }
 
   Widget _buildAthleteSearch(DirectionTestProvider provider) {
-    return TextField(
-      controller: _athleteSearchController,
-      decoration: InputDecoration(
-        hintText: 'Escribe un nombre y presiona el "+" o Enter',
-        prefixIcon: const Icon(Icons.person_add),
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.add_circle, color: AppColors.primary),
-          onPressed: () {
-            if (_athleteSearchController.text.isNotEmpty) {
-              provider.addAthlete(
-                Athlete(
-                  id: DateTime.now().millisecondsSinceEpoch,
-                  name: _athleteSearchController.text,
-                ),
-              );
-              _athleteSearchController.clear();
-            }
-          },
-        ),
-        filled: true,
-        fillColor: AppColors.neutral9,
-        border: OutlineInputBorder(
+    final members = context.watch<TeamProvider>().members;
+
+    // Si no hay miembros cargados, mostrar aviso en lugar del buscador
+    if (members.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.warningBg,
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          border: Border.all(color: AppColors.warning.withAlpha(80)),
         ),
-      ),
-      onSubmitted: (value) {
-        if (value.isNotEmpty) {
-          provider.addAthlete(
-            Athlete(
-              id: DateTime.now().millisecondsSinceEpoch,
-              name: value,
+        child: const Row(
+          children: [
+            Icon(Icons.info_outline, color: AppColors.warning, size: 20),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'No hay atletas registrados en el equipo. Agrega atletas al equipo antes de crear una evaluación.',
+                style: TextStyle(fontSize: 13, color: AppColors.warning, height: 1.4),
+              ),
             ),
-          );
-          _athleteSearchController.clear();
-        }
+          ],
+        ),
+      );
+    }
+
+    // Solo mostrar atletas que aún no fueron seleccionados
+    final available = members
+        .where((m) => !provider.selectedAthletes.any((a) => a.id == m.userId))
+        .toList();
+
+    return Autocomplete<TeamMember>(
+      displayStringForOption: (m) => m.fullName,
+      optionsBuilder: (textValue) {
+        if (textValue.text.isEmpty) return available;
+        return available.where((m) =>
+            m.fullName.toLowerCase().contains(textValue.text.toLowerCase()));
+      },
+      onSelected: (TeamMember selected) {
+        provider.addAthlete(
+          Athlete(id: selected.userId, name: selected.fullName),
+        );
+        _athleteSearchController.clear();
+      },
+      fieldViewBuilder: (context, controller, focusNode, onSubmit) {
+        _athleteSearchController
+          ..text = controller.text
+          ..selection = controller.selection;
+        controller.addListener(() {
+          _athleteSearchController.text = controller.text;
+        });
+        return TextField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            hintText: 'Buscar atleta del equipo…',
+            prefixIcon: const Icon(Icons.person_search_outlined),
+            filled: true,
+            fillColor: AppColors.neutral9,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        );
+      },
+      optionsViewBuilder: (context, onSelected, options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 4,
+            borderRadius: BorderRadius.circular(12),
+            color: AppColors.surface,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 220),
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                shrinkWrap: true,
+                itemCount: options.length,
+                separatorBuilder: (_, __) =>
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                itemBuilder: (context, index) {
+                  final member = options.elementAt(index);
+                  return ListTile(
+                    dense: true,
+                    leading: CircleAvatar(
+                      radius: 16,
+                      backgroundColor: AppColors.infoBg,
+                      child: Text(
+                        member.fullName.isNotEmpty
+                            ? member.fullName[0].toUpperCase()
+                            : '?',
+                        style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary),
+                      ),
+                    ),
+                    title: Text(member.fullName,
+                        style: const TextStyle(fontSize: 14)),
+                    subtitle: member.category != null
+                        ? Text(member.category!,
+                            style: const TextStyle(
+                                fontSize: 12, color: AppColors.textSecondary))
+                        : null,
+                    onTap: () => onSelected(member),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
       },
     );
   }
