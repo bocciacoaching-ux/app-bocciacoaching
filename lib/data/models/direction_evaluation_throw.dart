@@ -11,6 +11,10 @@ class DirectionEvaluationThrow {
   final double coordinateY;
   final bool deviatedRight;
   final bool deviatedLeft;
+  final bool isStrength;
+  final bool isCadence;
+  final bool isDirection;
+  final bool isTrajectory;
 
   DirectionEvaluationThrow({
     required this.boxNumber,
@@ -25,6 +29,10 @@ class DirectionEvaluationThrow {
     required this.coordinateY,
     required this.deviatedRight,
     required this.deviatedLeft,
+    this.isStrength = false,
+    this.isCadence = false,
+    this.isDirection = false,
+    this.isTrajectory = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -40,6 +48,10 @@ class DirectionEvaluationThrow {
         'coordinateY': coordinateY,
         'deviatedRight': deviatedRight,
         'deviatedLeft': deviatedLeft,
+        'isStrength': isStrength,
+        'isCadence': isCadence,
+        'isDirection': isDirection,
+        'isTrajectory': isTrajectory,
       };
 
   factory DirectionEvaluationThrow.fromJson(Map<String, dynamic> json) {
@@ -56,6 +68,10 @@ class DirectionEvaluationThrow {
       coordinateY: (json['coordinateY'] as num).toDouble(),
       deviatedRight: json['deviatedRight'] ?? false,
       deviatedLeft: json['deviatedLeft'] ?? false,
+      isStrength: json['isStrength'] ?? false,
+      isCadence: json['isCadence'] ?? false,
+      isDirection: json['isDirection'] ?? false,
+      isTrajectory: json['isTrajectory'] ?? false,
     );
   }
 }

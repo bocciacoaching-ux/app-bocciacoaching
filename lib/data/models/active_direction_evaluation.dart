@@ -46,6 +46,10 @@ class DirectionEvaluationThrowDto {
   final String athleteName;
   final bool deviatedRight;
   final bool deviatedLeft;
+  final bool isStrength;
+  final bool isCadence;
+  final bool isDirection;
+  final bool isTrajectory;
   final String? createdAt;
   final String? updatedAt;
 
@@ -61,6 +65,10 @@ class DirectionEvaluationThrowDto {
     required this.athleteName,
     required this.deviatedRight,
     required this.deviatedLeft,
+    this.isStrength = false,
+    this.isCadence = false,
+    this.isDirection = false,
+    this.isTrajectory = false,
     this.createdAt,
     this.updatedAt,
   });
@@ -79,6 +87,10 @@ class DirectionEvaluationThrowDto {
       athleteName: json['athleteName'] as String? ?? '',
       deviatedRight: json['deviatedRight'] as bool? ?? false,
       deviatedLeft: json['deviatedLeft'] as bool? ?? false,
+      isStrength: json['isStrength'] as bool? ?? false,
+      isCadence: json['isCadence'] as bool? ?? false,
+      isDirection: json['isDirection'] as bool? ?? false,
+      isTrajectory: json['isTrajectory'] as bool? ?? false,
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
     );
@@ -96,6 +108,10 @@ class DirectionEvaluationThrowDto {
         'athleteName': athleteName,
         'deviatedRight': deviatedRight,
         'deviatedLeft': deviatedLeft,
+        'isStrength': isStrength,
+        'isCadence': isCadence,
+        'isDirection': isDirection,
+        'isTrajectory': isTrajectory,
         'createdAt': createdAt,
         'updatedAt': updatedAt,
       };

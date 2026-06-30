@@ -23,6 +23,11 @@ class DirectionTestProvider extends ChangeNotifier {
   int? _currentScore;
   bool _deviatedLeft = false;
   bool _deviatedRight = false;
+  // Cause chips state (igual que la prueba de fuerza)
+  bool _causeDirection = false;
+  bool _causeForce = false;
+  bool _causeTrajectory = false;
+  bool _causeCadence = false;
   final TextEditingController _observationsController = TextEditingController();
 
   int? get assessDirectionId => _assessDirectionId;
@@ -36,6 +41,11 @@ class DirectionTestProvider extends ChangeNotifier {
   int? get currentScore => _currentScore;
   bool get deviatedLeft => _deviatedLeft;
   bool get deviatedRight => _deviatedRight;
+  // Cause chips getters
+  bool get causeDirection => _causeDirection;
+  bool get causeForce => _causeForce;
+  bool get causeTrajectory => _causeTrajectory;
+  bool get causeCadence => _causeCadence;
   TextEditingController get observationsController => _observationsController;
 
   ForceTestConfig? get currentShotConfig =>
@@ -45,8 +55,14 @@ class DirectionTestProvider extends ChangeNotifier {
 
   bool get canGoNext {
     if (_currentScore == null) return false;
-    // At least one cause must be selected (left or right deviation)
-    if (!_deviatedLeft && !_deviatedRight) return false;
+    if (_currentScore! <= 2) {
+      // Si el puntaje es bajo, basta con haber seleccionado al menos un chip
+      // de causa o haber escrito una observación (mismo criterio que la prueba de fuerza)
+      final hasChip =
+          _causeDirection || _causeForce || _causeTrajectory || _causeCadence;
+      final hasNote = _observationsController.text.trim().isNotEmpty;
+      if (!hasChip && !hasNote) return false;
+    }
     return true;
   }
 
@@ -121,6 +137,10 @@ class DirectionTestProvider extends ChangeNotifier {
               coordinateY: 0.0,
               deviatedRight: t.deviatedRight,
               deviatedLeft: t.deviatedLeft,
+              isStrength: t.isStrength,
+              isCadence: t.isCadence,
+              isDirection: t.isDirection,
+              isTrajectory: t.isTrajectory,
             ))
         .toList();
 
@@ -150,6 +170,27 @@ class DirectionTestProvider extends ChangeNotifier {
   void toggleDeviatedRight() {
     _deviatedRight = !_deviatedRight;
     if (_deviatedRight) _deviatedLeft = false;
+    notifyListeners();
+  }
+
+  // Cause chips toggles (mismo comportamiento que en la prueba de fuerza)
+  void toggleCauseDirection() {
+    _causeDirection = !_causeDirection;
+    notifyListeners();
+  }
+
+  void toggleCauseForce() {
+    _causeForce = !_causeForce;
+    notifyListeners();
+  }
+
+  void toggleCauseTrajectory() {
+    _causeTrajectory = !_causeTrajectory;
+    notifyListeners();
+  }
+
+  void toggleCauseCadence() {
+    _causeCadence = !_causeCadence;
     notifyListeners();
   }
 
@@ -198,45 +239,80 @@ class DirectionTestProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
+    // ── 1) Crear evaluación en el backend ─────────────────────────────
+    int? remoteId;
     try {
       final result = await _service.addEvaluation(
         description: name,
         teamId: teamId,
         coachId: coachId,
       );
-      final id = result != null
-          ? (result['data']?['assessDirectionId'] as int?)
-          : null;
-      if (id != null) {
-        _assessDirectionId = id;
-      } else {
-        // Fallback for demo purposes
-        _assessDirectionId = DateTime.now().millisecondsSinceEpoch;
-      }
+      debugPrint('[DirectionTestProvider] addEvaluation response: $result');
+      remoteId = _extractAssessDirectionId(result);
+    } catch (e) {
+      debugPrint('[DirectionTestProvider] addEvaluation error: $e');
+    }
 
+    // Si la API devolvió un id real, lo usamos; si no, se usa un id local
+    // sólo para permitir continuar en modo demo (los atletas se intentan
+    // igualmente, pero seguramente el backend los rechazará).
+    _assessDirectionId = remoteId ?? DateTime.now().millisecondsSinceEpoch;
+
+    try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('assessDirectionId', _assessDirectionId!);
+    } catch (e) {
+      debugPrint('[DirectionTestProvider] prefs.setInt error: $e');
+    }
 
-      // Add athletes
-      for (final athleteId in _selectedAthletes.map((a) => a.id)) {
-        await _service.addAthleteToEvaluation(
+    // ── 2) Vincular atletas a la evaluación ───────────────────────────
+    // Se ejecuta SIEMPRE (en su propio try por atleta) para que el fallo
+    // de uno no impida el alta de los demás ni del flujo posterior.
+    debugPrint(
+        '[DirectionTestProvider] Registrando ${_selectedAthletes.length} atleta(s) '
+        'en assessDirectionId=$_assessDirectionId (remoteId=$remoteId, coachId=$coachId)');
+    for (final athleteId in _selectedAthletes.map((a) => a.id)) {
+      try {
+        final athleteResult = await _service.addAthleteToEvaluation(
           coachId: coachId,
           athleteId: athleteId,
           assessDirectionId: _assessDirectionId!,
         );
+        debugPrint(
+            '[DirectionTestProvider] addAthleteToEvaluation(athleteId=$athleteId) -> $athleteResult');
+      } catch (e) {
+        debugPrint(
+            '[DirectionTestProvider] addAthleteToEvaluation(athleteId=$athleteId) error: $e');
       }
-
-      _currentShotIndex = 0;
-      _completedThrows = [];
-      _resetCurrentShotState();
-    } catch (e) {
-      // Fallback to ensure we always advance
-      _assessDirectionId = DateTime.now().millisecondsSinceEpoch;
-      notifyListeners();
     }
+
+    // ── 3) Resetear estado del primer lanzamiento ─────────────────────
+    _currentShotIndex = 0;
+    _completedThrows = [];
+    _resetCurrentShotState();
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  /// Lee `assessDirectionId` del payload de `addEvaluation` de forma
+  /// resiliente, aceptando distintos paths y tipos numéricos.
+  int? _extractAssessDirectionId(Map<String, dynamic>? result) {
+    if (result == null) return null;
+    // Intento 1: result.data.assessDirectionId (estructura estándar)
+    final data = result['data'];
+    if (data is Map<String, dynamic>) {
+      final fromData = (data['assessDirectionId'] as num?)?.toInt() ??
+          (data['AssessDirectionId'] as num?)?.toInt() ??
+          (data['id'] as num?)?.toInt() ??
+          (data['Id'] as num?)?.toInt();
+      if (fromData != null) return fromData;
+    }
+    // Intento 2: el id viene en la raíz del response
+    return (result['assessDirectionId'] as num?)?.toInt() ??
+        (result['AssessDirectionId'] as num?)?.toInt() ??
+        (result['id'] as num?)?.toInt() ??
+        (result['Id'] as num?)?.toInt();
   }
 
   Future<void> nextShot() async {
@@ -256,6 +332,10 @@ class DirectionTestProvider extends ChangeNotifier {
       coordinateY: _currentSelection!.dy,
       deviatedRight: _deviatedRight,
       deviatedLeft: _deviatedLeft,
+      isStrength: _causeForce,
+      isCadence: _causeCadence,
+      isDirection: _causeDirection,
+      isTrajectory: _causeTrajectory,
     );
 
     _isLoading = true;
@@ -275,6 +355,10 @@ class DirectionTestProvider extends ChangeNotifier {
       coordinateY: dirThrow.coordinateY,
       deviatedRight: dirThrow.deviatedRight,
       deviatedLeft: dirThrow.deviatedLeft,
+      isStrength: dirThrow.isStrength,
+      isCadence: dirThrow.isCadence,
+      isDirection: dirThrow.isDirection,
+      isTrajectory: dirThrow.isTrajectory,
     );
 
     _completedThrows.add(dirThrow);
@@ -302,6 +386,10 @@ class DirectionTestProvider extends ChangeNotifier {
         _currentScore = prevThrow.scoreObtained;
         _deviatedLeft = prevThrow.deviatedLeft;
         _deviatedRight = prevThrow.deviatedRight;
+        _causeDirection = prevThrow.isDirection;
+        _causeForce = prevThrow.isStrength;
+        _causeTrajectory = prevThrow.isTrajectory;
+        _causeCadence = prevThrow.isCadence;
         _observationsController.text = prevThrow.observations;
       } else {
         _resetCurrentShotState();
@@ -315,6 +403,10 @@ class DirectionTestProvider extends ChangeNotifier {
     _currentScore = null;
     _deviatedLeft = false;
     _deviatedRight = false;
+    _causeDirection = false;
+    _causeForce = false;
+    _causeTrajectory = false;
+    _causeCadence = false;
     _observationsController.clear();
     notifyListeners();
   }

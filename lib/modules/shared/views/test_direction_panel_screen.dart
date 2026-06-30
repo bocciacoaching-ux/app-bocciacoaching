@@ -6,6 +6,7 @@ import '../../../data/providers/team_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/direction_target_widget.dart';
 import '../../../shared/widgets/statistics_panel.dart';
+import '../../../shared/widgets/app_dialog.dart';
 import '../../../data/models/athlete.dart';
 import '../../../data/models/team_member.dart';
 
@@ -124,8 +125,7 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
                         label: Text(athlete.name),
                         onDeleted: () => provider.removeAthlete(athlete.id),
                         backgroundColor: AppColors.infoBg,
-                        labelStyle:
-                            const TextStyle(color: AppColors.primary),
+                        labelStyle: const TextStyle(color: AppColors.primary),
                         deleteIconColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -189,6 +189,33 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
     final coachId = sessionProvider.session?.userId ?? 1;
     final teamId = teamProvider.selectedTeam?.teamId ?? 1;
 
+    // ── 1) Validar si ya existe una evaluación de dirección pendiente ──
+    final activeEval = await provider.checkForActiveEvaluation(teamId, coachId);
+    if (!mounted || !context.mounted) return;
+
+    if (activeEval != null) {
+      final shouldResume = await AppDialog.warning(
+        context,
+        title: 'Evaluación pendiente',
+        message:
+            'Ya existe una evaluación de control de dirección pendiente para este equipo. '
+            '¿Deseas continuar con la evaluación pendiente? '
+            'No es posible crear una nueva mientras exista una pendiente; '
+            'si deseas iniciar otra, primero debes descartar la activa desde la pantalla de evaluaciones.',
+        confirmLabel: 'Continuar pendiente',
+        cancelLabel: 'Cancelar',
+        icon: Icons.assignment_late_outlined,
+      );
+      if (!mounted || !context.mounted) return;
+
+      if (shouldResume) {
+        await provider.resumeEvaluation(activeEval);
+      }
+      // Si el usuario cancela, no hacemos nada (no se crea nueva).
+      return;
+    }
+
+    // ── 2) No hay pendiente → crear la nueva evaluación ──────────────
     try {
       await provider.startNewEvaluation(
         _evalNameController.text,
@@ -225,7 +252,8 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
             Expanded(
               child: Text(
                 'No hay atletas registrados en el equipo. Agrega atletas al equipo antes de crear una evaluación.',
-                style: TextStyle(fontSize: 13, color: AppColors.warning, height: 1.4),
+                style: TextStyle(
+                    fontSize: 13, color: AppColors.warning, height: 1.4),
               ),
             ),
           ],
@@ -443,8 +471,7 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
                                       DirectionTargetWidget(
                                         key: _targetKey,
                                         size: targetSize,
-                                        selection:
-                                            provider.currentSelection,
+                                        selection: provider.currentSelection,
                                         onTargetTap: provider.setSelection,
                                       ),
                                       const SizedBox(height: 8),
@@ -504,31 +531,27 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
                               ),
                               const SizedBox(height: 12),
 
-                              // ── Deviation chips ──
-                              _buildDeviationChips(provider),
+                              // ── Cause chips (Dirección / Fuerza / Trayectoria / Cadencia) ──
+                              _buildCauseChips(provider),
 
                               const SizedBox(height: 16),
 
                               // ── Observations text field ──
                               TextField(
-                                controller:
-                                    provider.observationsController,
+                                controller: provider.observationsController,
                                 maxLines: 3,
                                 decoration: InputDecoration(
-                                  hintText:
-                                      'Agrega tus comentarios...',
+                                  hintText: 'Agrega tus comentarios...',
                                   filled: true,
                                   fillColor: AppColors.surface,
                                   border: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide(
                                       color: AppColors.neutral7,
                                     ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide(
                                       color: AppColors.neutral7,
                                     ),
@@ -540,8 +563,7 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
                               const SizedBox(height: 28),
 
                               // ── Navigation buttons ──
-                              _buildNavigationButtons(
-                                  provider, config),
+                              _buildNavigationButtons(provider, config),
 
                               // ── Current box label ──
                               Padding(
@@ -607,231 +629,178 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Row(
         children: [
-          // Zone number badge
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
+          // Zona chip
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.neutral8,
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: Text(
-                '${provider.currentScore ?? '-'}',
+                'Zona ${config.boxNumber}',
                 style: const TextStyle(
-                  fontSize: 24,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.white,
+                  color: AppColors.neutral1,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
-          const SizedBox(width: 12),
-          // Distance badge
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.neutral8,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.straighten, size: 16, color: AppColors.neutral3),
-                const SizedBox(width: 6),
-                Text(
-                  '${config.targetDistance.toStringAsFixed(1)}m',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.neutral1,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Zone info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Zona n°${provider.currentScore ?? '-'}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.neutral1,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Distancia: ${config.targetDistance.toStringAsFixed(1)} m.',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Score circle
-          if (provider.currentScore != null)
-            Container(
-              width: 42,
-              height: 42,
+          const SizedBox(width: 8),
+          // Distance chip
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
-                color: _zoneColor(provider.currentScore!),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColors.white,
-                  width: 2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: _zoneColor(provider.currentScore!)
-                        .withValues(alpha: 0.3),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
+                color: AppColors.neutral8,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.straighten,
+                      size: 15, color: AppColors.neutral3),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      '${config.targetDistance.toStringAsFixed(1)} m.',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.neutral1,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
-              child: Center(
-                child: Text(
-                  '${provider.currentScore}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.white,
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Puntuación label + circle
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Puntuación:',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: provider.currentScore != null
+                      ? _zoneColor(provider.currentScore!)
+                      : AppColors.neutral6,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    provider.currentScore != null
+                        ? '${provider.currentScore}'
+                        : '-',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  // ── Deviation chips ────────────────────────────────────────────────
+  // ── Cause chips (igual que la prueba de fuerza) ────────────────────
 
-  Widget _buildDeviationChips(DirectionTestProvider provider) {
-    return Row(
+  Widget _buildCauseChips(DirectionTestProvider provider) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
       children: [
-        // Desviación izquierda
-        Expanded(
-          child: GestureDetector(
-            onTap: provider.toggleDeviatedLeft,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              decoration: BoxDecoration(
-                color: provider.deviatedLeft
-                    ? AppColors.primary
-                    : AppColors.surface,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: provider.deviatedLeft
-                      ? AppColors.primary
-                      : AppColors.neutral7,
-                  width: provider.deviatedLeft ? 2 : 1,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (provider.deviatedLeft)
-                    const Padding(
-                      padding: EdgeInsets.only(right: 6),
-                      child: Icon(
-                        Icons.check,
-                        size: 18,
-                        color: AppColors.white,
-                      ),
-                    ),
-                  Flexible(
-                    child: Text(
-                      'Desviación izquierda',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: provider.deviatedLeft
-                            ? AppColors.white
-                            : AppColors.textPrimary,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        _buildSingleCauseChip(
+          label: 'Dirección',
+          isSelected: provider.causeDirection,
+          onTap: provider.toggleCauseDirection,
         ),
-        const SizedBox(width: 10),
-        // Desviación derecha
-        Expanded(
-          child: GestureDetector(
-            onTap: provider.toggleDeviatedRight,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              decoration: BoxDecoration(
-                color: provider.deviatedRight
-                    ? AppColors.primary
-                    : AppColors.surface,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: provider.deviatedRight
-                      ? AppColors.primary
-                      : AppColors.neutral7,
-                  width: provider.deviatedRight ? 2 : 1,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (provider.deviatedRight)
-                    const Padding(
-                      padding: EdgeInsets.only(right: 6),
-                      child: Icon(
-                        Icons.check,
-                        size: 18,
-                        color: AppColors.white,
-                      ),
-                    ),
-                  Flexible(
-                    child: Text(
-                      'Desviación derecha',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: provider.deviatedRight
-                            ? AppColors.white
-                            : AppColors.textPrimary,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        _buildSingleCauseChip(
+          label: 'Fuerza',
+          isSelected: provider.causeForce,
+          onTap: provider.toggleCauseForce,
+        ),
+        _buildSingleCauseChip(
+          label: 'Trayectoria',
+          isSelected: provider.causeTrajectory,
+          onTap: provider.toggleCauseTrajectory,
+        ),
+        _buildSingleCauseChip(
+          label: 'Cadencia',
+          isSelected: provider.causeCadence,
+          onTap: provider.toggleCauseCadence,
         ),
       ],
     );
   }
 
+  Widget _buildSingleCauseChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.neutral7,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSelected)
+              const Padding(
+                padding: EdgeInsets.only(right: 6),
+                child: Icon(
+                  Icons.check,
+                  size: 16,
+                  color: AppColors.white,
+                ),
+              ),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? AppColors.white : AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ── Navigation buttons ─────────────────────────────────────────────
 
-  Widget _buildNavigationButtons(
-      DirectionTestProvider provider, config) {
+  Widget _buildNavigationButtons(DirectionTestProvider provider, config) {
     return Row(
       children: [
         // Previous
@@ -882,19 +851,7 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
               ElevatedButton(
                 onPressed: provider.canGoNext && !provider.isLoading
                     ? () {
-                        // Validate: at least one deviation must be selected
-                        if (!provider.deviatedLeft &&
-                            !provider.deviatedRight) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Selecciona una causa de desviación.',
-                              ),
-                              backgroundColor: AppColors.error,
-                            ),
-                          );
-                          return;
-                        }
+                        _targetKey.currentState?.reset();
                         provider.nextShot();
                       }
                     : null,
@@ -917,8 +874,7 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
                         ),
                       )
                     : Text(
-                        provider.currentShotNumber ==
-                                provider.totalShots
+                        provider.currentShotNumber == provider.totalShots
                             ? 'Finalizar'
                             : 'Siguiente',
                         style: const TextStyle(

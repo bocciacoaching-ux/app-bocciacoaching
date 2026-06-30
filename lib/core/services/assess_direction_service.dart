@@ -72,6 +72,10 @@ class AssessDirectionService {
     required double coordinateY,
     required bool deviatedRight,
     required bool deviatedLeft,
+    bool isStrength = false,
+    bool isCadence = false,
+    bool isDirection = false,
+    bool isTrajectory = false,
   }) async {
     try {
       final response = await http.post(
@@ -90,6 +94,10 @@ class AssessDirectionService {
           'coordinateY': coordinateY,
           'deviatedRight': deviatedRight,
           'deviatedLeft': deviatedLeft,
+          'isStrength': isStrength,
+          'isCadence': isCadence,
+          'isDirection': isDirection,
+          'isTrajectory': isTrajectory,
         }),
       );
       if (response.statusCode == 200) {
