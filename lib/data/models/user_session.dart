@@ -74,4 +74,42 @@ class UserSession {
         'createdAt': createdAt,
         'updatedAt': updatedAt,
       };
+
+  /// Devuelve una copia de la sesión con los campos indicados sobreescritos.
+  ///
+  /// Útil para refrescar la sesión localmente tras actualizar el perfil del
+  /// usuario sin necesidad de volver a hacer login.
+  UserSession copyWith({
+    int? userId,
+    String? dni,
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? address,
+    String? country,
+    String? image,
+    String? category,
+    String? seniority,
+    bool? status,
+    int? rolId,
+    String? createdAt,
+    String? updatedAt,
+  }) {
+    return UserSession(
+      userId: userId ?? this.userId,
+      dni: dni ?? this.dni,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      email: email ?? this.email,
+      address: address ?? this.address,
+      country: country ?? this.country,
+      image: image ?? this.image,
+      category: category ?? this.category,
+      seniority: seniority ?? this.seniority,
+      status: status ?? this.status,
+      rolId: rolId ?? this.rolId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }

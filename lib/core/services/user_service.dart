@@ -128,7 +128,17 @@ class UserService {
   }
 
   // PUT /api/User/UpdateUserInfo
-  Future<Map<String, dynamic>?> updateUserInfo({
+  //
+  // Actualiza la información de perfil del usuario autenticado.
+  //
+  // El campo [image] debe enviarse como string Base64 puro (sin el prefijo
+  // `data:image/...;base64,`). Si se quiere "limpiar" la foto basta con
+  // enviar un string vacío o `null`.
+  //
+  // Devuelve siempre un Map con la siguiente forma:
+  //   {'success': true,  'data': {...}}            → perfil actualizado OK
+  //   {'success': false, 'message': 'Texto...'}    → error con mensaje legible
+  Future<Map<String, dynamic>> updateUserInfo({
     required int userId,
     String? dni,
     String? firstName,
@@ -147,24 +157,58 @@ class UserService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'userId': userId,
-          'dni': dni,
-          'firstName': firstName,
-          'lastName': lastName,
-          'email': email,
-          'address': address,
-          'country': country,
-          'image': image,
-          'category': category,
-          'seniority': seniority?.toIso8601String(),
-          'status': status,
+          if (dni != null) 'dni': dni,
+          if (firstName != null) 'firstName': firstName,
+          if (lastName != null) 'lastName': lastName,
+          if (email != null) 'email': email,
+          if (address != null) 'address': address,
+          if (country != null) 'country': country,
+          if (image != null) 'image': image,
+          if (category != null) 'category': category,
+          if (seniority != null) 'seniority': seniority.toIso8601String(),
+          if (status != null) 'status': status,
         }),
       );
+
       if (response.statusCode == 200) {
-        return jsonDecode(response.body) as Map<String, dynamic>;
+        final body = response.body.isNotEmpty
+            ? jsonDecode(response.body) as Map<String, dynamic>
+            : <String, dynamic>{};
+
+        // Si la API devuelve explícitamente success=false, lo propagamos.
+        if (body['success'] == false) {
+          return {
+            'success': false,
+            'message': body['message'] as String? ??
+                'No se pudo actualizar el perfil.',
+          };
+        }
+        return {'success': true, 'data': body};
       }
-      return null;
+
+      final String message = switch (response.statusCode) {
+        400 => 'Los datos enviados no son válidos.',
+        401 => 'Sesión expirada. Inicia sesión de nuevo.',
+        403 => 'No tienes permiso para realizar esta acción.',
+        404 => 'Usuario no encontrado.',
+        413 => 'La imagen es demasiado grande. Prueba con una más pequeña.',
+        429 => 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
+        >= 500 => 'Error en el servidor. Inténtalo más tarde.',
+        _ => 'No se pudo actualizar el perfil (código ${response.statusCode}).',
+      };
+
+      return {'success': false, 'message': message};
+    } on SocketException {
+      return {
+        'success': false,
+        'message':
+            'Sin conexión a Internet. Comprueba tu red e inténtalo de nuevo.',
+      };
     } catch (_) {
-      return null;
+      return {
+        'success': false,
+        'message': 'Ocurrió un error inesperado. Inténtalo de nuevo.',
+      };
     }
   }
 }

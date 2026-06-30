@@ -22,8 +22,8 @@ class SessionProvider extends ChangeNotifier {
     final raw = prefs.getString(_kSessionKey);
     if (raw != null) {
       try {
-        _session = UserSession.fromJson(
-            jsonDecode(raw) as Map<String, dynamic>);
+        _session =
+            UserSession.fromJson(jsonDecode(raw) as Map<String, dynamic>);
         notifyListeners();
       } catch (_) {
         // Datos corruptos: se ignoran
@@ -38,6 +38,48 @@ class SessionProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kSessionKey, jsonEncode(_session!.toJson()));
     notifyListeners();
+  }
+
+  /// Reemplaza la sesión actual por una nueva instancia (ya construida)
+  /// y la persiste en disco. Útil al actualizar el perfil del usuario.
+  Future<void> updateSession(UserSession updated) async {
+    _session = updated;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kSessionKey, jsonEncode(updated.toJson()));
+    notifyListeners();
+  }
+
+  /// Actualiza únicamente los campos indicados de la sesión actual y
+  /// persiste el resultado en disco. Si no hay sesión activa no hace nada.
+  Future<void> patchSession({
+    String? dni,
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? address,
+    String? country,
+    String? image,
+    String? category,
+    String? seniority,
+    bool? status,
+    String? updatedAt,
+  }) async {
+    final current = _session;
+    if (current == null) return;
+    final updated = current.copyWith(
+      dni: dni,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      address: address,
+      country: country,
+      image: image,
+      category: category,
+      seniority: seniority,
+      status: status,
+      updatedAt: updatedAt,
+    );
+    await updateSession(updated);
   }
 
   /// Cierra la sesión y elimina los datos persistidos.
