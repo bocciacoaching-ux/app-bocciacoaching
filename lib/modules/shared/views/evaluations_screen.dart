@@ -161,8 +161,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
     final coachId = session?.userId ?? 1;
     final teamId = team?.teamId ?? 1;
 
-    final result =
-        await provider.checkForActiveEvaluation(teamId, coachId);
+    final result = await provider.checkForActiveEvaluation(teamId, coachId);
 
     if (!mounted) return;
 
@@ -209,6 +208,39 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
   //  Descartar la card de dirección
   // ─────────────────────────────────────────────────────────────────
   void _dismissActiveDirectionCard() {
+    setState(() => _activeDirectionEval = null);
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  //  Descartar la evaluación pendiente de dirección definitivamente
+  // ─────────────────────────────────────────────────────────────────
+  Future<void> _discardActiveDirectionEvaluation() async {
+    final confirmed = await AppDialog.confirm(
+      context,
+      title: 'Descartar evaluación',
+      message:
+          '¿Estás seguro de que deseas descartar esta evaluación de dirección? Se perderán todos los lanzamientos registrados y no podrás recuperarlos.',
+      confirmLabel: 'Descartar',
+      icon: Icons.delete_outline_rounded,
+    );
+    if (!confirmed || !mounted) return;
+
+    final provider = context.read<DirectionTestProvider>();
+    final session = context.read<SessionProvider>().session;
+    final coachId = session?.userId ?? 0;
+    final evalId = _activeDirectionEval?.assessDirectionId;
+
+    if (evalId != null) {
+      await provider.cancelEvaluation(
+        assessDirectionId: evalId,
+        coachId: coachId,
+        reason: 'Descartada por el coach desde la pantalla de evaluaciones',
+      );
+    } else {
+      await provider.resetForNewEvaluation();
+    }
+
+    if (!mounted) return;
     setState(() => _activeDirectionEval = null);
   }
 
@@ -386,8 +418,8 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                       ),
                     ),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppColors.infoBg,
                       borderRadius: BorderRadius.circular(20),
@@ -586,7 +618,8 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: _discardActiveEvaluation,
-                        icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                        icon:
+                            const Icon(Icons.delete_outline_rounded, size: 18),
                         label: const Text(
                           'Descartar',
                           style: TextStyle(
@@ -707,8 +740,8 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                       ),
                     ),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppColors.accent4x10,
                       borderRadius: BorderRadius.circular(20),
@@ -756,17 +789,16 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
   // ─────────────────────────────────────────────────────────────────
   //  Card: evaluación de dirección activa pendiente
   // ─────────────────────────────────────────────────────────────────
-  Widget _buildActiveDirectionEvaluationCard(
-      ActiveDirectionEvaluation eval) {
-    final athleteNames =
-        eval.athletes.map((a) => a.athleteName).join(', ');
+  Widget _buildActiveDirectionEvaluationCard(ActiveDirectionEvaluation eval) {
+    final athleteNames = eval.athletes.map((a) => a.athleteName).join(', ');
     final throwsDone = eval.completedThrowsCount;
 
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.accent4.withOpacity(0.35), width: 1.5),
+        border:
+            Border.all(color: AppColors.accent4.withOpacity(0.35), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: AppColors.accent4.withOpacity(0.12),
@@ -845,14 +877,13 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _infoRow(
-                    Icons.edit_note_rounded, 'Nombre', eval.description),
+                _infoRow(Icons.edit_note_rounded, 'Nombre', eval.description),
                 const SizedBox(height: 10),
                 _infoRow(Icons.groups_rounded, 'Equipo', eval.teamName),
                 if (athleteNames.isNotEmpty) ...[
                   const SizedBox(height: 10),
-                  _infoRow(Icons.person_outline_rounded, 'Atletas',
-                      athleteNames),
+                  _infoRow(
+                      Icons.person_outline_rounded, 'Atletas', athleteNames),
                 ],
                 const SizedBox(height: 10),
                 _infoRow(
@@ -907,30 +938,59 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
 
                 const SizedBox(height: 16),
 
-                // ── Botón continuar ────────────────────────────────
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _continueActiveDirectionEvaluation,
-                    icon: const Icon(Icons.play_arrow_rounded, size: 20),
-                    label: const Text(
-                      'CONTINUAR EVALUACIÓN',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.8,
+                // ── Botones (Descartar / Continuar) ───────────────
+                Row(
+                  children: [
+                    // Botón descartar
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _discardActiveDirectionEvaluation,
+                        icon:
+                            const Icon(Icons.delete_outline_rounded, size: 18),
+                        label: const Text(
+                          'Descartar',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.neutral3,
+                          side: const BorderSide(color: AppColors.neutral7),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                       ),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.accent4,
-                      foregroundColor: AppColors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    const SizedBox(width: 12),
+                    // Botón continuar
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton.icon(
+                        onPressed: _continueActiveDirectionEvaluation,
+                        icon: const Icon(Icons.play_arrow_rounded, size: 20),
+                        label: const Text(
+                          'CONTINUAR',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.accent4,
+                          foregroundColor: AppColors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
                       ),
-                      elevation: 0,
                     ),
-                  ),
+                  ],
                 ),
                 const SizedBox(height: 16),
               ],
@@ -966,8 +1026,8 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
             children: [
               const Text('⭐', style: TextStyle(fontSize: 24)),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.accent5x25,
                   borderRadius: BorderRadius.circular(20),
@@ -1012,15 +1072,15 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
   Widget _buildActiveSaremasEvaluationCard(ActiveSaremasEvaluation eval) {
     final athleteNames =
         eval.athletes.map((a) => a.name ?? 'Atleta ${a.athleteId}').join(', ');
-    final throwsDone = eval.athletes.fold<int>(
-        0, (sum, a) => sum + a.throws_.length);
+    final throwsDone =
+        eval.athletes.fold<int>(0, (sum, a) => sum + a.throws_.length);
 
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: AppColors.accent5.withOpacity(0.35), width: 1.5),
+        border:
+            Border.all(color: AppColors.accent5.withOpacity(0.35), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: AppColors.accent5.withOpacity(0.12),
@@ -1034,8 +1094,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
         children: [
           // ── Encabezado ────────────────────────────────────────────
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -1102,12 +1161,12 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                 _infoRow(Icons.edit_note_rounded, 'Nombre',
                     eval.description ?? 'Evaluación SAREMAS+'),
                 const SizedBox(height: 10),
-                _infoRow(Icons.groups_rounded, 'Equipo',
-                    'Equipo ${eval.teamId}'),
+                _infoRow(
+                    Icons.groups_rounded, 'Equipo', 'Equipo ${eval.teamId}'),
                 if (athleteNames.isNotEmpty) ...[
                   const SizedBox(height: 10),
-                  _infoRow(Icons.person_outline_rounded, 'Atletas',
-                      athleteNames),
+                  _infoRow(
+                      Icons.person_outline_rounded, 'Atletas', athleteNames),
                 ],
                 const SizedBox(height: 10),
                 _infoRow(
@@ -1167,8 +1226,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: _continueActiveSaremasEvaluation,
-                    icon:
-                        const Icon(Icons.play_arrow_rounded, size: 20),
+                    icon: const Icon(Icons.play_arrow_rounded, size: 20),
                     label: const Text(
                       'CONTINUAR EVALUACIÓN',
                       style: TextStyle(
@@ -1180,8 +1238,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.accent5,
                       foregroundColor: AppColors.white,
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -1226,4 +1283,3 @@ class _EvaluationsScreenState extends State<EvaluationsScreen> {
     );
   }
 }
-

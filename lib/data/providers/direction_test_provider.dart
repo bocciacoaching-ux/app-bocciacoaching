@@ -176,8 +176,25 @@ class DirectionTestProvider extends ChangeNotifier {
     _resetCurrentShotState();
   }
 
-  Future<void> startNewEvaluation(
-      String name, int teamId, int coachId) async {
+  /// Cancela la evaluación de dirección activa en la API y limpia el estado local.
+  /// [assessDirectionId] es el ID de la evaluación a cancelar.
+  /// [coachId] es el ID del coach que realiza la cancelación.
+  /// [reason] es un mensaje opcional de motivo.
+  Future<bool> cancelEvaluation({
+    required int assessDirectionId,
+    required int coachId,
+    String? reason,
+  }) async {
+    final result = await _service.cancel(
+      assessDirectionId: assessDirectionId,
+      coachId: coachId,
+      reason: reason,
+    );
+    await resetForNewEvaluation();
+    return result != null;
+  }
+
+  Future<void> startNewEvaluation(String name, int teamId, int coachId) async {
     _isLoading = true;
     notifyListeners();
 
@@ -223,9 +240,8 @@ class DirectionTestProvider extends ChangeNotifier {
   }
 
   Future<void> nextShot() async {
-    if (!canGoNext ||
-        currentShotConfig == null ||
-        _assessDirectionId == null) return;
+    if (!canGoNext || currentShotConfig == null || _assessDirectionId == null)
+      return;
 
     final dirThrow = DirectionEvaluationThrow(
       boxNumber: currentShotConfig!.boxNumber,
@@ -234,8 +250,7 @@ class DirectionTestProvider extends ChangeNotifier {
       scoreObtained: _currentScore!,
       observations: _observationsController.text,
       status: true,
-      athleteId:
-          _selectedAthletes.isNotEmpty ? _selectedAthletes.first.id : 0,
+      athleteId: _selectedAthletes.isNotEmpty ? _selectedAthletes.first.id : 0,
       assessDirectionId: _assessDirectionId!,
       coordinateX: _currentSelection!.dx,
       coordinateY: _currentSelection!.dy,
