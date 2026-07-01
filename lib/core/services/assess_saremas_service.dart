@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 import '../../data/models/active_saremas_evaluation.dart';
 import '../../data/models/saremas_evaluation_summary.dart';
@@ -17,7 +17,7 @@ class AssessSaremasService {
     required int coachId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/AssessSaremas/AddEvaluation'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -42,7 +42,7 @@ class AssessSaremasService {
     required int saremasEvalId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/AssessSaremas/AthletesToEvaluated'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -81,7 +81,7 @@ class AssessSaremasService {
     double? distanceToLaunchPoint,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/AssessSaremas/AddDetailsToEvaluation'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -117,7 +117,7 @@ class AssessSaremasService {
   Future<ActiveSaremasEvaluation?> getActiveEvaluation(
       int teamId, int coachId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse(
             '$_base/AssessSaremas/GetActiveEvaluation/$teamId/$coachId'),
       );
@@ -143,7 +143,7 @@ class AssessSaremasService {
     String? state,
   }) async {
     try {
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/AssessSaremas/UpdateState'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -170,7 +170,7 @@ class AssessSaremasService {
     String? reason,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/AssessSaremas/Cancel'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -192,7 +192,7 @@ class AssessSaremasService {
   Future<List<SaremasEvaluationSummaryDto>?> getTeamEvaluations(
       int teamId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/AssessSaremas/GetTeamEvaluations/$teamId'),
       );
       if (response.statusCode == 200) {
@@ -214,7 +214,7 @@ class AssessSaremasService {
   Future<SaremasEvaluationDetailsDto?> getEvaluationDetails(
       int saremasEvalId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse(
             '$_base/AssessSaremas/GetEvaluationDetails/$saremasEvalId'),
       );
@@ -235,7 +235,7 @@ class AssessSaremasService {
   Future<List<SaremasStatisticsDto>?> getEvaluationStatistics(
       int saremasEvalId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse(
             '$_base/AssessSaremas/GetEvaluationStatistics/$saremasEvalId'),
       );
@@ -257,7 +257,7 @@ class AssessSaremasService {
   // GET /api/AssessSaremas/GetAthleteHistory/{athleteId}
   Future<SaremasAthleteHistoryDto?> getAthleteHistory(int athleteId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/AssessSaremas/GetAthleteHistory/$athleteId'),
       );
       if (response.statusCode == 200) {
@@ -276,7 +276,7 @@ class AssessSaremasService {
   // GET /api/AssessSaremas/CoachHasEvaluations/{coachId}
   Future<Map<String, dynamic>?> coachHasEvaluations(int coachId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/AssessSaremas/CoachHasEvaluations/$coachId'),
       );
       if (response.statusCode == 200) {

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
+import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 
 class UserService {
@@ -9,7 +9,7 @@ class UserService {
   // GET /api/User
   Future<Map<String, dynamic>?> getInfoUser() async {
     try {
-      final response = await http.get(Uri.parse('$_base/User'));
+      final response = await HttpLogger.get(Uri.parse('$_base/User'));
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -28,7 +28,7 @@ class UserService {
     String? category,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/User/AddInfoUser'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -51,7 +51,7 @@ class UserService {
   // POST /api/User/ValidateEmail
   Future<Map<String, dynamic>?> validateEmail(String email) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/User/ValidateEmail'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email}),
@@ -77,7 +77,7 @@ class UserService {
     required String confirmPassword,
   }) async {
     try {
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/User/UpdatePassword'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -152,7 +152,7 @@ class UserService {
     bool? status,
   }) async {
     try {
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/User/UpdateUserInfo'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({

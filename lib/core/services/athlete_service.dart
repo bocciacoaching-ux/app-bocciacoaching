@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 
 class AthleteService {
@@ -11,7 +11,7 @@ class AthleteService {
     required int teamId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/User/SearchAthletesForNameAndTeams'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'firstName': firstName, 'teamId': teamId}),
@@ -39,7 +39,7 @@ class AthleteService {
     int? teamId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/User/AddAthlete'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({

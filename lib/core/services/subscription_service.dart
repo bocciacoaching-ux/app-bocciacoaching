@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 
 class SubscriptionService {
@@ -8,7 +8,7 @@ class SubscriptionService {
   // GET /api/Subscription/types
   Future<Map<String, dynamic>?> getTypes() async {
     try {
-      final response = await http.get(Uri.parse('$_base/Subscription/types'));
+      final response = await HttpLogger.get(Uri.parse('$_base/Subscription/types'));
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -32,7 +32,7 @@ class SubscriptionService {
     required bool hasPremiumChat,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Subscription/types'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -60,7 +60,7 @@ class SubscriptionService {
   // GET /api/Subscription/types/{id}
   Future<Map<String, dynamic>?> getTypeById(int id) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/types/$id'),
       );
       if (response.statusCode == 200) {
@@ -86,7 +86,7 @@ class SubscriptionService {
     required bool hasPremiumChat,
   }) async {
     try {
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/Subscription/types/$id'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -114,7 +114,7 @@ class SubscriptionService {
   // DELETE /api/Subscription/types/{id}
   Future<Map<String, dynamic>?> deleteType(int id) async {
     try {
-      final response = await http.delete(
+      final response = await HttpLogger.delete(
         Uri.parse('$_base/Subscription/types/$id'),
       );
       if (response.statusCode == 200) {
@@ -129,7 +129,7 @@ class SubscriptionService {
   // GET /api/Subscription/user/{userId}
   Future<Map<String, dynamic>?> getUserSubscription(int userId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/user/$userId'),
       );
       if (response.statusCode == 200) {
@@ -144,7 +144,7 @@ class SubscriptionService {
   // GET /api/Subscription/user/{userId}/history
   Future<Map<String, dynamic>?> getUserSubscriptionHistory(int userId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/user/$userId/history'),
       );
       if (response.statusCode == 200) {
@@ -166,7 +166,7 @@ class SubscriptionService {
     String? paymentMethodId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Subscription/create'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -194,7 +194,7 @@ class SubscriptionService {
     String? cancellationReason,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Subscription/cancel'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -220,7 +220,7 @@ class SubscriptionService {
     required bool prorationBehavior,
   }) async {
     try {
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/Subscription/update'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -242,7 +242,7 @@ class SubscriptionService {
   // POST /api/Subscription/reactivate/{subscriptionId}
   Future<Map<String, dynamic>?> reactivateSubscription(int subscriptionId) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Subscription/reactivate/$subscriptionId'),
       );
       if (response.statusCode == 200) {
@@ -268,7 +268,7 @@ class SubscriptionService {
           'trialDays': '$trialDays',
         },
       );
-      final response = await http.post(uri);
+      final response = await HttpLogger.post(uri);
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -281,7 +281,7 @@ class SubscriptionService {
   // GET /api/Subscription/trial/available/{userId}/{subscriptionTypeId}
   Future<Map<String, dynamic>?> isTrialAvailable(int userId, int subscriptionTypeId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/trial/available/$userId/$subscriptionTypeId'),
       );
       if (response.statusCode == 200) {
@@ -301,7 +301,7 @@ class SubscriptionService {
           if (feature != null) 'feature': feature,
         },
       );
-      final response = await http.get(uri);
+      final response = await HttpLogger.get(uri);
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -314,7 +314,7 @@ class SubscriptionService {
   // GET /api/Subscription/access/{userId}/{featureName}
   Future<Map<String, dynamic>?> checkFeatureAccess(int userId, String featureName) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/access/$userId/$featureName'),
       );
       if (response.statusCode == 200) {
@@ -329,7 +329,7 @@ class SubscriptionService {
   // GET /api/Subscription/limits/{userId}/can-create-team
   Future<Map<String, dynamic>?> canCreateTeam(int userId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/limits/$userId/can-create-team'),
       );
       if (response.statusCode == 200) {
@@ -344,7 +344,7 @@ class SubscriptionService {
   // GET /api/Subscription/limits/{userId}/can-add-athlete/{teamId}
   Future<Map<String, dynamic>?> canAddAthlete(int userId, int teamId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/limits/$userId/can-add-athlete/$teamId'),
       );
       if (response.statusCode == 200) {
@@ -359,7 +359,7 @@ class SubscriptionService {
   // GET /api/Subscription/limits/{userId}/can-evaluate
   Future<Map<String, dynamic>?> canEvaluate(int userId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/limits/$userId/can-evaluate'),
       );
       if (response.statusCode == 200) {
@@ -374,7 +374,7 @@ class SubscriptionService {
   // GET /api/Subscription/limits/{userId}/remaining-teams
   Future<Map<String, dynamic>?> getRemainingTeams(int userId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/limits/$userId/remaining-teams'),
       );
       if (response.statusCode == 200) {
@@ -389,7 +389,7 @@ class SubscriptionService {
   // GET /api/Subscription/limits/{userId}/remaining-athletes/{teamId}
   Future<Map<String, dynamic>?> getRemainingAthletes(int userId, int teamId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/limits/$userId/remaining-athletes/$teamId'),
       );
       if (response.statusCode == 200) {
@@ -404,7 +404,7 @@ class SubscriptionService {
   // GET /api/Subscription/limits/{userId}/remaining-evaluations
   Future<Map<String, dynamic>?> getRemainingEvaluations(int userId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/limits/$userId/remaining-evaluations'),
       );
       if (response.statusCode == 200) {
@@ -426,7 +426,7 @@ class SubscriptionService {
     required bool confirmPayment,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Subscription/payment/create-intent'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -453,7 +453,7 @@ class SubscriptionService {
     String? paymentMethodId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Subscription/payment/confirm'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -473,7 +473,7 @@ class SubscriptionService {
   // GET /api/Subscription/payment/{paymentIntentId}
   Future<Map<String, dynamic>?> getPaymentIntent(String paymentIntentId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/payment/$paymentIntentId'),
       );
       if (response.statusCode == 200) {
@@ -488,7 +488,7 @@ class SubscriptionService {
   // POST /api/Subscription/payment/cancel/{paymentIntentId}
   Future<Map<String, dynamic>?> cancelPaymentIntent(String paymentIntentId) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Subscription/payment/cancel/$paymentIntentId'),
       );
       if (response.statusCode == 200) {
@@ -505,7 +505,7 @@ class SubscriptionService {
   // POST /api/Subscription/webhooks/stripe
   Future<Map<String, dynamic>?> webhookStripe(Map<String, dynamic> payload) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Subscription/webhooks/stripe'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(payload),
@@ -524,7 +524,7 @@ class SubscriptionService {
   // GET /api/Subscription/admin/all
   Future<List<dynamic>?> adminGetAll() async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/admin/all'),
       );
       if (response.statusCode == 200) {
@@ -539,7 +539,7 @@ class SubscriptionService {
   // GET /api/Subscription/admin/statistics
   Future<Map<String, dynamic>?> adminGetStatistics() async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/admin/statistics'),
       );
       if (response.statusCode == 200) {

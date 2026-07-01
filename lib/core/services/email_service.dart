@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 
 class EmailService {
@@ -12,7 +12,7 @@ class EmailService {
     required int minutesValid,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Email/SendCodeVerify'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -37,7 +37,7 @@ class EmailService {
     required int minutesValid,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Email/ValidateCode'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -58,7 +58,7 @@ class EmailService {
   // GET /api/Email/TestSmtpConnectivity
   Future<bool> testSmtpConnectivity() async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Email/TestSmtpConnectivity'),
       );
       return response.statusCode == 200;
@@ -75,7 +75,7 @@ class EmailService {
           if (toEmail != null) 'toEmail': toEmail,
         },
       );
-      final response = await http.post(uri);
+      final response = await HttpLogger.post(uri);
       return response.statusCode == 200;
     } catch (_) {
       return false;
@@ -85,7 +85,7 @@ class EmailService {
   // POST /api/EmailTest/test-email
   Future<bool> emailTestSend({String? toEmail, String? toName}) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/EmailTest/test-email'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -102,7 +102,7 @@ class EmailService {
   // POST /api/EmailTest/diagnose
   Future<bool> emailTestDiagnose() async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/EmailTest/diagnose'),
       );
       return response.statusCode == 200;
@@ -114,7 +114,7 @@ class EmailService {
   // POST /api/EmailTest/ping
   Future<bool> emailTestPing() async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/EmailTest/ping'),
       );
       return response.statusCode == 200;

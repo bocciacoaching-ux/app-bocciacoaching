@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
+import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 
 class AuthService {
@@ -13,7 +13,7 @@ class AuthService {
   //   {'success': false, 'message': 'Texto...'}  → error con mensaje legible
   Future<Map<String, dynamic>?> signIn(String email, String password) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/User/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),

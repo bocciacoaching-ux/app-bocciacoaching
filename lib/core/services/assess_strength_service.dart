@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 
 class AssessStrengthService {
@@ -12,7 +12,7 @@ class AssessStrengthService {
     required int coachId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/AssessStrength/AddEvaluation'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -37,7 +37,7 @@ class AssessStrengthService {
     required int assessStrengthId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/AssessStrength/AthletesToEvaluated'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -73,7 +73,7 @@ class AssessStrengthService {
     bool isTrajectory = false,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/AssessStrength/AddDeatilsToEvaluation'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -105,7 +105,7 @@ class AssessStrengthService {
   // GET /api/AssessStrength/GetActiveEvaluation/{teamId}/{coachId}
   Future<Map<String, dynamic>?> getActiveEvaluation(int teamId, int coachId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/AssessStrength/GetActiveEvaluation/$teamId/$coachId'),
       );
       if (response.statusCode == 200) {
@@ -126,7 +126,7 @@ class AssessStrengthService {
     String? state,
   }) async {
     try {
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/AssessStrength/UpdateState'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -153,7 +153,7 @@ class AssessStrengthService {
     String? reason,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/AssessStrength/Cancel'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -174,7 +174,7 @@ class AssessStrengthService {
   // GET /api/AssessStrength/DebugEvaluations/{teamId}
   Future<void> debugEvaluations(int teamId) async {
     try {
-      await http.get(
+      await HttpLogger.get(
         Uri.parse('$_base/AssessStrength/DebugEvaluations/$teamId'),
       );
     } catch (_) {
@@ -185,7 +185,7 @@ class AssessStrengthService {
   // GET /api/AssessStrength/GetTeamEvaluations/{teamId}
   Future<Map<String, dynamic>?> getTeamEvaluations(int teamId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/AssessStrength/GetTeamEvaluations/$teamId'),
       );
       if (response.statusCode == 200) {
@@ -200,7 +200,7 @@ class AssessStrengthService {
   // GET /api/AssessStrength/GetEvaluationStatistics/{assessStrengthId}
   Future<Map<String, dynamic>?> getEvaluationStatistics(int assessStrengthId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/AssessStrength/GetEvaluationStatistics/$assessStrengthId'),
       );
       if (response.statusCode == 200) {
@@ -215,7 +215,7 @@ class AssessStrengthService {
   // GET /api/AssessStrength/GetEvaluationDetails/{assessStrengthId}
   Future<Map<String, dynamic>?> getEvaluationDetails(int assessStrengthId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/AssessStrength/GetEvaluationDetails/$assessStrengthId'),
       );
       if (response.statusCode == 200) {
@@ -230,7 +230,7 @@ class AssessStrengthService {
   // GET /api/AssessStrength/CoachHasEvaluations/{coachId}
   Future<Map<String, dynamic>?> coachHasEvaluations(int coachId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/AssessStrength/CoachHasEvaluations/$coachId'),
       );
       if (response.statusCode == 200) {

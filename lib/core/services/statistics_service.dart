@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 
 class StatisticsService {
@@ -14,7 +14,7 @@ class StatisticsService {
           if (teamId != null) 'teamId': '$teamId',
         },
       );
-      final response = await http.get(uri);
+      final response = await HttpLogger.get(uri);
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -27,7 +27,7 @@ class StatisticsService {
   // GET /api/Statistics/TeamStrengthStats/{teamId}
   Future<Map<String, dynamic>?> getTeamStrengthStats(int teamId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/TeamStrengthStats/$teamId'),
       );
       if (response.statusCode == 200) {
@@ -42,7 +42,7 @@ class StatisticsService {
   // GET /api/Statistics/DebugTeamEvaluations/{teamId}
   Future<Map<String, dynamic>?> debugTeamEvaluations(int teamId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/DebugTeamEvaluations/$teamId'),
       );
       if (response.statusCode == 200) {
@@ -57,7 +57,7 @@ class StatisticsService {
   // GET /api/Statistics/TeamStrengthStatsIndividualized/{teamId}
   Future<Map<String, dynamic>?> getTeamStrengthStatsIndividualized(int teamId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/TeamStrengthStatsIndividualized/$teamId'),
       );
       if (response.statusCode == 200) {
@@ -72,7 +72,7 @@ class StatisticsService {
   // GET /api/Statistics/AthleteStats/{athleteId}
   Future<Map<String, dynamic>?> getAthleteStats(int athleteId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/AthleteStats/$athleteId'),
       );
       if (response.statusCode == 200) {
@@ -87,7 +87,7 @@ class StatisticsService {
   // GET /api/Statistics/AllTeamsStats
   Future<Map<String, dynamic>?> getAllTeamsStats() async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/AllTeamsStats'),
       );
       if (response.statusCode == 200) {
@@ -102,7 +102,7 @@ class StatisticsService {
   // POST /api/Statistics/CompareTeams
   Future<Map<String, dynamic>?> compareTeams(List<int> teamIds) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Statistics/CompareTeams'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(teamIds),
@@ -125,7 +125,7 @@ class StatisticsService {
           if (teamId != null) 'teamId': '$teamId',
         },
       );
-      final response = await http.get(uri);
+      final response = await HttpLogger.get(uri);
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -143,7 +143,7 @@ class StatisticsService {
           if (coachId != null) 'coachId': '$coachId',
         },
       );
-      final response = await http.get(uri);
+      final response = await HttpLogger.get(uri);
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -167,7 +167,7 @@ class StatisticsService {
           'limit': '$limit',
         },
       );
-      final response = await http.get(uri);
+      final response = await HttpLogger.get(uri);
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -191,7 +191,7 @@ class StatisticsService {
           'limit': '$limit',
         },
       );
-      final response = await http.get(uri);
+      final response = await HttpLogger.get(uri);
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -210,7 +210,7 @@ class StatisticsService {
           if (priority != null) 'priority': priority,
         },
       );
-      final response = await http.get(uri);
+      final response = await HttpLogger.get(uri);
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -234,7 +234,7 @@ class StatisticsService {
           'months': '$months',
         },
       );
-      final response = await http.get(uri);
+      final response = await HttpLogger.get(uri);
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -247,7 +247,7 @@ class StatisticsService {
   // GET /api/Statistics/NextSession/{coachId}
   Future<Map<String, dynamic>?> getNextSession(int coachId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/NextSession/$coachId'),
       );
       if (response.statusCode == 200) {
@@ -262,7 +262,7 @@ class StatisticsService {
   // GET /api/Statistics/CoachTeamsOverview/{coachId}
   Future<Map<String, dynamic>?> getCoachTeamsOverview(int coachId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/CoachTeamsOverview/$coachId'),
       );
       if (response.statusCode == 200) {
@@ -277,7 +277,7 @@ class StatisticsService {
   // GET /api/Statistics/SaremasTeamStats/{teamId}
   Future<Map<String, dynamic>?> getSaremasTeamStats(int teamId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/SaremasTeamStats/$teamId'),
       );
       if (response.statusCode == 200) {
@@ -292,7 +292,7 @@ class StatisticsService {
   // GET /api/Statistics/SaremasAthleteStats/{athleteId}
   Future<Map<String, dynamic>?> getSaremasAthleteStats(int athleteId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/SaremasAthleteStats/$athleteId'),
       );
       if (response.statusCode == 200) {
@@ -307,7 +307,7 @@ class StatisticsService {
   // GET /api/Statistics/MacrocycleProgress/{macrocycleId}
   Future<Map<String, dynamic>?> getMacrocycleProgress(int macrocycleId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/MacrocycleProgress/$macrocycleId'),
       );
       if (response.statusCode == 200) {
@@ -322,7 +322,7 @@ class StatisticsService {
   // GET /api/Statistics/AthleteFullDashboard/{athleteId}
   Future<Map<String, dynamic>?> getAthleteFullDashboard(int athleteId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/AthleteFullDashboard/$athleteId'),
       );
       if (response.statusCode == 200) {

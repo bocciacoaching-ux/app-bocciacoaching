@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
+import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 import '../../data/models/microcycle_type_dto.dart';
 
@@ -12,12 +12,10 @@ class MicrocycleTypeService {
   /// Retorna la lista de tipos de microciclo con sus días y porcentajes.
   Future<List<MicrocycleTypeDto>?> getAll() async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/MicrocycleType/GetAll'),
         headers: {'Content-Type': 'application/json'},
       );
-      debugPrint(
-          '[MicrocycleTypeService] GetAll status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body) as Map<String, dynamic>;
         if (body['success'] == true && body['data'] is List) {

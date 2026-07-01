@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../constants/app_constants.dart';
 import '../errors/app_exception.dart';
+import 'http_logger.dart';
 
 /// Cliente HTTP centralizado para todas las llamadas a la API.
 class ApiClient {
@@ -26,8 +27,7 @@ class ApiClient {
     try {
       final uri = Uri.parse('$_baseUrl$endpoint')
           .replace(queryParameters: queryParams);
-      final response = await http
-          .get(uri, headers: _headers)
+      final response = await HttpLogger.get(uri, headers: _headers)
           .timeout(AppConstants.connectTimeout);
       return _handleResponse(response);
     } on SocketException {
@@ -43,13 +43,11 @@ class ApiClient {
   Future<Map<String, dynamic>> post(String endpoint,
       {Map<String, dynamic>? body}) async {
     try {
-      final response = await http
-          .post(
-            Uri.parse('$_baseUrl$endpoint'),
-            headers: _headers,
-            body: body != null ? jsonEncode(body) : null,
-          )
-          .timeout(AppConstants.connectTimeout);
+      final response = await HttpLogger.post(
+        Uri.parse('$_baseUrl$endpoint'),
+        headers: _headers,
+        body: body != null ? jsonEncode(body) : null,
+      ).timeout(AppConstants.connectTimeout);
       return _handleResponse(response);
     } on SocketException {
       throw NetworkException(
@@ -64,13 +62,11 @@ class ApiClient {
   Future<Map<String, dynamic>> put(String endpoint,
       {Map<String, dynamic>? body}) async {
     try {
-      final response = await http
-          .put(
-            Uri.parse('$_baseUrl$endpoint'),
-            headers: _headers,
-            body: body != null ? jsonEncode(body) : null,
-          )
-          .timeout(AppConstants.connectTimeout);
+      final response = await HttpLogger.put(
+        Uri.parse('$_baseUrl$endpoint'),
+        headers: _headers,
+        body: body != null ? jsonEncode(body) : null,
+      ).timeout(AppConstants.connectTimeout);
       return _handleResponse(response);
     } on SocketException {
       throw NetworkException(
@@ -84,9 +80,10 @@ class ApiClient {
   // ── DELETE ───────────────────────────────────────────────────────
   Future<Map<String, dynamic>> delete(String endpoint) async {
     try {
-      final response = await http
-          .delete(Uri.parse('$_baseUrl$endpoint'), headers: _headers)
-          .timeout(AppConstants.connectTimeout);
+      final response =
+          await HttpLogger.delete(Uri.parse('$_baseUrl$endpoint'),
+                  headers: _headers)
+              .timeout(AppConstants.connectTimeout);
       return _handleResponse(response);
     } on SocketException {
       throw NetworkException(

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 
 class NotificationService {
@@ -8,7 +8,7 @@ class NotificationService {
   // GET /api/Notification/GetTypes
   Future<Map<String, dynamic>?> getTypes() async {
     try {
-      final response = await http.get(Uri.parse('$_base/Notification/GetTypes'));
+      final response = await HttpLogger.get(Uri.parse('$_base/Notification/GetTypes'));
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -21,7 +21,7 @@ class NotificationService {
   // GET /api/Notification/GetType/{id}
   Future<Map<String, dynamic>?> getType(int id) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Notification/GetType/$id'),
       );
       if (response.statusCode == 200) {
@@ -39,7 +39,7 @@ class NotificationService {
     String? description,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Notification/CreateType'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'name': name, 'description': description}),
@@ -61,7 +61,7 @@ class NotificationService {
     bool? status,
   }) async {
     try {
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/Notification/UpdateType'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -83,7 +83,7 @@ class NotificationService {
   // GET /api/Notification/GetMessage/{id}
   Future<Map<String, dynamic>?> getMessage(int id) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Notification/GetMessage/$id'),
       );
       if (response.statusCode == 200) {
@@ -106,7 +106,7 @@ class NotificationService {
     int? referenceId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Notification/CreateMessage'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -140,7 +140,7 @@ class NotificationService {
     int? referenceId,
   }) async {
     try {
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/Notification/UpdateMessage'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -176,7 +176,7 @@ class NotificationService {
           if (pageSize != null) 'pageSize': '$pageSize',
         },
       );
-      final response = await http.get(uri);
+      final response = await HttpLogger.get(uri);
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -199,7 +199,7 @@ class NotificationService {
           if (pageSize != null) 'pageSize': '$pageSize',
         },
       );
-      final response = await http.get(uri);
+      final response = await HttpLogger.get(uri);
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -217,7 +217,7 @@ class NotificationService {
     String? message,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Notification/SendTeamInvitation'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -239,7 +239,7 @@ class NotificationService {
   // PUT /api/Notification/AcceptTeamInvitation/{notificationMessageId}
   Future<Map<String, dynamic>?> acceptTeamInvitation(int notificationMessageId) async {
     try {
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/Notification/AcceptTeamInvitation/$notificationMessageId'),
       );
       if (response.statusCode == 200) {

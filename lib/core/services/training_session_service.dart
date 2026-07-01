@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
+import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 import '../../data/models/training_session.dart';
 
@@ -35,17 +35,11 @@ class TrainingSessionService {
         'totalThrowsBase': totalThrowsBase,
         if (parts != null) 'parts': parts,
       };
-      debugPrint(
-          '[TrainingSessionService] POST Create body: ${jsonEncode(body)}');
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/TrainingSession/Create'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
       );
-      debugPrint(
-          '[TrainingSessionService] Create status: ${response.statusCode}');
-      debugPrint(
-          '[TrainingSessionService] Create response: ${response.body}');
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body) as Map<String, dynamic>;
         if (decoded['success'] == true && decoded['data'] != null) {
@@ -78,7 +72,7 @@ class TrainingSessionService {
   /// Retorna TrainingSessionResponseDtoResponseContract.
   Future<TrainingSession?> getById(int sessionId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/TrainingSession/GetById/$sessionId'),
       );
       if (response.statusCode == 200) {
@@ -100,7 +94,7 @@ class TrainingSessionService {
   Future<List<TrainingSessionSummary>?> getByMicrocycle(
       int microcycleId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/TrainingSession/GetByMicrocycle/$microcycleId'),
       );
       if (response.statusCode == 200) {
@@ -143,7 +137,7 @@ class TrainingSessionService {
         if (totalThrowsBase != null) 'totalThrowsBase': totalThrowsBase,
         if (dayOfWeek != null) 'dayOfWeek': dayOfWeek,
       };
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/TrainingSession/Update'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
@@ -181,7 +175,7 @@ class TrainingSessionService {
   /// Retorna BooleanResponseContract.
   Future<bool> delete(int sessionId) async {
     try {
-      final response = await http.delete(
+      final response = await HttpLogger.delete(
         Uri.parse('$_base/TrainingSession/Delete/$sessionId'),
       );
       if (response.statusCode == 200) {
@@ -217,7 +211,7 @@ class TrainingSessionService {
         if (endTime != null) 'endTime': endTime.toIso8601String(),
         'observation': observation,
       };
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/TrainingSession/AddSection'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
@@ -273,7 +267,7 @@ class TrainingSessionService {
         if (endTime != null) 'endTime': endTime.toIso8601String(),
         'observation': observation,
       };
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/TrainingSession/UpdateSection'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
@@ -312,7 +306,7 @@ class TrainingSessionService {
   /// Retorna BooleanResponseContract.
   Future<bool> deleteSection(int sectionId) async {
     try {
-      final response = await http.delete(
+      final response = await HttpLogger.delete(
         Uri.parse('$_base/TrainingSession/DeleteSection/$sectionId'),
       );
       if (response.statusCode == 200) {
@@ -345,15 +339,11 @@ class TrainingSessionService {
         'startDate': startDate.toIso8601String(),
         'endDate': endDate.toIso8601String(),
       };
-      debugPrint(
-          '[TrainingSessionService] POST Athlete/GetSessionsByDateRange body: ${jsonEncode(body)}');
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/TrainingSession/Athlete/GetSessionsByDateRange'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
       );
-      debugPrint(
-          '[TrainingSessionService] GetSessionsByDateRange status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body) as Map<String, dynamic>;
         if (decoded['success'] == true && decoded['data'] is List) {
@@ -379,12 +369,10 @@ class TrainingSessionService {
     required int athleteId,
   }) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse(
             '$_base/TrainingSession/Athlete/GetSessionDetail/$sessionId/$athleteId'),
       );
-      debugPrint(
-          '[TrainingSessionService] GetSessionDetail status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body) as Map<String, dynamic>;
         if (decoded['success'] == true && decoded['data'] != null) {
@@ -413,15 +401,11 @@ class TrainingSessionService {
         'trainingSessionId': trainingSessionId,
         'athleteId': athleteId,
       };
-      debugPrint(
-          '[TrainingSessionService] PUT Athlete/StartSession body: ${jsonEncode(body)}');
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/TrainingSession/Athlete/StartSession'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
       );
-      debugPrint(
-          '[TrainingSessionService] StartSession status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body) as Map<String, dynamic>;
         if (decoded['success'] == true && decoded['data'] != null) {
@@ -449,15 +433,11 @@ class TrainingSessionService {
         'trainingSessionId': trainingSessionId,
         'athleteId': athleteId,
       };
-      debugPrint(
-          '[TrainingSessionService] PUT Athlete/FinishSession body: ${jsonEncode(body)}');
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/TrainingSession/Athlete/FinishSession'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
       );
-      debugPrint(
-          '[TrainingSessionService] FinishSession status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body) as Map<String, dynamic>;
         if (decoded['success'] == true && decoded['data'] != null) {

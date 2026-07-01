@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
+import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 import '../../data/models/macrocycle.dart';
 import '../../data/models/macrocycle_summary.dart';
@@ -42,14 +42,11 @@ class MacrocycleService {
         if (mesocycles != null) 'mesocycles': mesocycles,
         if (microcycles != null) 'microcycles': microcycles,
       };
-      debugPrint('[MacrocycleService] POST Create body: ${jsonEncode(body)}');
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Macrocycle/Create'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
       );
-      debugPrint('[MacrocycleService] Create status: ${response.statusCode}');
-      debugPrint('[MacrocycleService] Create response: ${response.body}');
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
@@ -64,7 +61,7 @@ class MacrocycleService {
   /// Retorna MacrocycleSummaryDtoListResponseContract.
   Future<List<MacrocycleSummaryDto>?> getByAthlete(int athleteId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Macrocycle/GetByAthlete/$athleteId'),
       );
       if (response.statusCode == 200) {
@@ -86,7 +83,7 @@ class MacrocycleService {
   /// Retorna MacrocycleSummaryDtoListResponseContract.
   Future<List<MacrocycleSummaryDto>?> getByTeam(int teamId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Macrocycle/GetByTeam/$teamId'),
       );
       if (response.statusCode == 200) {
@@ -108,7 +105,7 @@ class MacrocycleService {
   /// macrocycleId es String. Retorna MacrocycleResponseDtoResponseContract.
   Future<Macrocycle?> getById(String macrocycleId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Macrocycle/GetById/$macrocycleId'),
       );
       if (response.statusCode == 200) {
@@ -139,7 +136,7 @@ class MacrocycleService {
     List<Map<String, dynamic>>? events,
   }) async {
     try {
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/Macrocycle/Update'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -168,7 +165,7 @@ class MacrocycleService {
   /// macrocycleId es String. Retorna BooleanResponseContract.
   Future<Map<String, dynamic>?> delete(String macrocycleId) async {
     try {
-      final response = await http.delete(
+      final response = await HttpLogger.delete(
         Uri.parse('$_base/Macrocycle/Delete/$macrocycleId'),
       );
       if (response.statusCode == 200) {
@@ -193,7 +190,7 @@ class MacrocycleService {
     String? notes,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Macrocycle/AddEvent'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -229,7 +226,7 @@ class MacrocycleService {
     String? notes,
   }) async {
     try {
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/Macrocycle/UpdateEvent'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -256,7 +253,7 @@ class MacrocycleService {
   /// eventId es String. Retorna MacrocycleResponseDtoResponseContract.
   Future<Map<String, dynamic>?> deleteEvent(String eventId) async {
     try {
-      final response = await http.delete(
+      final response = await HttpLogger.delete(
         Uri.parse('$_base/Macrocycle/DeleteEvent/$eventId'),
       );
       if (response.statusCode == 200) {
@@ -281,7 +278,7 @@ class MacrocycleService {
     Map<String, dynamic>? trainingDistribution,
   }) async {
     try {
-      final response = await http.put(
+      final response = await HttpLogger.put(
         Uri.parse('$_base/Macrocycle/UpdateMicrocycle'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -307,7 +304,7 @@ class MacrocycleService {
   /// Retorna MacrocycleSummaryDtoListResponseContract.
   Future<List<MacrocycleSummaryDto>?> getCoachMacrocycles(int coachId) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Macrocycle/GetCoachMacrocycles/$coachId'),
       );
       if (response.statusCode == 200) {
@@ -336,7 +333,7 @@ class MacrocycleService {
     DateTime? newStartDate,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Macrocycle/Duplicate/$macrocycleId'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({

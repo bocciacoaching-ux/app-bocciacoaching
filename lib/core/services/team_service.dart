@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 import '../../data/models/team.dart';
 import '../../data/models/team_member.dart';
@@ -23,7 +23,7 @@ class TeamService {
     String? region,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Team/AddNewTeam'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -57,7 +57,7 @@ class TeamService {
     required DateTime dateCreation,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Team/AddNewTeamMember'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -78,7 +78,7 @@ class TeamService {
   // GET /api/Team/GetTeamsForUser/{coachId}
   Future<List<Team>?> getTeamsForUser({required int coachId}) async {
     try {
-      final response = await http.get(
+      final response = await HttpLogger.get(
         Uri.parse('$_base/Team/GetTeamsForUser/$coachId'),
         headers: {'Content-Type': 'application/json'},
       );
@@ -102,7 +102,7 @@ class TeamService {
     required int rolId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Team/GetUsersForTeam'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'teamId': teamId, 'rolId': rolId}),
@@ -133,7 +133,7 @@ class TeamService {
     String? region,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Team/UpdateTeam'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -162,7 +162,7 @@ class TeamService {
     required int teamId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await HttpLogger.post(
         Uri.parse('$_base/Team/GetRecentStatistics'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'coachId': coachId, 'teamId': teamId}),
