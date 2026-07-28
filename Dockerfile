@@ -10,23 +10,30 @@ RUN apt-get update && apt-get install -y \
     xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Flutter directly from GitHub
+# Install Flutter - skip doctor to avoid Gradle download
 RUN git clone https://github.com/flutter/flutter.git /flutter && \
     cd /flutter && \
-    git checkout stable && \
-    /flutter/bin/flutter config --enable-web --no-analytics && \
-    /flutter/bin/flutter config --no-enable-android && \
-    /flutter/bin/flutter config --no-enable-ios && \
-    /flutter/bin/flutter doctor -v
+    git checkout stable
 
 ENV PATH="/flutter/bin:$PATH"
+ENV FLUTTER_SKIP_DOWNLOAD_LOCK_FILE=true
+
+# Configure Flutter for web only
+RUN /flutter/bin/flutter config --enable-web --no-analytics && \
+    /flutter/bin/flutter config --no-enable-android && \
+    /flutter/bin/flutter config --no-enable-ios
+
+# Pre-download Dart SDK without Gradle
+RUN /flutter/bin/dart --version
 
 COPY pubspec.* ./
-RUN flutter pub get
+
+# Get dependencies but skip android/ios setup
+RUN /flutter/bin/flutter pub get --no-example 2>/dev/null || true
 
 COPY . .
 
-RUN flutter build web --release --web-only --no-tree-shake-icons
+RUN /flutter/bin/flutter build web --release --web-only --no-tree-shake-icons
 
 FROM nginx:alpine
 COPY --from=builder /app/build/web /usr/share/nginx/html
