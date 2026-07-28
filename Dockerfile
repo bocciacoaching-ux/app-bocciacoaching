@@ -18,6 +18,9 @@ RUN git clone https://github.com/flutter/flutter.git /flutter && \
 ENV PATH="/flutter/bin:$PATH"
 ENV FLUTTER_SKIP_DOWNLOAD_LOCK_FILE=true
 
+# Mark flutter dir as safe for git (running as root)
+RUN git config --global --add safe.directory /flutter
+
 # Configure Flutter for web only
 RUN /flutter/bin/flutter config --enable-web --no-analytics && \
     /flutter/bin/flutter config --no-enable-android && \
@@ -33,7 +36,7 @@ RUN /flutter/bin/flutter pub get --no-example 2>/dev/null || true
 
 COPY . .
 
-RUN /flutter/bin/flutter build web --release --web-only --no-tree-shake-icons
+RUN /flutter/bin/flutter build web --release --no-tree-shake-icons
 
 FROM nginx:alpine
 COPY --from=builder /app/build/web /usr/share/nginx/html
