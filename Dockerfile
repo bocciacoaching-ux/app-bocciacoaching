@@ -2,10 +2,17 @@ FROM google/dart:latest as builder
 
 WORKDIR /app
 
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install Flutter
 RUN git clone https://github.com/flutter/flutter.git /flutter && \
     /flutter/bin/flutter config --enable-web && \
-    /flutter/bin/flutter precache --web
+    /flutter/bin/flutter doctor
 
 ENV PATH="/flutter/bin:$PATH"
 
