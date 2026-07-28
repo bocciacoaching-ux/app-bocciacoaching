@@ -10,18 +10,11 @@ RUN apt-get update && apt-get install -y \
     xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Dart
-RUN curl https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    echo "deb https://storage.googleapis.com/download.dartlang.org/linux/debian stable main" > /etc/apt/sources.list.d/dart_stable.list && \
-    apt-get update && apt-get install -y dart && \
-    rm -rf /var/lib/apt/lists/*
-
-ENV PATH="/usr/lib/dart/bin:$PATH"
-
-# Install Flutter
+# Install Flutter directly from GitHub
 RUN git clone https://github.com/flutter/flutter.git /flutter && \
-    /flutter/bin/flutter config --enable-web && \
-    /flutter/bin/flutter doctor
+    cd /flutter && \
+    git checkout stable && \
+    /flutter/bin/flutter config --enable-web --no-analytics
 
 ENV PATH="/flutter/bin:$PATH"
 
