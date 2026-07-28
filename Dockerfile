@@ -16,10 +16,7 @@ RUN git clone https://github.com/flutter/flutter.git /flutter && \
     git checkout stable && \
     /flutter/bin/flutter config --enable-web --no-analytics && \
     /flutter/bin/flutter config --no-enable-android && \
-    /flutter/bin/flutter config --no-enable-ios && \
-    /flutter/bin/flutter config --no-enable-macos && \
-    /flutter/bin/flutter config --no-enable-windows && \
-    /flutter/bin/flutter config --no-enable-linux
+    /flutter/bin/flutter config --no-enable-ios
 
 ENV PATH="/flutter/bin:$PATH"
 
