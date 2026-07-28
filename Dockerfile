@@ -18,16 +18,25 @@ RUN git clone https://github.com/flutter/flutter.git /flutter && \
 ENV PATH="/flutter/bin:$PATH"
 ENV FLUTTER_SKIP_DOWNLOAD_LOCK_FILE=true
 
+# Prevent tar from trying to preserve ownership (fails in rootless/BuildKit envs)
+ENV TAR_OPTIONS="--no-same-owner"
+
 # Mark flutter dir as safe for git (running as root)
 RUN git config --global --add safe.directory /flutter
 
 # Configure Flutter for web only
 RUN /flutter/bin/flutter config --enable-web --no-analytics && \
     /flutter/bin/flutter config --no-enable-android && \
-    /flutter/bin/flutter config --no-enable-ios
+    /flutter/bin/flutter config --no-enable-ios && \
+    /flutter/bin/flutter config --no-enable-linux-desktop && \
+    /flutter/bin/flutter config --no-enable-macos-desktop && \
+    /flutter/bin/flutter config --no-enable-windows-desktop
 
 # Pre-download Dart SDK without Gradle
 RUN /flutter/bin/dart --version
+
+# Precache only the web artifacts to avoid downloading Android/Gradle wrapper
+RUN /flutter/bin/flutter precache --web --no-android --no-ios --no-linux --no-macos --no-windows --no-fuchsia
 
 COPY pubspec.* ./
 
