@@ -16,14 +16,17 @@ RUN git clone https://github.com/flutter/flutter.git /flutter && \
     git checkout stable && \
     /flutter/bin/flutter config --enable-web --no-analytics && \
     /flutter/bin/flutter config --no-enable-android && \
-    /flutter/bin/flutter config --no-enable-ios
+    /flutter/bin/flutter config --no-enable-ios && \
+    /flutter/bin/flutter doctor -v
 
 ENV PATH="/flutter/bin:$PATH"
 
+COPY pubspec.* ./
+RUN flutter pub get
+
 COPY . .
 
-RUN flutter pub get
-RUN flutter build web --release --web-only
+RUN flutter build web --release --web-only --no-tree-shake-icons
 
 FROM nginx:alpine
 COPY --from=builder /app/build/web /usr/share/nginx/html
