@@ -14,14 +14,19 @@ RUN apt-get update && apt-get install -y \
 RUN git clone https://github.com/flutter/flutter.git /flutter && \
     cd /flutter && \
     git checkout stable && \
-    /flutter/bin/flutter config --enable-web --no-analytics
+    /flutter/bin/flutter config --enable-web --no-analytics && \
+    /flutter/bin/flutter config --no-enable-android && \
+    /flutter/bin/flutter config --no-enable-ios && \
+    /flutter/bin/flutter config --no-enable-macos && \
+    /flutter/bin/flutter config --no-enable-windows && \
+    /flutter/bin/flutter config --no-enable-linux
 
 ENV PATH="/flutter/bin:$PATH"
 
 COPY . .
 
 RUN flutter pub get
-RUN flutter build web --release
+RUN flutter build web --release --web-only
 
 FROM nginx:alpine
 COPY --from=builder /app/build/web /usr/share/nginx/html
