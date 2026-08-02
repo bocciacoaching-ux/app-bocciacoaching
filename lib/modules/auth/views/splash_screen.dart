@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../core/services/biometric_service.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/navigation_helper.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -50,28 +49,17 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      backgroundColor: const Color(0xFFD6E4EE),
+      body: SizedBox(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.headerGradientTop,
-              AppColors.headerGradientBottom,
-            ],
-          ),
-        ),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 48),
             child: Image.asset(
-              'assets/images/isologo-horizontal.png',
-              height: 90,
+              'assets/images/splash_logo.png',
+              width: 260,
               fit: BoxFit.contain,
-              color: AppColors.white,
-              colorBlendMode: BlendMode.srcIn,
             ),
           ),
         ),
