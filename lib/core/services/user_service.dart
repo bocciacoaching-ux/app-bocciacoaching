@@ -21,6 +21,7 @@ class UserService {
 
   // POST /api/User/AddInfoUser
   Future<Map<String, dynamic>?> addInfoUser({
+    String? name,
     String? email,
     String? region,
     String? password,
@@ -32,8 +33,9 @@ class UserService {
         Uri.parse('$_base/User/AddInfoUser'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
+          'name': name,
           'email': email,
-          'region': region,
+          if (region != null && region.isNotEmpty) 'region': region,
           'password': password,
           'rol': rol,
           'category': category,

@@ -21,8 +21,14 @@ class EmailService {
           'minutesValid': minutesValid,
         }),
       );
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body) as List<dynamic>;
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        try {
+          final decoded = jsonDecode(response.body);
+          if (decoded is List) return decoded;
+          return [decoded];
+        } catch (_) {
+          return <dynamic>[];
+        }
       }
       return null;
     } catch (_) {
@@ -46,8 +52,14 @@ class EmailService {
           'minutesValid': minutesValid,
         }),
       );
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body) as List<dynamic>;
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        try {
+          final decoded = jsonDecode(response.body);
+          if (decoded is List) return decoded;
+          return [decoded];
+        } catch (_) {
+          return <dynamic>[];
+        }
       }
       return null;
     } catch (_) {
