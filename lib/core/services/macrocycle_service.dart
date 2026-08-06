@@ -16,14 +16,14 @@ class MacrocycleService {
   /// Crea un macrociclo completo (con events, mesocycles, microcycles).
   /// Retorna MacrocycleResponseDtoResponseContract.
   Future<Map<String, dynamic>?> create({
-    required int athleteId,
+    required String athleteId,
     String? athleteName,
     required String name,
     required DateTime startDate,
     required DateTime endDate,
     String? notes,
-    required int coachId,
-    required int teamId,
+    required String coachId,
+    required String teamId,
     List<Map<String, dynamic>>? events,
     List<Map<String, dynamic>>? mesocycles,
     List<Map<String, dynamic>>? microcycles,
@@ -59,7 +59,7 @@ class MacrocycleService {
 
   // ─── GET /api/Macrocycle/GetByAthlete/{athleteId} ───────────────
   /// Retorna MacrocycleSummaryDtoListResponseContract.
-  Future<List<MacrocycleSummaryDto>?> getByAthlete(int athleteId) async {
+  Future<List<MacrocycleSummaryDto>?> getByAthlete(String athleteId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Macrocycle/GetByAthlete/$athleteId'),
@@ -81,7 +81,7 @@ class MacrocycleService {
 
   // ─── GET /api/Macrocycle/GetByTeam/{teamId} ─────────────────────
   /// Retorna MacrocycleSummaryDtoListResponseContract.
-  Future<List<MacrocycleSummaryDto>?> getByTeam(int teamId) async {
+  Future<List<MacrocycleSummaryDto>?> getByTeam(String teamId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Macrocycle/GetByTeam/$teamId'),
@@ -125,14 +125,14 @@ class MacrocycleService {
   /// macrocycleId es String. Puede incluir events.
   Future<Map<String, dynamic>?> update({
     required String macrocycleId,
-    required int athleteId,
+    required String athleteId,
     String? athleteName,
     required String name,
     required DateTime startDate,
     required DateTime endDate,
     String? notes,
-    required int coachId,
-    required int teamId,
+    required String coachId,
+    required String teamId,
     List<Map<String, dynamic>>? events,
   }) async {
     try {
@@ -271,7 +271,7 @@ class MacrocycleService {
   /// trainingDistribution.
   /// Retorna BooleanResponseContract.
   Future<Map<String, dynamic>?> updateMicrocycle({
-    required int microcycleId,
+    required String microcycleId,
     required String macrocycleId,
     String? type,
     bool? hasPeakPerformance,
@@ -302,7 +302,7 @@ class MacrocycleService {
 
   // ─── GET /api/Macrocycle/GetCoachMacrocycles/{coachId} ──────────
   /// Retorna MacrocycleSummaryDtoListResponseContract.
-  Future<List<MacrocycleSummaryDto>?> getCoachMacrocycles(int coachId) async {
+  Future<List<MacrocycleSummaryDto>?> getCoachMacrocycles(String coachId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Macrocycle/GetCoachMacrocycles/$coachId'),

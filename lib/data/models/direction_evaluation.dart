@@ -3,14 +3,14 @@ import 'direction_statistics.dart';
 
 /// Resumen de una evaluación de dirección.
 class DirectionEvaluationSummaryDto {
-  final int assessDirectionId;
+  final String assessDirectionId;
   final String evaluationDate;
   final String? description;
   final String? state;
   final String? stateName;
-  final int teamId;
+  final String teamId;
   final String? teamName;
-  final int coachId;
+  final String coachId;
   final String? coachName;
   final int athletesCount;
   final int throwsCount;
@@ -35,14 +35,14 @@ class DirectionEvaluationSummaryDto {
 
   factory DirectionEvaluationSummaryDto.fromJson(Map<String, dynamic> json) {
     return DirectionEvaluationSummaryDto(
-      assessDirectionId: (json['assessDirectionId'] as num?)?.toInt() ?? 0,
+      assessDirectionId: json['assessDirectionId'] as String? ?? '',
       evaluationDate: json['evaluationDate'] as String? ?? '',
       description: json['description'] as String?,
       state: json['state'] as String?,
       stateName: json['stateName'] as String?,
-      teamId: (json['teamId'] as num?)?.toInt() ?? 0,
+      teamId: json['teamId'] as String? ?? '',
       teamName: json['teamName'] as String?,
-      coachId: (json['coachId'] as num?)?.toInt() ?? 0,
+      coachId: json['coachId'] as String? ?? '',
       coachName: json['coachName'] as String?,
       athletesCount: (json['athletesCount'] as num?)?.toInt() ?? 0,
       throwsCount: (json['throwsCount'] as num?)?.toInt() ?? 0,
@@ -70,14 +70,14 @@ class DirectionEvaluationSummaryDto {
 
 /// Detalle completo de una evaluación de dirección.
 class DirectionEvaluationDetailsDto {
-  final int assessDirectionId;
+  final String assessDirectionId;
   final String evaluationDate;
   final String? description;
   final String? state;
   final String? stateName;
-  final int teamId;
+  final String teamId;
   final String? teamName;
-  final int coachId;
+  final String coachId;
   final String? coachName;
   final String? coachEmail;
   final String? createdAt;
@@ -106,14 +106,14 @@ class DirectionEvaluationDetailsDto {
 
   factory DirectionEvaluationDetailsDto.fromJson(Map<String, dynamic> json) {
     return DirectionEvaluationDetailsDto(
-      assessDirectionId: (json['assessDirectionId'] as num?)?.toInt() ?? 0,
+      assessDirectionId: json['assessDirectionId'] as String? ?? '',
       evaluationDate: json['evaluationDate'] as String? ?? '',
       description: json['description'] as String?,
       state: json['state'] as String?,
       stateName: json['stateName'] as String?,
-      teamId: (json['teamId'] as num?)?.toInt() ?? 0,
+      teamId: json['teamId'] as String? ?? '',
       teamName: json['teamName'] as String?,
-      coachId: (json['coachId'] as num?)?.toInt() ?? 0,
+      coachId: json['coachId'] as String? ?? '',
       coachName: json['coachName'] as String?,
       coachEmail: json['coachEmail'] as String?,
       createdAt: json['createdAt'] as String?,

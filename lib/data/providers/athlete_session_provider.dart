@@ -61,7 +61,7 @@ class AthleteSessionProvider extends ChangeNotifier {
 
   /// Carga las sesiones planificadas para un atleta en un rango de
   /// fechas amplio (por defecto, ±6 meses desde hoy).
-  Future<void> loadAthletesSessions(int athleteId, {
+  Future<void> loadAthletesSessions(String athleteId, {
     DateTime? startDate,
     DateTime? endDate,
   }) async {
@@ -101,8 +101,8 @@ class AthleteSessionProvider extends ChangeNotifier {
 
   /// Un atleta inicia una sesión de entrenamiento.
   Future<bool> startSession({
-    required int trainingSessionId,
-    required int athleteId,
+    required String trainingSessionId,
+    required String athleteId,
   }) async {
     try {
       final result = await _sessionService.athleteStartSession(
@@ -123,8 +123,8 @@ class AthleteSessionProvider extends ChangeNotifier {
 
   /// Un atleta finaliza una sesión de entrenamiento.
   Future<bool> finishSession({
-    required int trainingSessionId,
-    required int athleteId,
+    required String trainingSessionId,
+    required String athleteId,
   }) async {
     try {
       final result = await _sessionService.athleteFinishSession(

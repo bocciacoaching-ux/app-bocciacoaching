@@ -5,8 +5,8 @@ class EvaluationThrow {
   final int scoreObtained;
   final String observations;
   final bool status;
-  final int athleteId;
-  final int assessStrengthId;
+  final String athleteId;
+  final String assessStrengthId;
   final double coordinateX;
   final double coordinateY;
 

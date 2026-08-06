@@ -11,7 +11,7 @@ import '../../../data/providers/training_session_provider.dart';
 /// hora inicio/fin, observación y (en edición) estado.
 class SectionFormScreen extends StatefulWidget {
   /// ID de la parte de sesión a la que pertenece la sección.
-  final int sessionPartId;
+  final String sessionPartId;
 
   /// Nombre de la parte (para mostrar en header, ej. "Propulsion").
   final String? partName;

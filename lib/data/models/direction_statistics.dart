@@ -1,8 +1,8 @@
 /// Estadísticas de un atleta en una evaluación de dirección.
 class DirectionAthleteStatisticsDto {
-  final int athleteId;
+  final String athleteId;
   final String athleteName;
-  final int assessDirectionId;
+  final String assessDirectionId;
   final String evaluationDate;
   final double effectivenessPercentage;
   final double accuracyPercentage;
@@ -66,9 +66,9 @@ class DirectionAthleteStatisticsDto {
 
   factory DirectionAthleteStatisticsDto.fromJson(Map<String, dynamic> json) {
     return DirectionAthleteStatisticsDto(
-      athleteId: (json['athleteId'] as num?)?.toInt() ?? 0,
+      athleteId: json['athleteId'] as String? ?? '',
       athleteName: json['athleteName'] as String? ?? '',
-      assessDirectionId: (json['assessDirectionId'] as num?)?.toInt() ?? 0,
+      assessDirectionId: json['assessDirectionId'] as String? ?? '',
       evaluationDate: json['evaluationDate'] as String? ?? '',
       effectivenessPercentage:
           (json['effectivenessPercentage'] as num?)?.toDouble() ?? 0.0,

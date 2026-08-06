@@ -2,9 +2,9 @@ import 'active_evaluation.dart';
 
 /// Estadísticas de un atleta en una evaluación de fuerza.
 class AthleteStatisticsDto {
-  final int athleteId;
+  final String athleteId;
   final String athleteName;
-  final int assessStrengthId;
+  final String assessStrengthId;
   final String evaluationDate;
   final double effectivenessPercentage;
   final double accuracyPercentage;
@@ -48,9 +48,9 @@ class AthleteStatisticsDto {
 
   factory AthleteStatisticsDto.fromJson(Map<String, dynamic> json) {
     return AthleteStatisticsDto(
-      athleteId: (json['athleteId'] as num?)?.toInt() ?? 0,
+      athleteId: json['athleteId'] as String? ?? '',
       athleteName: json['athleteName'] as String? ?? '',
-      assessStrengthId: (json['assessStrengthId'] as num?)?.toInt() ?? 0,
+      assessStrengthId: json['assessStrengthId'] as String? ?? '',
       evaluationDate: json['evaluationDate'] as String? ?? '',
       effectivenessPercentage:
           (json['effectivenessPercentage'] as num?)?.toDouble() ?? 0.0,
@@ -105,14 +105,14 @@ class AthleteStatisticsDto {
 
 /// Resumen de una evaluación de fuerza.
 class EvaluationSummaryDto {
-  final int assessStrengthId;
+  final String assessStrengthId;
   final String evaluationDate;
   final String? description;
   final String? state;
   final String? stateName;
-  final int teamId;
+  final String teamId;
   final String? teamName;
-  final int coachId;
+  final String coachId;
   final String? coachName;
   final int athletesCount;
   final int throwsCount;
@@ -137,14 +137,14 @@ class EvaluationSummaryDto {
 
   factory EvaluationSummaryDto.fromJson(Map<String, dynamic> json) {
     return EvaluationSummaryDto(
-      assessStrengthId: (json['assessStrengthId'] as num?)?.toInt() ?? 0,
+      assessStrengthId: json['assessStrengthId'] as String? ?? '',
       evaluationDate: json['evaluationDate'] as String? ?? '',
       description: json['description'] as String?,
       state: json['state'] as String?,
       stateName: json['stateName'] as String?,
-      teamId: (json['teamId'] as num?)?.toInt() ?? 0,
+      teamId: json['teamId'] as String? ?? '',
       teamName: json['teamName'] as String?,
-      coachId: (json['coachId'] as num?)?.toInt() ?? 0,
+      coachId: json['coachId'] as String? ?? '',
       coachName: json['coachName'] as String?,
       athletesCount: (json['athletesCount'] as num?)?.toInt() ?? 0,
       throwsCount: (json['throwsCount'] as num?)?.toInt() ?? 0,
@@ -172,14 +172,14 @@ class EvaluationSummaryDto {
 
 /// Detalle completo de una evaluación de fuerza.
 class EvaluationDetailsDto {
-  final int assessStrengthId;
+  final String assessStrengthId;
   final String evaluationDate;
   final String? description;
   final String? state;
   final String? stateName;
-  final int teamId;
+  final String teamId;
   final String? teamName;
-  final int coachId;
+  final String coachId;
   final String? coachName;
   final String? coachEmail;
   final String? createdAt;
@@ -208,14 +208,14 @@ class EvaluationDetailsDto {
 
   factory EvaluationDetailsDto.fromJson(Map<String, dynamic> json) {
     return EvaluationDetailsDto(
-      assessStrengthId: (json['assessStrengthId'] as num?)?.toInt() ?? 0,
+      assessStrengthId: json['assessStrengthId'] as String? ?? '',
       evaluationDate: json['evaluationDate'] as String? ?? '',
       description: json['description'] as String?,
       state: json['state'] as String?,
       stateName: json['stateName'] as String?,
-      teamId: (json['teamId'] as num?)?.toInt() ?? 0,
+      teamId: json['teamId'] as String? ?? '',
       teamName: json['teamName'] as String?,
-      coachId: (json['coachId'] as num?)?.toInt() ?? 0,
+      coachId: json['coachId'] as String? ?? '',
       coachName: json['coachName'] as String?,
       coachEmail: json['coachEmail'] as String?,
       createdAt: json['createdAt'] as String?,

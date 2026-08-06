@@ -2,12 +2,12 @@
 ///
 /// Responde al endpoint GET /api/AssessSaremas/GetTeamEvaluations/{teamId}.
 class SaremasEvaluationSummaryDto {
-  final int saremasEvalId;
+  final String saremasEvalId;
   final DateTime evaluationDate;
   final String? description;
-  final int teamId;
+  final String teamId;
   final String? teamName;
-  final int coachId;
+  final String coachId;
   final String? coachName;
   final String? state;
   final int athleteCount;
@@ -28,12 +28,12 @@ class SaremasEvaluationSummaryDto {
 
   factory SaremasEvaluationSummaryDto.fromJson(Map<String, dynamic> json) {
     return SaremasEvaluationSummaryDto(
-      saremasEvalId: json['saremasEvalId'] as int,
+      saremasEvalId: json['saremasEvalId'] as String,
       evaluationDate: DateTime.parse(json['evaluationDate'] as String),
       description: json['description'] as String?,
-      teamId: json['teamId'] as int,
+      teamId: json['teamId'] as String,
       teamName: json['teamName'] as String?,
-      coachId: json['coachId'] as int,
+      coachId: json['coachId'] as String,
       coachName: json['coachName'] as String?,
       state: json['state'] as String?,
       athleteCount: json['athleteCount'] as int? ?? 0,

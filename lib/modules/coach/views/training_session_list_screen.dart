@@ -510,7 +510,7 @@ class _TrainingSessionListScreenState
     });
   }
 
-  void _navigateToDetail(int sessionId) {
+  void _navigateToDetail(String sessionId) {
     Navigator.of(context).pushNamed(
       AppRoutes.trainingSessionDetail,
       arguments: sessionId,

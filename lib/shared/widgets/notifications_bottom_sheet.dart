@@ -8,7 +8,7 @@ import '../../data/providers/session_provider.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers de icono / color según tipo de notificación
 // ─────────────────────────────────────────────────────────────────────────────
-IconData _iconForType(int typeId, String? typeName) {
+IconData _iconForType(String typeId, String? typeName) {
   final name = (typeName ?? '').toLowerCase();
   if (name.contains('invit')) return Icons.group_add_outlined;
   if (name.contains('entrena') || name.contains('sesión')) {
@@ -37,7 +37,7 @@ IconData _iconForType(int typeId, String? typeName) {
   }
 }
 
-Color _colorForType(int typeId, String? typeName) {
+Color _colorForType(String typeId, String? typeName) {
   final name = (typeName ?? '').toLowerCase();
   if (name.contains('invit')) return AppColors.info;
   if (name.contains('entrena') || name.contains('sesión')) {

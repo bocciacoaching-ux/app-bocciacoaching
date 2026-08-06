@@ -27,8 +27,8 @@ enum SessionSectionStatus {
 /// Contiene nombre, número de lanzamientos, estado, si es diagonal propia
 /// o del rival, horarios e información de observación.
 class SessionSection {
-  final int? sessionSectionId;
-  final int sessionPartId;
+  final String? sessionSectionId;
+  final String sessionPartId;
   final String? name;
   final int numberOfThrows;
   final String? status;
@@ -54,8 +54,8 @@ class SessionSection {
   });
 
   SessionSection copyWith({
-    int? sessionSectionId,
-    int? sessionPartId,
+    String? sessionSectionId,
+    String? sessionPartId,
     String? name,
     int? numberOfThrows,
     String? status,
@@ -121,8 +121,8 @@ class SessionSection {
 
   factory SessionSection.fromJson(Map<String, dynamic> json) {
     return SessionSection(
-      sessionSectionId: json['sessionSectionId'] as int?,
-      sessionPartId: json['sessionPartId'] as int? ?? 0,
+      sessionSectionId: json['sessionSectionId'] as String?,
+      sessionPartId: json['sessionPartId'] as String? ?? '',
       name: json['name'] as String?,
       numberOfThrows: json['numberOfThrows'] as int? ?? 0,
       status: json['status'] as String?,
@@ -164,7 +164,7 @@ enum SessionPartType {
 /// Una sesión se divide en 4 partes: Propulsion, Saremas, 2x1 y
 /// Escenarios de juego. Cada parte contiene múltiples secciones.
 class SessionPart {
-  final int? sessionPartId;
+  final String? sessionPartId;
   final String? name;
   final int order;
   final DateTime? createdAt;
@@ -183,7 +183,7 @@ class SessionPart {
       sections.fold(0, (sum, s) => sum + s.numberOfThrows);
 
   SessionPart copyWith({
-    int? sessionPartId,
+    String? sessionPartId,
     String? name,
     int? order,
     DateTime? createdAt,
@@ -223,7 +223,7 @@ class SessionPart {
 
   factory SessionPart.fromJson(Map<String, dynamic> json) {
     return SessionPart(
-      sessionPartId: json['sessionPartId'] as int?,
+      sessionPartId: json['sessionPartId'] as String?,
       name: json['name'] as String?,
       order: json['order'] as int? ?? 0,
       createdAt: json['createdAt'] != null
@@ -276,8 +276,8 @@ enum DayOfWeek {
 /// El máximo de lanzamientos se calcula como:
 /// `maxThrows = (throwPercentage / 100) * totalThrowsBase`
 class TrainingSession {
-  final int? trainingSessionId;
-  final int microcycleId;
+  final String? trainingSessionId;
+  final String microcycleId;
   final String? dayOfWeek;
   final int duration;
   final String? status;
@@ -334,8 +334,8 @@ class TrainingSession {
       ];
 
   TrainingSession copyWith({
-    int? trainingSessionId,
-    int? microcycleId,
+    String? trainingSessionId,
+    String? microcycleId,
     String? dayOfWeek,
     int? duration,
     String? status,
@@ -419,8 +419,8 @@ class TrainingSession {
 
   factory TrainingSession.fromJson(Map<String, dynamic> json) {
     return TrainingSession(
-      trainingSessionId: json['trainingSessionId'] as int?,
-      microcycleId: json['microcycleId'] as int? ?? 0,
+      trainingSessionId: json['trainingSessionId'] as String?,
+      microcycleId: json['microcycleId'] as String? ?? '',
       dayOfWeek: json['dayOfWeek'] as String?,
       duration: json['duration'] as int? ?? 0,
       status: json['status'] as String?,
@@ -462,8 +462,8 @@ class TrainingSession {
 /// Se usa en listas y vistas previas donde no se necesita el detalle
 /// completo de partes y secciones.
 class TrainingSessionSummary {
-  final int trainingSessionId;
-  final int microcycleId;
+  final String trainingSessionId;
+  final String microcycleId;
   final String? dayOfWeek;
   final int duration;
   final String? status;
@@ -501,8 +501,8 @@ class TrainingSessionSummary {
 
   factory TrainingSessionSummary.fromJson(Map<String, dynamic> json) {
     return TrainingSessionSummary(
-      trainingSessionId: json['trainingSessionId'] as int? ?? 0,
-      microcycleId: json['microcycleId'] as int? ?? 0,
+      trainingSessionId: json['trainingSessionId'] as String? ?? '',
+      microcycleId: json['microcycleId'] as String? ?? '',
       dayOfWeek: json['dayOfWeek'] as String?,
       duration: json['duration'] as int? ?? 0,
       status: json['status'] as String?,
@@ -528,8 +528,8 @@ class TrainingSessionSummary {
 /// calculadas por el backend. Se obtiene vía
 /// `POST /api/TrainingSession/Athlete/GetSessionsByDateRange`.
 class AthleteSessionSummary {
-  final int trainingSessionId;
-  final int microcycleId;
+  final String trainingSessionId;
+  final String microcycleId;
   final String? macrocycleName;
   final int microcycleNumber;
   final DateTime? microcycleStartDate;
@@ -596,8 +596,8 @@ class AthleteSessionSummary {
 
   factory AthleteSessionSummary.fromJson(Map<String, dynamic> json) {
     return AthleteSessionSummary(
-      trainingSessionId: json['trainingSessionId'] as int? ?? 0,
-      microcycleId: json['microcycleId'] as int? ?? 0,
+      trainingSessionId: json['trainingSessionId'] as String? ?? '',
+      microcycleId: json['microcycleId'] as String? ?? '',
       macrocycleName: json['macrocycleName'] as String?,
       microcycleNumber: json['microcycleNumber'] as int? ?? 0,
       microcycleStartDate: json['microcycleStartDate'] != null

@@ -115,7 +115,7 @@ class TeamEndDrawer extends StatelessWidget {
                       child: CircularProgressIndicator(color: AppColors.primary),
                     )
                   : teams.isEmpty
-                      ? _buildEmptyTeams()
+                      ? _buildEmptyTeams(context)
                       : ListView(
                           padding: const EdgeInsets.only(top: 20, bottom: 16),
                           children: [
@@ -279,7 +279,7 @@ class TeamEndDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyTeams() {
+  Widget _buildEmptyTeams(BuildContext context) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -318,6 +318,36 @@ class TeamEndDrawer extends StatelessWidget {
                 height: 1.5,
               ),
             ),
+            if (showAdminSection) ...[
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    final result = await Navigator.of(context)
+                        .pushNamed(AppRoutes.teamForm);
+                    if (result == true && context.mounted) {
+                      final session =
+                          context.read<SessionProvider>().session;
+                      if (session != null) {
+                        context
+                            .read<TeamProvider>()
+                            .fetchTeams(session.userId);
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Crear nuevo equipo'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

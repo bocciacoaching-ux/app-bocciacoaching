@@ -197,7 +197,7 @@ abstract final class AppPages {
     GetPage(
       name: AppRoutes.trainingSessionDetail,
       page: () {
-        final sessionId = Get.arguments as int;
+        final sessionId = Get.arguments as String;
         return TrainingSessionDetailScreen(sessionId: sessionId);
       },
     ),
@@ -206,7 +206,7 @@ abstract final class AppPages {
       page: () {
         final args = Get.arguments as Map<String, dynamic>;
         final session = args['session'] as TrainingSession?;
-        final microcycleId = args['microcycleId'] as int;
+        final microcycleId = args['microcycleId'] as String;
         final microcycleLabel = args['microcycleLabel'] as String?;
         return TrainingSessionFormScreen(
           microcycleId: microcycleId,
@@ -221,7 +221,7 @@ abstract final class AppPages {
       name: AppRoutes.sectionForm,
       page: () {
         final args = Get.arguments as Map<String, dynamic>;
-        final sessionPartId = args['sessionPartId'] as int;
+        final sessionPartId = args['sessionPartId'] as String;
         final partName = args['partName'] as String?;
         final section = args['section'] as SessionSection?;
         return SectionFormScreen(

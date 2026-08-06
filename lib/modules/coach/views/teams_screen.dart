@@ -14,7 +14,7 @@ class TeamsScreen extends StatefulWidget {
 }
 
 class _TeamsScreenState extends State<TeamsScreen> {
-  int? _selectedTeamId;
+  String? _selectedTeamId;
 
   @override
   void initState() {

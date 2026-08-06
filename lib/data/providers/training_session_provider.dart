@@ -20,7 +20,7 @@ class TrainingSessionProvider extends ChangeNotifier {
   TrainingSession? _currentSession;
 
   /// Microciclo actualmente seleccionado.
-  int? _currentMicrocycleId;
+  String? _currentMicrocycleId;
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -30,7 +30,7 @@ class TrainingSessionProvider extends ChangeNotifier {
   List<TrainingSessionSummary> get sessionSummaries =>
       List.unmodifiable(_sessionSummaries);
   TrainingSession? get currentSession => _currentSession;
-  int? get currentMicrocycleId => _currentMicrocycleId;
+  String? get currentMicrocycleId => _currentMicrocycleId;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get hasSessions => _sessionSummaries.isNotEmpty;
@@ -51,7 +51,7 @@ class TrainingSessionProvider extends ChangeNotifier {
   // ── Cargar sesiones de un microciclo ───────────────────────────────
 
   /// Carga las sesiones de un microciclo desde la API.
-  Future<void> loadSessionsForMicrocycle(int microcycleId) async {
+  Future<void> loadSessionsForMicrocycle(String microcycleId) async {
     _isLoading = true;
     _errorMessage = null;
     _currentMicrocycleId = microcycleId;
@@ -78,7 +78,7 @@ class TrainingSessionProvider extends ChangeNotifier {
   // ── Obtener sesión completa ────────────────────────────────────────
 
   /// Carga una sesión completa por su ID (con partes y secciones).
-  Future<TrainingSession?> loadFullSession(int sessionId) async {
+  Future<TrainingSession?> loadFullSession(String sessionId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -134,7 +134,7 @@ class TrainingSessionProvider extends ChangeNotifier {
 
   /// Crea una sesión con las 4 partes predeterminadas (vacías).
   Future<String?> createSessionWithDefaultParts({
-    required int microcycleId,
+    required String microcycleId,
     required String dayOfWeek,
     required int duration,
     required double throwPercentage,
@@ -201,7 +201,7 @@ class TrainingSessionProvider extends ChangeNotifier {
 
   /// Actualiza el estado de una sesión.
   Future<String?> updateSessionStatus(
-      int sessionId, String newStatus) async {
+      String sessionId, String newStatus) async {
     _isLoading = true;
     notifyListeners();
 
@@ -232,7 +232,7 @@ class TrainingSessionProvider extends ChangeNotifier {
   // ── Eliminar sesión ────────────────────────────────────────────────
 
   /// Elimina una sesión de entrenamiento.
-  Future<bool> deleteSession(int sessionId) async {
+  Future<bool> deleteSession(String sessionId) async {
     _isLoading = true;
     notifyListeners();
 
@@ -260,7 +260,7 @@ class TrainingSessionProvider extends ChangeNotifier {
 
   /// Agrega una sección a una parte de la sesión actual.
   Future<SessionSection?> addSection({
-    required int sessionPartId,
+    required String sessionPartId,
     required String name,
     required int numberOfThrows,
     required bool isOwnDiagonal,
@@ -306,7 +306,7 @@ class TrainingSessionProvider extends ChangeNotifier {
   }
 
   /// Elimina una sección.
-  Future<bool> deleteSection(int sectionId) async {
+  Future<bool> deleteSection(String sectionId) async {
     try {
       final success = await _service.deleteSection(sectionId);
       if (success && _currentSession != null) {
@@ -338,7 +338,7 @@ class TrainingSessionProvider extends ChangeNotifier {
 
   // ── Persistencia local (fallback) ─────────────────────────────────
 
-  Future<void> _saveLocally(int microcycleId) async {
+  Future<void> _saveLocally(String microcycleId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final data = _sessionSummaries.map((s) => s.toJson()).toList();
@@ -347,7 +347,7 @@ class TrainingSessionProvider extends ChangeNotifier {
     } catch (_) {}
   }
 
-  Future<void> _loadLocally(int microcycleId) async {
+  Future<void> _loadLocally(String microcycleId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString('${_kStorageKey}_$microcycleId');

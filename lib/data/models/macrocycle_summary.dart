@@ -10,13 +10,13 @@ class MacrocycleSummaryDto {
   final String? macrocycleId;
   final String? name;
   final String? athleteName;
-  final int athleteId;
+  final String athleteId;
   final DateTime startDate;
   final DateTime endDate;
   final int eventCount;
-  final int coachId;
+  final String coachId;
   final String? coachName;
-  final int teamId;
+  final String teamId;
   final String? teamName;
   final DateTime createdAt;
 
@@ -40,13 +40,13 @@ class MacrocycleSummaryDto {
       macrocycleId: json['macrocycleId']?.toString(),
       name: json['name'] as String?,
       athleteName: json['athleteName'] as String?,
-      athleteId: json['athleteId'] as int? ?? 0,
+      athleteId: json['athleteId'] as String? ?? '',
       startDate: DateTime.parse(json['startDate'] as String),
       endDate: DateTime.parse(json['endDate'] as String),
       eventCount: json['eventCount'] as int? ?? 0,
-      coachId: json['coachId'] as int? ?? 0,
+      coachId: json['coachId'] as String? ?? '',
       coachName: json['coachName'] as String?,
-      teamId: json['teamId'] as int? ?? 0,
+      teamId: json['teamId'] as String? ?? '',
       teamName: json['teamName'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );

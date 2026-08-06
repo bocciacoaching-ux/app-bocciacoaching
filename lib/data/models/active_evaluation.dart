@@ -1,8 +1,8 @@
 class ActiveEvaluationAthlete {
-  final int athleteId;
+  final String athleteId;
   final String athleteName;
   final String athleteEmail;
-  final int coachId;
+  final String coachId;
   final String coachName;
 
   ActiveEvaluationAthlete({
@@ -25,14 +25,14 @@ class ActiveEvaluationAthlete {
 }
 
 class ActiveEvaluationThrow {
-  final int evaluationDetailStrengthId;
+  final String evaluationDetailStrengthId;
   final int boxNumber;
   final int throwOrder;
   final double targetDistance;
   final double scoreObtained;
   final String observations;
   final bool status;
-  final int athleteId;
+  final String athleteId;
   final String athleteName;
   final String? createdAt;
   final String? updatedAt;
@@ -69,13 +69,13 @@ class ActiveEvaluationThrow {
 }
 
 class ActiveEvaluation {
-  final int assessStrengthId;
+  final String assessStrengthId;
   final String evaluationDate;
   final String description;
   final String state;
-  final int teamId;
+  final String teamId;
   final String teamName;
-  final int createdByCoachId;
+  final String createdByCoachId;
   final String createdByCoachName;
   final String createdByCoachEmail;
   final String? createdAt;

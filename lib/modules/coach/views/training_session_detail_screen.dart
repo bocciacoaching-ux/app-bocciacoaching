@@ -13,7 +13,7 @@ import '../../../data/providers/training_session_provider.dart';
 /// dentro de cada parte, con opción de agregar/editar secciones
 /// y cambiar el estado de la sesión.
 class TrainingSessionDetailScreen extends StatefulWidget {
-  final int sessionId;
+  final String sessionId;
 
   const TrainingSessionDetailScreen({super.key, required this.sessionId});
 
@@ -747,7 +747,7 @@ class _TrainingSessionDetailScreenState
   }
 
   Future<void> _changeStatus(
-      int sessionId, String newStatus, TrainingSessionProvider provider) async {
+      String sessionId, String newStatus, TrainingSessionProvider provider) async {
     final error = await provider.updateSessionStatus(sessionId, newStatus);
     if (!mounted) return;
     if (error != null) {
@@ -810,7 +810,7 @@ class _TrainingSessionDetailScreenState
 
   // ── Sección: navegación para agregar/editar/eliminar ──────────────
 
-  void _showAddSectionDialog(int sessionPartId, String? partName) async {
+  void _showAddSectionDialog(String sessionPartId, String? partName) async {
     final result = await Navigator.of(context).pushNamed(
       AppRoutes.sectionForm,
       arguments: {

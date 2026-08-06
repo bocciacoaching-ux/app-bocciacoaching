@@ -1,10 +1,10 @@
 import 'athlete.dart';
 
 class AssessStrength {
-  final int id;
+  final String id;
   final String evaluationName;
-  final int teamId;
-  final int coachId;
+  final String teamId;
+  final String coachId;
   final List<Athlete> athletes;
   final int completedThrows;
   final int totalShots;
@@ -21,7 +21,7 @@ class AssessStrength {
 
   factory AssessStrength.fromJson(Map<String, dynamic> json) {
     return AssessStrength(
-      id: json['id'],
+      id: (json['id'] ?? '').toString(),
       evaluationName: json['evaluationName'] ?? '',
       teamId: json['teamId'],
       coachId: json['coachId'],

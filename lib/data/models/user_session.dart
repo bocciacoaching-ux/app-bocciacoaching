@@ -1,5 +1,7 @@
+import '../../core/constants/app_constants.dart';
+
 class UserSession {
-  final int userId;
+  final String userId;
   final String dni;
   final String firstName;
   final String lastName;
@@ -10,7 +12,7 @@ class UserSession {
   final String? category;
   final String? seniority;
   final bool status;
-  final int rolId;
+  final String rolId;
   final String? createdAt;
   final String? updatedAt;
 
@@ -31,17 +33,17 @@ class UserSession {
     this.updatedAt,
   });
 
-  /// rolId == 1 → entrenador
-  bool get isCoach => rolId == 1;
+  /// rolId de entrenador
+  bool get isCoach => rolId == AppConstants.roleCoachId;
 
-  /// rolId == 3 → deportista
-  bool get isAthlete => rolId == 3;
+  /// rolId de deportista
+  bool get isAthlete => rolId == AppConstants.roleAthleteId;
 
   String get fullName => '$firstName $lastName';
 
   factory UserSession.fromJson(Map<String, dynamic> json) {
     return UserSession(
-      userId: json['userId'] as int,
+      userId: json['userId'] as String,
       dni: json['dni'] as String,
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
@@ -52,7 +54,7 @@ class UserSession {
       category: json['category'] as String?,
       seniority: json['seniority'] as String?,
       status: json['status'] as bool,
-      rolId: json['rolId'] as int,
+      rolId: json['rolId'] as String,
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
     );
@@ -80,7 +82,7 @@ class UserSession {
   /// Útil para refrescar la sesión localmente tras actualizar el perfil del
   /// usuario sin necesidad de volver a hacer login.
   UserSession copyWith({
-    int? userId,
+    String? userId,
     String? dni,
     String? firstName,
     String? lastName,
@@ -91,7 +93,7 @@ class UserSession {
     String? category,
     String? seniority,
     bool? status,
-    int? rolId,
+    String? rolId,
     String? createdAt,
     String? updatedAt,
   }) {

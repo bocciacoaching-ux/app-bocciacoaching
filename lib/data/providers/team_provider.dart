@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../models/team.dart';
 import '../models/team_member.dart';
 import '../../core/services/team_service.dart';
+import '../../core/constants/app_constants.dart';
 
 enum TeamLoadingStatus { idle, loading, success, error }
 
@@ -39,7 +40,7 @@ class TeamProvider extends ChangeNotifier {
   // ── Equipos ───────────────────────────────────────────────────────────
 
   /// Obtiene los equipos del coach desde GET /api/Team/GetTeamsForUser/{coachId}
-  Future<void> fetchTeams(int coachId) async {
+  Future<void> fetchTeams(String coachId) async {
     if (_status == TeamLoadingStatus.loading) return;
 
     _status = TeamLoadingStatus.loading;
@@ -79,9 +80,9 @@ class TeamProvider extends ChangeNotifier {
 
   // ── Miembros (atletas) ────────────────────────────────────────────────
 
-  /// Obtiene los atletas (rolId = 3) del equipo desde
+  /// Obtiene los atletas del equipo desde
   /// POST /api/Team/GetUsersForTeam
-  Future<void> fetchMembers(int teamId) async {
+  Future<void> fetchMembers(String teamId) async {
     if (_membersStatus == TeamLoadingStatus.loading) return;
 
     _membersStatus = TeamLoadingStatus.loading;
@@ -90,7 +91,7 @@ class TeamProvider extends ChangeNotifier {
 
     final result = await _teamService.getUsersForTeam(
       teamId: teamId,
-      rolId: 3, // 3 = deportista
+      rolId: AppConstants.roleAthleteId, // deportista
     );
 
     if (result != null) {

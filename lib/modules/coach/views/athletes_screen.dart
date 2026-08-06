@@ -987,8 +987,8 @@ class _ScoreChip extends StatelessWidget {
 // Bottom-sheet: formulario para agregar un atleta
 // ---------------------------------------------------------------------------
 class _AddAthleteSheet extends StatefulWidget {
-  final int? teamId;
-  final int? coachId;
+  final String? teamId;
+  final String? coachId;
   final VoidCallback onAthleteAdded;
 
   const _AddAthleteSheet({
@@ -1059,7 +1059,7 @@ class _AddAthleteSheetState extends State<_AddAthleteSheet> {
         address:   _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
         seniority: _seniority,
         status:    _status,
-        coachId:   widget.coachId ?? 0,
+        coachId:   widget.coachId ?? '',
         teamId:    widget.teamId,
       );
 
@@ -1358,8 +1358,8 @@ class _AddAthleteSheetState extends State<_AddAthleteSheet> {
 // Hoja inferior: invitar atleta por correo
 // ---------------------------------------------------------------------------
 class _InviteAthleteSheet extends StatefulWidget {
-  final int? teamId;
-  final int? coachId;
+  final String? teamId;
+  final String? coachId;
 
   const _InviteAthleteSheet({required this.teamId, required this.coachId});
 

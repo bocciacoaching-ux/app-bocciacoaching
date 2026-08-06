@@ -6,8 +6,8 @@ import '../routes/app_routes.dart';
 /// Utilidades de navegación centralizada.
 abstract final class NavigationHelper {
   /// Devuelve la ruta del dashboard según el rol del usuario.
-  /// - Coach (rolId == 1) → `/dashboard`
-  /// - Atleta (rolId == 3) → `/athlete-dashboard`
+  /// - Coach → `/dashboard`
+  /// - Atleta → `/athlete-dashboard`
   /// - Otro → `/dashboard` (fallback)
   static String dashboardRoute(BuildContext context) {
     final session = context.read<SessionProvider>().session;

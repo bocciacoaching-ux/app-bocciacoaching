@@ -12,13 +12,13 @@ import 'microcycle.dart';
 class Macrocycle {
   final String id;
   final String? macrocycleId;
-  final int athleteId;
+  final String athleteId;
   final String athleteName;
   final String name;
   final DateTime startDate;
   final DateTime endDate;
-  final int? coachId;
-  final int? teamId;
+  final String? coachId;
+  final String? teamId;
   final List<MacrocycleEvent> events;
   final List<MacrocyclePeriod> periods;
   final List<Mesocycle> mesocycles;
@@ -57,13 +57,13 @@ class Macrocycle {
   Macrocycle copyWith({
     String? id,
     String? macrocycleId,
-    int? athleteId,
+    String? athleteId,
     String? athleteName,
     String? name,
     DateTime? startDate,
     DateTime? endDate,
-    int? coachId,
-    int? teamId,
+    String? coachId,
+    String? teamId,
     List<MacrocycleEvent>? events,
     List<MacrocyclePeriod>? periods,
     List<Mesocycle>? mesocycles,
@@ -115,13 +115,13 @@ class Macrocycle {
     return Macrocycle(
       id: (json['macrocycleId'] ?? json['id'] ?? '').toString(),
       macrocycleId: json['macrocycleId']?.toString(),
-      athleteId: json['athleteId'] as int,
+      athleteId: json['athleteId'] as String,
       athleteName: json['athleteName'] as String? ?? '',
       name: json['name'] as String,
       startDate: DateTime.parse(json['startDate'] as String),
       endDate: DateTime.parse(json['endDate'] as String),
-      coachId: json['coachId'] as int?,
-      teamId: json['teamId'] as int?,
+      coachId: json['coachId'] as String?,
+      teamId: json['teamId'] as String?,
       events: (json['events'] as List<dynamic>?)
               ?.map((e) =>
                   MacrocycleEvent.fromJson(e as Map<String, dynamic>))
@@ -154,13 +154,13 @@ class Macrocycle {
 /// Período / etapa del macrociclo (Preparatorio General, Preparatorio
 /// Especial, Competitivo, Transición).
 class MacrocyclePeriod {
-  final int? macrocyclePeriodId;
+  final String? macrocyclePeriodId;
   final String name;
   final PeriodType type;
   final DateTime startDate;
   final DateTime endDate;
   final int weeks;
-  final int? macrocycleId;
+  final String? macrocycleId;
 
   const MacrocyclePeriod({
     this.macrocyclePeriodId,
@@ -173,13 +173,13 @@ class MacrocyclePeriod {
   });
 
   MacrocyclePeriod copyWith({
-    int? macrocyclePeriodId,
+    String? macrocyclePeriodId,
     String? name,
     PeriodType? type,
     DateTime? startDate,
     DateTime? endDate,
     int? weeks,
-    int? macrocycleId,
+    String? macrocycleId,
   }) {
     return MacrocyclePeriod(
       macrocyclePeriodId: macrocyclePeriodId ?? this.macrocyclePeriodId,
@@ -204,7 +204,7 @@ class MacrocyclePeriod {
 
   factory MacrocyclePeriod.fromJson(Map<String, dynamic> json) {
     return MacrocyclePeriod(
-      macrocyclePeriodId: json['macrocyclePeriodId'] as int?,
+      macrocyclePeriodId: json['macrocyclePeriodId'] as String?,
       name: json['name'] as String,
       type: PeriodType.values.firstWhere(
         (e) => e.name == json['type'],
@@ -213,7 +213,7 @@ class MacrocyclePeriod {
       startDate: DateTime.parse(json['startDate'] as String),
       endDate: DateTime.parse(json['endDate'] as String),
       weeks: json['weeks'] as int,
-      macrocycleId: json['macrocycleId'] as int?,
+      macrocycleId: json['macrocycleId'] as String?,
     );
   }
 }

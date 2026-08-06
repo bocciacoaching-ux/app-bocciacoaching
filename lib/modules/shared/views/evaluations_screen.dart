@@ -56,8 +56,8 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
     final session = context.read<SessionProvider>().session;
     final team = context.read<TeamProvider>().selectedTeam;
 
-    final coachId = session?.userId ?? 1;
-    final teamId = team?.teamId ?? 1;
+    final coachId = session?.userId ?? '';
+    final teamId = team?.teamId ?? '';
 
     final result = await provider.checkForActiveEvaluation(teamId, coachId);
 
@@ -126,7 +126,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
 
     final provider = context.read<ForceTestProvider>();
     final session = context.read<SessionProvider>().session;
-    final coachId = session?.userId ?? 0;
+    final coachId = session?.userId ?? '';
     final evalId = _activeEval?.assessStrengthId;
 
     if (evalId != null) {
@@ -158,8 +158,8 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
     final session = context.read<SessionProvider>().session;
     final team = context.read<TeamProvider>().selectedTeam;
 
-    final coachId = session?.userId ?? 1;
-    final teamId = team?.teamId ?? 1;
+    final coachId = session?.userId ?? '';
+    final teamId = team?.teamId ?? '';
 
     final result = await provider.checkForActiveEvaluation(teamId, coachId);
 
@@ -227,7 +227,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
 
     final provider = context.read<DirectionTestProvider>();
     final session = context.read<SessionProvider>().session;
-    final coachId = session?.userId ?? 0;
+    final coachId = session?.userId ?? '';
     final evalId = _activeDirectionEval?.assessDirectionId;
 
     if (evalId != null) {
@@ -259,8 +259,8 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
     final session = context.read<SessionProvider>().session;
     final team = context.read<TeamProvider>().selectedTeam;
 
-    final coachId = session?.userId ?? 1;
-    final teamId = team?.teamId ?? 1;
+    final coachId = session?.userId ?? '';
+    final teamId = team?.teamId ?? '';
 
     final result = await provider.checkForActiveEvaluation(teamId, coachId);
 

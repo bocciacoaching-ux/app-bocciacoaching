@@ -1,4 +1,7 @@
 /// Endpoints de la API centralizados.
+///
+/// Nota: Todos los identificadores del backend son `uuid` (GUID), por lo que se
+/// representan como `String` en la app.
 abstract final class ApiEndpoints {
   // ── Auth / User ──────────────────────────────────────────────────
   static const String getInfoUser = '/User';
@@ -13,82 +16,132 @@ abstract final class ApiEndpoints {
   // ── Team ─────────────────────────────────────────────────────────
   static const String addNewTeam = '/Team/AddNewTeam';
   static const String addNewTeamMember = '/Team/AddNewTeamMember';
-  static String getTeamsForUser(int coachId) => '/Team/GetTeamsForUser/$coachId';
+  static String getTeamsForUser(String coachId) =>
+      '/Team/GetTeamsForUser/$coachId';
   static const String getUsersForTeam = '/Team/GetUsersForTeam';
   static const String updateTeam = '/Team/UpdateTeam';
   static const String getRecentStatistics = '/Team/GetRecentStatistics';
 
   // ── AssessStrength ───────────────────────────────────────────────
   static const String strengthAddEvaluation = '/AssessStrength/AddEvaluation';
-  static const String strengthAthletesToEvaluated = '/AssessStrength/AthletesToEvaluated';
-  static const String strengthAddDetails = '/AssessStrength/AddDeatilsToEvaluation';
-  static String strengthGetActiveEvaluation(int teamId, int coachId) =>
+  static const String strengthAthletesToEvaluated =
+      '/AssessStrength/AthletesToEvaluated';
+  static const String strengthAddDetails =
+      '/AssessStrength/AddDeatilsToEvaluation';
+  static String strengthGetActiveEvaluation(String teamId, String coachId) =>
       '/AssessStrength/GetActiveEvaluation/$teamId/$coachId';
-  static String strengthDebugEvaluations(int teamId) =>
+  static String strengthDebugEvaluations(String teamId) =>
       '/AssessStrength/DebugEvaluations/$teamId';
   static const String strengthUpdateState = '/AssessStrength/UpdateState';
   static const String strengthCancel = '/AssessStrength/Cancel';
-  static String strengthGetTeamEvaluations(int teamId) =>
+  static String strengthGetTeamEvaluations(String teamId) =>
       '/AssessStrength/GetTeamEvaluations/$teamId';
-  static String strengthGetEvaluationStatistics(int assessStrengthId) =>
+  static String strengthGetEvaluationStatistics(String assessStrengthId) =>
       '/AssessStrength/GetEvaluationStatistics/$assessStrengthId';
-  static String strengthGetEvaluationDetails(int assessStrengthId) =>
+  static String strengthGetEvaluationDetails(String assessStrengthId) =>
       '/AssessStrength/GetEvaluationDetails/$assessStrengthId';
+  static String strengthCoachHasEvaluations(String coachId) =>
+      '/AssessStrength/CoachHasEvaluations/$coachId';
 
   // ── AssessDirection ──────────────────────────────────────────────
   static const String directionAddEvaluation = '/AssessDirection/AddEvaluation';
-  static const String directionAthletesToEvaluated = '/AssessDirection/AthletesToEvaluated';
-  static const String directionAddDetails = '/AssessDirection/AddDetailsToEvaluation';
-  static String directionGetActiveEvaluation(int teamId, int coachId) =>
+  static const String directionAthletesToEvaluated =
+      '/AssessDirection/AthletesToEvaluated';
+  static const String directionAddDetails =
+      '/AssessDirection/AddDetailsToEvaluation';
+  static String directionGetActiveEvaluation(String teamId, String coachId) =>
       '/AssessDirection/GetActiveEvaluation/$teamId/$coachId';
-  static String directionDebugEvaluations(int teamId) =>
+  static String directionDebugEvaluations(String teamId) =>
       '/AssessDirection/DebugEvaluations/$teamId';
   static const String directionUpdateState = '/AssessDirection/UpdateState';
   static const String directionCancel = '/AssessDirection/Cancel';
-  static String directionGetTeamEvaluations(int teamId) =>
+  static String directionGetTeamEvaluations(String teamId) =>
       '/AssessDirection/GetTeamEvaluations/$teamId';
-  static String directionGetEvaluationStatistics(int assessDirectionId) =>
+  static String directionGetEvaluationStatistics(String assessDirectionId) =>
       '/AssessDirection/GetEvaluationStatistics/$assessDirectionId';
-  static String directionGetEvaluationDetails(int assessDirectionId) =>
+  static String directionGetEvaluationDetails(String assessDirectionId) =>
       '/AssessDirection/GetEvaluationDetails/$assessDirectionId';
+  static String directionCoachHasEvaluations(String coachId) =>
+      '/AssessDirection/CoachHasEvaluations/$coachId';
 
   // ── AssessSaremas ─────────────────────────────────────────────────
   static const String saremasAddEvaluation = '/AssessSaremas/AddEvaluation';
-  static const String saremasAthletesToEvaluated = '/AssessSaremas/AthletesToEvaluated';
+  static const String saremasAthletesToEvaluated =
+      '/AssessSaremas/AthletesToEvaluated';
   static const String saremasAddDetails = '/AssessSaremas/AddDetailsToEvaluation';
-  static String saremasGetActiveEvaluation(int teamId, int coachId) =>
+  static String saremasGetActiveEvaluation(String teamId, String coachId) =>
       '/AssessSaremas/GetActiveEvaluation/$teamId/$coachId';
   static const String saremasUpdateState = '/AssessSaremas/UpdateState';
   static const String saremasCancel = '/AssessSaremas/Cancel';
-  static String saremasGetTeamEvaluations(int teamId) =>
+  static String saremasGetTeamEvaluations(String teamId) =>
       '/AssessSaremas/GetTeamEvaluations/$teamId';
-  static String saremasGetEvaluationDetails(int saremasEvalId) =>
+  static String saremasGetEvaluationDetails(String saremasEvalId) =>
       '/AssessSaremas/GetEvaluationDetails/$saremasEvalId';
-  static String saremasGetEvaluationStatistics(int saremasEvalId) =>
+  static String saremasGetEvaluationStatistics(String saremasEvalId) =>
       '/AssessSaremas/GetEvaluationStatistics/$saremasEvalId';
-  static String saremasGetAthleteHistory(int athleteId) =>
+  static String saremasGetAthleteHistory(String athleteId) =>
       '/AssessSaremas/GetAthleteHistory/$athleteId';
+  static String saremasCoachHasEvaluations(String coachId) =>
+      '/AssessSaremas/CoachHasEvaluations/$coachId';
 
   // ── Macrocycle ───────────────────────────────────────────────────
   static const String macrocycleCreate = '/Macrocycle/Create';
-  static String macrocycleGetByAthlete(int athleteId) =>
+  static String macrocycleGetByAthlete(String athleteId) =>
       '/Macrocycle/GetByAthlete/$athleteId';
-  static String macrocycleGetByTeam(int teamId) =>
+  static String macrocycleGetByTeam(String teamId) =>
       '/Macrocycle/GetByTeam/$teamId';
-  static String macrocycleGetById(int macrocycleId) =>
+  static String macrocycleGetById(String macrocycleId) =>
       '/Macrocycle/GetById/$macrocycleId';
   static const String macrocycleUpdate = '/Macrocycle/Update';
-  static String macrocycleDelete(int macrocycleId) =>
+  static String macrocycleDelete(String macrocycleId) =>
       '/Macrocycle/Delete/$macrocycleId';
   static const String macrocycleAddEvent = '/Macrocycle/AddEvent';
   static const String macrocycleUpdateEvent = '/Macrocycle/UpdateEvent';
-  static String macrocycleDeleteEvent(int eventId) =>
+  static String macrocycleDeleteEvent(String eventId) =>
       '/Macrocycle/DeleteEvent/$eventId';
-  static const String macrocycleUpdateMicrocycle = '/Macrocycle/UpdateMicrocycle';
-  static String macrocycleGetCoachMacrocycles(int coachId) =>
+  static const String macrocycleUpdateMicrocycle =
+      '/Macrocycle/UpdateMicrocycle';
+  static String macrocycleGetCoachMacrocycles(String coachId) =>
       '/Macrocycle/GetCoachMacrocycles/$coachId';
-  static String macrocycleDuplicate(int macrocycleId) =>
+  static String macrocycleDuplicate(String macrocycleId) =>
       '/Macrocycle/Duplicate/$macrocycleId';
+  static const String macrocycleUpdateMicycleDays =
+      '/Macrocycle/UpdateMicycleDays';
+
+  // ── MicrocycleType ───────────────────────────────────────────────
+  static const String microcycleTypeCreate = '/MicrocycleType/Create';
+  static const String microcycleTypeGetAll = '/MicrocycleType/GetAll';
+  static String microcycleTypeGetById(String id) =>
+      '/MicrocycleType/GetById/$id';
+  static String microcycleTypeGetAllForCoach(String coachId) =>
+      '/MicrocycleType/GetAllForCoach/$coachId';
+  static String microcycleTypeGetForCoach(String id, String coachId) =>
+      '/MicrocycleType/GetForCoach/$id/$coachId';
+  static const String microcycleTypeUpdateCoachPercentages =
+      '/MicrocycleType/UpdateCoachPercentages';
+  static String microcycleTypeResetCoachPercentages(
+          String coachId, String microcycleTypeId) =>
+      '/MicrocycleType/ResetCoachPercentages/$coachId/$microcycleTypeId';
+  static const String microcycleTypeGetOverview = '/MicrocycleType/GetOverview';
+  static const String microcycleTypeCreateDayDefault =
+      '/MicrocycleType/CreateDayDefault';
+  static const String microcycleTypeUpsertCoachDistribution =
+      '/MicrocycleType/UpsertCoachDistribution';
+  static String microcycleTypeGetCoachDistribution(
+          String coachId, String microcycleTypeId) =>
+      '/MicrocycleType/GetCoachDistribution/$coachId/$microcycleTypeId';
+  static String microcycleTypeGetAllCoachDistributions(String coachId) =>
+      '/MicrocycleType/GetAllCoachDistributions/$coachId';
+  static String microcycleTypeDeleteCoachDistribution(
+          String coachId, String microcycleTypeId) =>
+      '/MicrocycleType/DeleteCoachDistribution/$coachId/$microcycleTypeId';
+
+  // ── Rol ──────────────────────────────────────────────────────────
+  static const String rolCreate = '/Rol/Create';
+  static const String rolGetAll = '/Rol/GetAll';
+  static String rolGetById(String id) => '/Rol/GetById/$id';
+  static const String rolUpdate = '/Rol/Update';
+  static String rolDelete(String id) => '/Rol/Delete/$id';
 
   // ── Email ────────────────────────────────────────────────────────
   static const String sendCodeVerify = '/Email/SendCodeVerify';
@@ -103,110 +156,136 @@ abstract final class ApiEndpoints {
 
   // ── Notification ─────────────────────────────────────────────────
   static const String notificationGetTypes = '/Notification/GetTypes';
-  static String notificationGetType(int id) => '/Notification/GetType/$id';
+  static String notificationGetType(String id) => '/Notification/GetType/$id';
   static const String notificationCreateType = '/Notification/CreateType';
   static const String notificationUpdateType = '/Notification/UpdateType';
-  static String notificationGetMessage(int id) => '/Notification/GetMessage/$id';
+  static String notificationGetMessage(String id) =>
+      '/Notification/GetMessage/$id';
   static const String notificationCreateMessage = '/Notification/CreateMessage';
   static const String notificationUpdateMessage = '/Notification/UpdateMessage';
-  static String notificationGetMessagesByCoach(int coachId) =>
+  static String notificationGetMessagesByCoach(String coachId) =>
       '/Notification/GetMessagesByCoach/$coachId';
-  static String notificationGetMessagesByAthlete(int athleteId) =>
+  static String notificationGetMessagesByAthlete(String athleteId) =>
       '/Notification/GetMessagesByAthlete/$athleteId';
-  static const String notificationSendTeamInvitation = '/Notification/SendTeamInvitation';
-  static String notificationAcceptTeamInvitation(int notificationMessageId) =>
+  static const String notificationSendTeamInvitation =
+      '/Notification/SendTeamInvitation';
+  static String notificationAcceptTeamInvitation(String notificationMessageId) =>
       '/Notification/AcceptTeamInvitation/$notificationMessageId';
 
   // ── Statistics ───────────────────────────────────────────────────
   static const String recentStrengthStats = '/Statistics/RecentStrengthStats';
-  static String teamStrengthStats(int teamId) => '/Statistics/TeamStrengthStats/$teamId';
-  static String debugTeamEvaluations(int teamId) =>
+  static String teamStrengthStats(String teamId) =>
+      '/Statistics/TeamStrengthStats/$teamId';
+  static String debugTeamEvaluations(String teamId) =>
       '/Statistics/DebugTeamEvaluations/$teamId';
-  static String teamStrengthStatsIndividualized(int teamId) =>
+  static String teamStrengthStatsIndividualized(String teamId) =>
       '/Statistics/TeamStrengthStatsIndividualized/$teamId';
-  static String athleteStats(int athleteId) => '/Statistics/AthleteStats/$athleteId';
+  static String athleteStats(String athleteId) =>
+      '/Statistics/AthleteStats/$athleteId';
   static const String allTeamsStats = '/Statistics/AllTeamsStats';
   static const String compareTeams = '/Statistics/CompareTeams';
   static const String dashboardIndicators = '/Statistics/DashboardIndicators';
   static const String dashboardComplete = '/Statistics/DashboardComplete';
-  static const String topPerformanceAthletes = '/Statistics/TopPerformanceAthletes';
+  static const String topPerformanceAthletes =
+      '/Statistics/TopPerformanceAthletes';
   static const String recentTests = '/Statistics/RecentTests';
   static const String pendingTasks = '/Statistics/PendingTasks';
   static const String monthlyEvolution = '/Statistics/MonthlyEvolution';
-  static String nextSession(int coachId) => '/Statistics/NextSession/$coachId';
-  static String coachTeamsOverview(int coachId) =>
+  static String nextSession(String coachId) =>
+      '/Statistics/NextSession/$coachId';
+  static String coachTeamsOverview(String coachId) =>
       '/Statistics/CoachTeamsOverview/$coachId';
-  static String saremasTeamStats(int teamId) =>
+  static String saremasTeamStats(String teamId) =>
       '/Statistics/SaremasTeamStats/$teamId';
-  static String saremasAthleteStats(int athleteId) =>
+  static String saremasAthleteStats(String athleteId) =>
       '/Statistics/SaremasAthleteStats/$athleteId';
-  static String macrocycleProgress(int macrocycleId) =>
+  static String macrocycleProgress(String macrocycleId) =>
       '/Statistics/MacrocycleProgress/$macrocycleId';
-  static String athleteFullDashboard(int athleteId) =>
+  static String athleteFullDashboard(String athleteId) =>
       '/Statistics/AthleteFullDashboard/$athleteId';
 
   // ── Subscription ─────────────────────────────────────────────────
   static const String subscriptionTypes = '/Subscription/types';
-  static String subscriptionTypeById(int id) => '/Subscription/types/$id';
-  static String subscriptionUser(int userId) => '/Subscription/user/$userId';
-  static String subscriptionUserHistory(int userId) =>
+  static String subscriptionTypeById(String id) => '/Subscription/types/$id';
+  static String subscriptionUser(String userId) => '/Subscription/user/$userId';
+  static String subscriptionUserHistory(String userId) =>
       '/Subscription/user/$userId/history';
   static const String subscriptionCreate = '/Subscription/create';
   static const String subscriptionCancel = '/Subscription/cancel';
   static const String subscriptionUpdate = '/Subscription/update';
-  static String subscriptionReactivate(int subscriptionId) =>
+  static String subscriptionReactivate(String subscriptionId) =>
       '/Subscription/reactivate/$subscriptionId';
   static const String subscriptionTrialStart = '/Subscription/trial/start';
-  static String subscriptionTrialAvailable(int userId, int subscriptionTypeId) =>
+  static String subscriptionTrialAvailable(
+          String userId, String subscriptionTypeId) =>
       '/Subscription/trial/available/$userId/$subscriptionTypeId';
-  static String subscriptionValidate(int userId) => '/Subscription/validate/$userId';
-  static String subscriptionAccess(int userId, String featureName) =>
+  static String subscriptionValidate(String userId) =>
+      '/Subscription/validate/$userId';
+  static String subscriptionAccess(String userId, String featureName) =>
       '/Subscription/access/$userId/$featureName';
-  static String subscriptionCanCreateTeam(int userId) =>
+  static String subscriptionCanCreateTeam(String userId) =>
       '/Subscription/limits/$userId/can-create-team';
-  static String subscriptionCanAddAthlete(int userId, int teamId) =>
+  static String subscriptionCanAddAthlete(String userId, String teamId) =>
       '/Subscription/limits/$userId/can-add-athlete/$teamId';
-  static String subscriptionCanEvaluate(int userId) =>
+  static String subscriptionCanEvaluate(String userId) =>
       '/Subscription/limits/$userId/can-evaluate';
-  static String subscriptionRemainingTeams(int userId) =>
+  static String subscriptionRemainingTeams(String userId) =>
       '/Subscription/limits/$userId/remaining-teams';
-  static String subscriptionRemainingAthletes(int userId, int teamId) =>
+  static String subscriptionRemainingAthletes(String userId, String teamId) =>
       '/Subscription/limits/$userId/remaining-athletes/$teamId';
-  static String subscriptionRemainingEvaluations(int userId) =>
+  static String subscriptionRemainingEvaluations(String userId) =>
       '/Subscription/limits/$userId/remaining-evaluations';
   static const String subscriptionPaymentCreateIntent =
       '/Subscription/payment/create-intent';
-  static const String subscriptionPaymentConfirm = '/Subscription/payment/confirm';
+  static const String subscriptionPaymentConfirm =
+      '/Subscription/payment/confirm';
   static String subscriptionPaymentGet(String paymentIntentId) =>
       '/Subscription/payment/$paymentIntentId';
   static String subscriptionPaymentCancel(String paymentIntentId) =>
       '/Subscription/payment/cancel/$paymentIntentId';
   static const String subscriptionWebhookStripe = '/Subscription/webhooks/stripe';
   static const String subscriptionAdminAll = '/Subscription/admin/all';
-  static const String subscriptionAdminStatistics = '/Subscription/admin/statistics';
+  static const String subscriptionAdminStatistics =
+      '/Subscription/admin/statistics';
 
   // ── TrainingSession ──────────────────────────────────────────────
   static const String trainingSessionCreate = '/TrainingSession/Create';
-  static String trainingSessionGetById(int sessionId) =>
+  static String trainingSessionGetById(String sessionId) =>
       '/TrainingSession/GetById/$sessionId';
-  static String trainingSessionGetByMicrocycle(int microcycleId) =>
+  static String trainingSessionGetByMicrocycle(String microcycleId) =>
       '/TrainingSession/GetByMicrocycle/$microcycleId';
   static const String trainingSessionUpdate = '/TrainingSession/Update';
-  static String trainingSessionDelete(int sessionId) =>
+  static String trainingSessionDelete(String sessionId) =>
       '/TrainingSession/Delete/$sessionId';
-  static const String trainingSessionAddSection = '/TrainingSession/AddSection';
+  static const String trainingSessionAddSection =
+      '/TrainingSession/AddSection';
   static const String trainingSessionUpdateSection =
       '/TrainingSession/UpdateSection';
-  static String trainingSessionDeleteSection(int sectionId) =>
+  static String trainingSessionDeleteSection(String sectionId) =>
       '/TrainingSession/DeleteSection/$sectionId';
 
   // ── TrainingSession / Athlete ────────────────────────────────────
   static const String athleteGetSessionsByDateRange =
       '/TrainingSession/Athlete/GetSessionsByDateRange';
-  static String athleteGetSessionDetail(int sessionId, int athleteId) =>
+  static String athleteGetSessionDetail(String sessionId, String athleteId) =>
       '/TrainingSession/Athlete/GetSessionDetail/$sessionId/$athleteId';
   static const String athleteStartSession =
       '/TrainingSession/Athlete/StartSession';
   static const String athleteFinishSession =
       '/TrainingSession/Athlete/FinishSession';
+
+  // ── Wellness ─────────────────────────────────────────────────────
+  static const String wellnessAddDailyWellness = '/Wellness/AddDailyWellness';
+  static const String wellnessUpdateDailyWellness =
+      '/Wellness/UpdateDailyWellness';
+  static String wellnessGetTodayWellness(String athleteId) =>
+      '/Wellness/GetTodayWellness/$athleteId';
+  static String wellnessGetWellnessByDate(String athleteId, String date) =>
+      '/Wellness/GetWellnessByDate/$athleteId/$date';
+  static String wellnessGetWellnessById(String dailyWellnessId) =>
+      '/Wellness/GetWellnessById/$dailyWellnessId';
+  static String wellnessGetAthleteHistory(String athleteId) =>
+      '/Wellness/GetAthleteHistory/$athleteId';
+  static String wellnessGetTeamWellnessByDate(String teamId, String date) =>
+      '/Wellness/GetTeamWellnessByDate/$teamId/$date';
 }

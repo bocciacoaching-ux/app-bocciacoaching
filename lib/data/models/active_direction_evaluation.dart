@@ -1,9 +1,9 @@
 /// Modelo del atleta dentro de una evaluación de dirección activa.
 class AthleteInDirectionEvaluationDto {
-  final int athleteId;
+  final String athleteId;
   final String athleteName;
   final String athleteEmail;
-  final int coachId;
+  final String coachId;
   final String coachName;
 
   const AthleteInDirectionEvaluationDto({
@@ -16,10 +16,10 @@ class AthleteInDirectionEvaluationDto {
 
   factory AthleteInDirectionEvaluationDto.fromJson(Map<String, dynamic> json) {
     return AthleteInDirectionEvaluationDto(
-      athleteId: (json['athleteId'] as num?)?.toInt() ?? 0,
+      athleteId: json['athleteId'] as String? ?? '',
       athleteName: json['athleteName'] as String? ?? '',
       athleteEmail: json['athleteEmail'] as String? ?? '',
-      coachId: (json['coachId'] as num?)?.toInt() ?? 0,
+      coachId: json['coachId'] as String? ?? '',
       coachName: json['coachName'] as String? ?? '',
     );
   }
@@ -35,14 +35,14 @@ class AthleteInDirectionEvaluationDto {
 
 /// Modelo de un lanzamiento dentro de una evaluación de dirección.
 class DirectionEvaluationThrowDto {
-  final int evaluationDetailDirectionId;
+  final String evaluationDetailDirectionId;
   final int boxNumber;
   final int throwOrder;
   final double? targetDistance;
   final double? scoreObtained;
   final String? observations;
   final bool status;
-  final int athleteId;
+  final String athleteId;
   final String athleteName;
   final bool deviatedRight;
   final bool deviatedLeft;
@@ -76,14 +76,14 @@ class DirectionEvaluationThrowDto {
   factory DirectionEvaluationThrowDto.fromJson(Map<String, dynamic> json) {
     return DirectionEvaluationThrowDto(
       evaluationDetailDirectionId:
-          (json['evaluationDetailDirectionId'] as num?)?.toInt() ?? 0,
+          json['evaluationDetailDirectionId'] as String? ?? '',
       boxNumber: (json['boxNumber'] as num?)?.toInt() ?? 0,
       throwOrder: (json['throwOrder'] as num?)?.toInt() ?? 0,
       targetDistance: (json['targetDistance'] as num?)?.toDouble(),
       scoreObtained: (json['scoreObtained'] as num?)?.toDouble(),
       observations: json['observations'] as String?,
       status: json['status'] as bool? ?? true,
-      athleteId: (json['athleteId'] as num?)?.toInt() ?? 0,
+      athleteId: json['athleteId'] as String? ?? '',
       athleteName: json['athleteName'] as String? ?? '',
       deviatedRight: json['deviatedRight'] as bool? ?? false,
       deviatedLeft: json['deviatedLeft'] as bool? ?? false,
@@ -119,13 +119,13 @@ class DirectionEvaluationThrowDto {
 
 /// Evaluación de dirección activa completa.
 class ActiveDirectionEvaluation {
-  final int assessDirectionId;
+  final String assessDirectionId;
   final String evaluationDate;
   final String description;
   final String state;
-  final int teamId;
+  final String teamId;
   final String teamName;
-  final int createdByCoachId;
+  final String createdByCoachId;
   final String createdByCoachName;
   final String createdByCoachEmail;
   final String? createdAt;
@@ -151,13 +151,13 @@ class ActiveDirectionEvaluation {
 
   factory ActiveDirectionEvaluation.fromJson(Map<String, dynamic> json) {
     return ActiveDirectionEvaluation(
-      assessDirectionId: (json['assessDirectionId'] as num?)?.toInt() ?? 0,
+      assessDirectionId: json['assessDirectionId'] as String? ?? '',
       evaluationDate: json['evaluationDate'] as String? ?? '',
       description: json['description'] as String? ?? '',
       state: json['state'] as String? ?? '',
-      teamId: (json['teamId'] as num?)?.toInt() ?? 0,
+      teamId: json['teamId'] as String? ?? '',
       teamName: json['teamName'] as String? ?? '',
-      createdByCoachId: (json['createdByCoachId'] as num?)?.toInt() ?? 0,
+      createdByCoachId: json['createdByCoachId'] as String? ?? '',
       createdByCoachName: json['createdByCoachName'] as String? ?? '',
       createdByCoachEmail: json['createdByCoachEmail'] as String? ?? '',
       createdAt: json['createdAt'] as String?,

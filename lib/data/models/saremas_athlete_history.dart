@@ -2,7 +2,7 @@
 ///
 /// Responde al endpoint GET /api/AssessSaremas/GetAthleteHistory/{athleteId}.
 class SaremasAthleteHistoryDto {
-  final int athleteId;
+  final String athleteId;
   final String? athleteName;
   final List<SaremasHistoryItemDto> evaluations;
   final SaremasAthleteEvolutionDto? evolution;
@@ -16,7 +16,7 @@ class SaremasAthleteHistoryDto {
 
   factory SaremasAthleteHistoryDto.fromJson(Map<String, dynamic> json) {
     return SaremasAthleteHistoryDto(
-      athleteId: json['athleteId'] as int,
+      athleteId: json['athleteId'] as String,
       athleteName: json['athleteName'] as String?,
       evaluations: (json['evaluations'] as List<dynamic>?)
               ?.map((e) => SaremasHistoryItemDto.fromJson(
@@ -40,7 +40,7 @@ class SaremasAthleteHistoryDto {
 
 /// Elemento del historial de evaluaciones SAREMAS+.
 class SaremasHistoryItemDto {
-  final int saremasEvalId;
+  final String saremasEvalId;
   final DateTime evaluationDate;
   final String? description;
   final String? teamName;
@@ -60,7 +60,7 @@ class SaremasHistoryItemDto {
 
   factory SaremasHistoryItemDto.fromJson(Map<String, dynamic> json) {
     return SaremasHistoryItemDto(
-      saremasEvalId: json['saremasEvalId'] as int,
+      saremasEvalId: json['saremasEvalId'] as String,
       evaluationDate: DateTime.parse(json['evaluationDate'] as String),
       description: json['description'] as String?,
       teamName: json['teamName'] as String?,

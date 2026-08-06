@@ -25,9 +25,19 @@ class UserService {
     String? email,
     String? region,
     String? password,
-    required int rol,
+    required String rol,
     String? category,
   }) async {
+    // Mapeo de roles a UUIDs específicos
+    String roleValue;
+    if (rol.toLowerCase() == 'entrenador') {
+      roleValue = '00000000-0000-0000-0000-000000000002';
+    } else if (rol.toLowerCase() == 'deportista') {
+      roleValue = '00000000-0000-0000-0000-000000000003';
+    } else {
+      roleValue = rol;
+    }
+
     try {
       final response = await HttpLogger.post(
         Uri.parse('$_base/User/AddInfoUser'),
@@ -37,7 +47,7 @@ class UserService {
           'email': email,
           if (region != null && region.isNotEmpty) 'region': region,
           'password': password,
-          'rol': rol,
+          'rol': roleValue,
           'category': category,
         }),
       );
@@ -73,7 +83,7 @@ class UserService {
   //   {'success': true,  'data': {...}}           → contraseña actualizada OK
   //   {'success': false, 'message': 'Texto...'}   → error con mensaje legible
   Future<Map<String, dynamic>> updatePassword({
-    required int userId,
+    required String userId,
     required String currentPassword,
     required String newPassword,
     required String confirmPassword,
@@ -141,7 +151,7 @@ class UserService {
   //   {'success': true,  'data': {...}}            → perfil actualizado OK
   //   {'success': false, 'message': 'Texto...'}    → error con mensaje legible
   Future<Map<String, dynamic>> updateUserInfo({
-    required int userId,
+    required String userId,
     String? dni,
     String? firstName,
     String? lastName,

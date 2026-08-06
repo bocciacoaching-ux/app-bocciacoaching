@@ -58,7 +58,7 @@ class SaremasProvider extends ChangeNotifier {
   static const int throwsPerBlock = 7;
 
   // ── Estado de la evaluación ───────────────────────────────────────
-  int? _saremasEvalId;
+  String? _saremasEvalId;
   int _currentThrowIndex = 0;
   bool _isLoading = false;
   String _evaluationName = '';
@@ -73,7 +73,7 @@ class SaremasProvider extends ChangeNotifier {
   /// Restaura el ID de evaluación guardado en SharedPreferences.
   Future<void> _restorePersistedId() async {
     final prefs = await SharedPreferences.getInstance();
-    _saremasEvalId = prefs.getInt('saremasEvalId');
+    _saremasEvalId = prefs.getString('saremasEvalId');
     notifyListeners();
   }
 
@@ -99,7 +99,7 @@ class SaremasProvider extends ChangeNotifier {
   double? _distanceToLaunchPoint;
 
   // ── Getters ───────────────────────────────────────────────────────
-  int? get saremasEvalId => _saremasEvalId;
+  String? get saremasEvalId => _saremasEvalId;
   int get currentThrowNumber => _currentThrowIndex + 1;
   int get currentThrowIndex => _currentThrowIndex;
   int get totalShotsCount => totalThrows;
@@ -168,7 +168,7 @@ class SaremasProvider extends ChangeNotifier {
     }
   }
 
-  void removeAthlete(int athleteId) {
+  void removeAthlete(String athleteId) {
     _selectedAthletes.removeWhere((a) => a.id == athleteId);
     notifyListeners();
   }
@@ -176,8 +176,8 @@ class SaremasProvider extends ChangeNotifier {
   // ── Iniciar evaluación ────────────────────────────────────────────
   Future<void> startNewEvaluation(
     String name,
-    int teamId,
-    int coachId,
+    String teamId,
+    String coachId,
   ) async {
     _isLoading = true;
     notifyListeners();
@@ -190,21 +190,21 @@ class SaremasProvider extends ChangeNotifier {
         coachId: coachId,
       );
       final id = result != null
-          ? (result['data']?['saremasEvalId'] as int?)
+          ? (result['data']?['saremasEvalId'] as String?)
           : null;
 
       if (id != null) {
         _saremasEvalId = id;
       } else {
         // Fallback local si la API falla
-        _saremasEvalId = DateTime.now().millisecondsSinceEpoch;
+        _saremasEvalId = DateTime.now().millisecondsSinceEpoch.toString();
       }
 
       _evaluationName = name;
 
       // Persistir el ID
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('saremasEvalId', _saremasEvalId!);
+      await prefs.setString('saremasEvalId', _saremasEvalId!);
 
       // Registrar atletas en la API
       for (final athlete in _selectedAthletes) {
@@ -220,7 +220,7 @@ class SaremasProvider extends ChangeNotifier {
       _resetCurrentThrowState();
     } catch (_) {
       // Fallback local
-      _saremasEvalId = DateTime.now().millisecondsSinceEpoch;
+      _saremasEvalId = DateTime.now().millisecondsSinceEpoch.toString();
       _evaluationName = name;
       _currentThrowIndex = 0;
       _completedThrows = [];
@@ -234,7 +234,7 @@ class SaremasProvider extends ChangeNotifier {
   /// Consulta la API para verificar si existe una evaluación activa
   /// para el equipo y coach dados.
   Future<ActiveSaremasEvaluation?> checkForActiveEvaluation(
-      int teamId, int coachId) async {
+      String teamId, String coachId) async {
     _isLoading = true;
     notifyListeners();
 
@@ -262,7 +262,7 @@ class SaremasProvider extends ChangeNotifier {
     _saremasEvalId = activeEval.saremasEvalId;
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('saremasEvalId', _saremasEvalId!);
+    await prefs.setString('saremasEvalId', _saremasEvalId!);
 
     // Restaurar atletas
     _selectedAthletes = activeEval.athletes
@@ -304,7 +304,7 @@ class SaremasProvider extends ChangeNotifier {
   }
 
   /// Cancela la evaluación activa vía API.
-  Future<void> cancelEvaluation(int coachId, {String? reason}) async {
+  Future<void> cancelEvaluation(String coachId, {String? reason}) async {
     if (_saremasEvalId == null) return;
     _isLoading = true;
     notifyListeners();
@@ -325,7 +325,7 @@ class SaremasProvider extends ChangeNotifier {
   }
 
   /// Finaliza la evaluación activa cambiando su estado vía API.
-  Future<void> finalizeEvaluation(int teamId) async {
+  Future<void> finalizeEvaluation(String teamId) async {
     if (_saremasEvalId == null) return;
     _isLoading = true;
     notifyListeners();
@@ -469,7 +469,7 @@ class SaremasProvider extends ChangeNotifier {
           failureTags: tags.join(','),
           status: 'Activo',
           athleteId:
-              _selectedAthletes.isNotEmpty ? _selectedAthletes.first.id : 0,
+              _selectedAthletes.isNotEmpty ? _selectedAthletes.first.id : '',
           saremasEvalId: _saremasEvalId!,
           whiteBallX: throwData.whiteBallX,
           whiteBallY: throwData.whiteBallY,

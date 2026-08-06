@@ -1,5 +1,5 @@
 class TeamMember {
-  final int userId;
+  final String userId;
   final String dni;
   final String firstName;
   final String lastName;
@@ -36,7 +36,7 @@ class TeamMember {
 
   factory TeamMember.fromJson(Map<String, dynamic> json) {
     return TeamMember(
-      userId: (json['userId'] as num?)?.toInt() ?? 0,
+      userId: json['userId'] as String? ?? '',
       dni: json['dni'] as String? ?? '',
       firstName: json['firstName'] as String? ?? '',
       lastName: json['lastName'] as String? ?? '',

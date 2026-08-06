@@ -33,15 +33,15 @@ class OnboardingProvider extends ChangeNotifier {
   bool _introSeen = false;
   bool _remindLater = false;
   bool _hasCompletedEvaluation = false;
-  int? _userId;
+  String? _userId;
 
   bool get introSeen => _introSeen;
   bool get remindLater => _remindLater;
   bool get hasCompletedEvaluation => _hasCompletedEvaluation;
-  int? get userId => _userId;
+  String? get userId => _userId;
 
   /// Carga las banderas para el usuario indicado.
-  Future<void> loadFor(int userId) async {
+  Future<void> loadFor(String userId) async {
     _userId = userId;
     final prefs = await SharedPreferences.getInstance();
     _introSeen = prefs.getBool('$_kIntroSeenPrefix$userId') ?? false;

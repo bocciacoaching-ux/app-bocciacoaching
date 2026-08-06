@@ -2,11 +2,11 @@
 ///
 /// Responde al endpoint GET /api/AssessSaremas/GetActiveEvaluation/{teamId}/{coachId}.
 class ActiveSaremasEvaluation {
-  final int saremasEvalId;
+  final String saremasEvalId;
   final DateTime evaluationDate;
   final String? description;
-  final int teamId;
-  final int coachId;
+  final String teamId;
+  final String coachId;
   final String? state;
   final List<SaremasAthleteInEvaluationDto> athletes;
 
@@ -22,11 +22,11 @@ class ActiveSaremasEvaluation {
 
   factory ActiveSaremasEvaluation.fromJson(Map<String, dynamic> json) {
     return ActiveSaremasEvaluation(
-      saremasEvalId: json['saremasEvalId'] as int,
+      saremasEvalId: json['saremasEvalId'] as String,
       evaluationDate: DateTime.parse(json['evaluationDate'] as String),
       description: json['description'] as String?,
-      teamId: json['teamId'] as int,
-      coachId: json['coachId'] as int,
+      teamId: json['teamId'] as String,
+      coachId: json['coachId'] as String,
       state: json['state'] as String?,
       athletes: (json['athletes'] as List<dynamic>?)
               ?.map((e) => SaremasAthleteInEvaluationDto.fromJson(
@@ -49,7 +49,7 @@ class ActiveSaremasEvaluation {
 
 /// Atleta dentro de una evaluación SAREMAS+ activa.
 class SaremasAthleteInEvaluationDto {
-  final int athleteId;
+  final String athleteId;
   final String? name;
   final List<SaremasThrowApiDto> throws_;
 
@@ -61,7 +61,7 @@ class SaremasAthleteInEvaluationDto {
 
   factory SaremasAthleteInEvaluationDto.fromJson(Map<String, dynamic> json) {
     return SaremasAthleteInEvaluationDto(
-      athleteId: json['athleteId'] as int,
+      athleteId: json['athleteId'] as String,
       name: json['name'] as String?,
       throws_: (json['throws'] as List<dynamic>?)
               ?.map((e) =>
@@ -80,7 +80,7 @@ class SaremasAthleteInEvaluationDto {
 
 /// Lanzamiento SAREMAS+ tal como lo devuelve la API.
 class SaremasThrowApiDto {
-  final int? saremasThrowId;
+  final String? saremasThrowId;
   final int throwNumber;
   final String? diagonal;
   final String? technicalComponent;
@@ -88,9 +88,9 @@ class SaremasThrowApiDto {
   final String? observations;
   final String? failureTags;
   final String? status;
-  final int? athleteId;
+  final String? athleteId;
   final String? athleteName;
-  final int? saremasEvalId;
+  final String? saremasEvalId;
   final double? whiteBallX;
   final double? whiteBallY;
   final double? colorBallX;
@@ -130,7 +130,7 @@ class SaremasThrowApiDto {
 
   factory SaremasThrowApiDto.fromJson(Map<String, dynamic> json) {
     return SaremasThrowApiDto(
-      saremasThrowId: json['saremasThrowId'] as int?,
+      saremasThrowId: json['saremasThrowId'] as String?,
       throwNumber: json['throwNumber'] as int? ?? 0,
       diagonal: json['diagonal'] as String?,
       technicalComponent: json['technicalComponent'] as String?,
@@ -138,9 +138,9 @@ class SaremasThrowApiDto {
       observations: json['observations'] as String?,
       failureTags: json['failureTags'] as String?,
       status: json['status'] as String?,
-      athleteId: json['athleteId'] as int?,
+      athleteId: json['athleteId'] as String?,
       athleteName: json['athleteName'] as String?,
-      saremasEvalId: json['saremasEvalId'] as int?,
+      saremasEvalId: json['saremasEvalId'] as String?,
       whiteBallX: (json['whiteBallX'] as num?)?.toDouble(),
       whiteBallY: (json['whiteBallY'] as num?)?.toDouble(),
       colorBallX: (json['colorBallX'] as num?)?.toDouble(),

@@ -11,7 +11,7 @@ import '../../../data/providers/training_session_provider.dart';
 /// Si no, se crea una nueva sesión con las 4 partes predeterminadas.
 class TrainingSessionFormScreen extends StatefulWidget {
   /// ID del microciclo al que pertenece la sesión.
-  final int microcycleId;
+  final String microcycleId;
 
   /// Nombre descriptivo del microciclo (para mostrar en header).
   final String? microcycleLabel;

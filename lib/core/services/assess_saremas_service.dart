@@ -13,8 +13,8 @@ class AssessSaremasService {
   // POST /api/AssessSaremas/AddEvaluation
   Future<Map<String, dynamic>?> addEvaluation({
     required String description,
-    required int teamId,
-    required int coachId,
+    required String teamId,
+    required String coachId,
   }) async {
     try {
       final response = await HttpLogger.post(
@@ -37,9 +37,9 @@ class AssessSaremasService {
 
   // POST /api/AssessSaremas/AthletesToEvaluated
   Future<Map<String, dynamic>?> addAthleteToEvaluation({
-    required int coachId,
-    required int athleteId,
-    required int saremasEvalId,
+    required String coachId,
+    required String athleteId,
+    required String saremasEvalId,
   }) async {
     try {
       final response = await HttpLogger.post(
@@ -69,8 +69,8 @@ class AssessSaremasService {
     String? observations,
     String? failureTags,
     String? status,
-    required int athleteId,
-    required int saremasEvalId,
+    required String athleteId,
+    required String saremasEvalId,
     double? whiteBallX,
     double? whiteBallY,
     double? colorBallX,
@@ -115,7 +115,7 @@ class AssessSaremasService {
 
   // GET /api/AssessSaremas/GetActiveEvaluation/{teamId}/{coachId}
   Future<ActiveSaremasEvaluation?> getActiveEvaluation(
-      int teamId, int coachId) async {
+      String teamId, String coachId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse(
@@ -136,10 +136,10 @@ class AssessSaremasService {
 
   // PUT /api/AssessSaremas/UpdateState
   Future<Map<String, dynamic>?> updateState({
-    required int saremasEvalId,
+    required String saremasEvalId,
     required DateTime evaluationDate,
     String? description,
-    required int teamId,
+    required String teamId,
     String? state,
   }) async {
     try {
@@ -165,8 +165,8 @@ class AssessSaremasService {
 
   // POST /api/AssessSaremas/Cancel
   Future<Map<String, dynamic>?> cancel({
-    required int saremasEvalId,
-    required int coachId,
+    required String saremasEvalId,
+    required String coachId,
     String? reason,
   }) async {
     try {
@@ -190,7 +190,7 @@ class AssessSaremasService {
 
   // GET /api/AssessSaremas/GetTeamEvaluations/{teamId}
   Future<List<SaremasEvaluationSummaryDto>?> getTeamEvaluations(
-      int teamId) async {
+      String teamId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/AssessSaremas/GetTeamEvaluations/$teamId'),
@@ -212,7 +212,7 @@ class AssessSaremasService {
 
   // GET /api/AssessSaremas/GetEvaluationDetails/{saremasEvalId}
   Future<SaremasEvaluationDetailsDto?> getEvaluationDetails(
-      int saremasEvalId) async {
+      String saremasEvalId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse(
@@ -233,7 +233,7 @@ class AssessSaremasService {
 
   // GET /api/AssessSaremas/GetEvaluationStatistics/{saremasEvalId}
   Future<List<SaremasStatisticsDto>?> getEvaluationStatistics(
-      int saremasEvalId) async {
+      String saremasEvalId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse(
@@ -255,7 +255,7 @@ class AssessSaremasService {
   }
 
   // GET /api/AssessSaremas/GetAthleteHistory/{athleteId}
-  Future<SaremasAthleteHistoryDto?> getAthleteHistory(int athleteId) async {
+  Future<SaremasAthleteHistoryDto?> getAthleteHistory(String athleteId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/AssessSaremas/GetAthleteHistory/$athleteId'),
@@ -274,7 +274,7 @@ class AssessSaremasService {
   }
 
   // GET /api/AssessSaremas/CoachHasEvaluations/{coachId}
-  Future<Map<String, dynamic>?> coachHasEvaluations(int coachId) async {
+  Future<Map<String, dynamic>?> coachHasEvaluations(String coachId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/AssessSaremas/CoachHasEvaluations/$coachId'),

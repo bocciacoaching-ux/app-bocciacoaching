@@ -11,6 +11,7 @@ import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
 import '../../../data/providers/statistics_provider.dart';
 import '../../../data/providers/onboarding_provider.dart';
+import '../../../core/routes/app_routes.dart';
 import '../../onboarding/views/onboarding_intro_screen.dart';
 
 // Widget para el logo BOCCIA COACHING
@@ -1175,7 +1176,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       'team': {
         'icon': Icons.group_add_outlined,
         'color': AppColors.primary,
-        'onTap': () => Navigator.of(context).pushNamed('/teams'),
+        'onTap': () => Navigator.of(context).pushNamed(AppRoutes.teamForm),
       },
       'athletes': {
         'icon': Icons.person_add_alt_1_outlined,
@@ -1419,20 +1420,33 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildEmptyStateCTA() {
+    final teams = context.watch<TeamProvider>().teams;
+    final bool hasNoTeam = teams.isEmpty;
+
     return GestureDetector(
-      onTap: () => setState(() => _selectedIndex = 1),
+      onTap: () {
+        if (hasNoTeam) {
+          Navigator.of(context).pushNamed(AppRoutes.teamForm);
+        } else {
+          setState(() => _selectedIndex = 1);
+        }
+      },
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [AppColors.primary, AppColors.primary80],
+            colors: hasNoTeam
+                ? [AppColors.accent2, AppColors.accent2.withValues(alpha: 0.8)]
+                : [AppColors.primary, AppColors.primary80],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary40,
+              color: hasNoTeam
+                  ? AppColors.accent2.withValues(alpha: 0.4)
+                  : AppColors.primary40,
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -1447,17 +1461,21 @@ class _DashboardScreenState extends State<DashboardScreen>
                 color: AppColors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(Icons.play_arrow_rounded,
-                  color: AppColors.white, size: 30),
+              child: Icon(
+                  hasNoTeam ? Icons.group_add_rounded : Icons.play_arrow_rounded,
+                  color: AppColors.white,
+                  size: 30),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Comienza tu primera evaluación',
-                    style: TextStyle(
+                  Text(
+                    hasNoTeam
+                        ? 'Crea tu primer equipo'
+                        : 'Comienza tu primera evaluación',
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: AppColors.white,
@@ -1465,7 +1483,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Evalúa la fuerza y dirección de tus atletas con nuestro módulo especializado',
+                    hasNoTeam
+                        ? 'Registra tu equipo para empezar a gestionar tus atletas y evaluaciones'
+                        : 'Evalúa la fuerza y dirección de tus atletas con nuestro módulo especializado',
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.white.withValues(alpha: 0.85),

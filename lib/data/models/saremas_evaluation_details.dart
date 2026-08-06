@@ -4,12 +4,12 @@ import 'active_saremas_evaluation.dart';
 ///
 /// Responde al endpoint GET /api/AssessSaremas/GetEvaluationDetails/{saremasEvalId}.
 class SaremasEvaluationDetailsDto {
-  final int saremasEvalId;
+  final String saremasEvalId;
   final DateTime evaluationDate;
   final String? description;
-  final int teamId;
+  final String teamId;
   final String? teamName;
-  final int coachId;
+  final String coachId;
   final String? coachName;
   final String? state;
   final List<SaremasAthleteDetailDto> athletes;
@@ -28,12 +28,12 @@ class SaremasEvaluationDetailsDto {
 
   factory SaremasEvaluationDetailsDto.fromJson(Map<String, dynamic> json) {
     return SaremasEvaluationDetailsDto(
-      saremasEvalId: json['saremasEvalId'] as int,
+      saremasEvalId: json['saremasEvalId'] as String,
       evaluationDate: DateTime.parse(json['evaluationDate'] as String),
       description: json['description'] as String?,
-      teamId: json['teamId'] as int,
+      teamId: json['teamId'] as String,
       teamName: json['teamName'] as String?,
-      coachId: json['coachId'] as int,
+      coachId: json['coachId'] as String,
       coachName: json['coachName'] as String?,
       state: json['state'] as String?,
       athletes: (json['athletes'] as List<dynamic>?)
@@ -59,7 +59,7 @@ class SaremasEvaluationDetailsDto {
 
 /// Detalle de un atleta dentro de la evaluación (incluye lanzamientos).
 class SaremasAthleteDetailDto {
-  final int athleteId;
+  final String athleteId;
   final String? name;
   final List<SaremasThrowApiDto> throws_;
 
@@ -71,7 +71,7 @@ class SaremasAthleteDetailDto {
 
   factory SaremasAthleteDetailDto.fromJson(Map<String, dynamic> json) {
     return SaremasAthleteDetailDto(
-      athleteId: json['athleteId'] as int,
+      athleteId: json['athleteId'] as String,
       name: json['name'] as String?,
       throws_: (json['throws'] as List<dynamic>?)
               ?.map((e) =>

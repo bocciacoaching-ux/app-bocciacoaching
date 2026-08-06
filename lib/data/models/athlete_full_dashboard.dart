@@ -2,7 +2,7 @@
 ///
 /// Responde al endpoint GET /api/Statistics/AthleteFullDashboard/{athleteId}.
 class AthleteFullDashboardDto {
-  final int athleteId;
+  final String athleteId;
   final String? athleteName;
   final String? teamName;
   final AthleteStrengthSummaryDto? strengthSummary;
@@ -24,7 +24,7 @@ class AthleteFullDashboardDto {
 
   factory AthleteFullDashboardDto.fromJson(Map<String, dynamic> json) {
     return AthleteFullDashboardDto(
-      athleteId: json['athleteId'] as int,
+      athleteId: json['athleteId'] as String,
       athleteName: json['athleteName'] as String?,
       teamName: json['teamName'] as String?,
       strengthSummary: json['strengthSummary'] != null
@@ -191,7 +191,7 @@ class AthleteMacrocycleSummaryDto {
 
 /// Evaluación reciente del atleta (cualquier tipo).
 class AthleteRecentEvaluationDto {
-  final int evaluationId;
+  final String evaluationId;
   final String? type;
   final DateTime evaluationDate;
   final double score;
@@ -207,7 +207,7 @@ class AthleteRecentEvaluationDto {
 
   factory AthleteRecentEvaluationDto.fromJson(Map<String, dynamic> json) {
     return AthleteRecentEvaluationDto(
-      evaluationId: json['evaluationId'] as int,
+      evaluationId: json['evaluationId'] as String,
       type: json['type'] as String?,
       evaluationDate: DateTime.parse(json['evaluationDate'] as String),
       score: (json['score'] as num?)?.toDouble() ?? 0.0,

@@ -47,8 +47,8 @@ class StatisticsProvider extends ChangeNotifier {
   bool get isLoadingDetails => _detailsStatus == StatsLoadingStatus.loading;
 
   // ── Evaluación seleccionada ────────────────────────────────────────
-  int? _selectedEvaluationId;
-  int? get selectedEvaluationId => _selectedEvaluationId;
+  String? _selectedEvaluationId;
+  String? get selectedEvaluationId => _selectedEvaluationId;
 
   /// Limpia la evaluación seleccionada para volver a la lista.
   void clearSelectedEvaluation() {
@@ -66,7 +66,7 @@ class StatisticsProvider extends ChangeNotifier {
   // ══════════════════════════════════════════════════════════════════
 
   /// Obtiene las evaluaciones de un equipo.
-  Future<void> fetchTeamEvaluations(int teamId) async {
+  Future<void> fetchTeamEvaluations(String teamId) async {
     if (_evaluationsStatus == StatsLoadingStatus.loading) return;
 
     _evaluationsStatus = StatsLoadingStatus.loading;
@@ -98,7 +98,7 @@ class StatisticsProvider extends ChangeNotifier {
   }
 
   /// Obtiene las estadísticas de una evaluación específica.
-  Future<void> fetchEvaluationStatistics(int assessStrengthId) async {
+  Future<void> fetchEvaluationStatistics(String assessStrengthId) async {
     _selectedEvaluationId = assessStrengthId;
     _statsStatus = StatsLoadingStatus.loading;
     _statsError = null;
@@ -138,7 +138,7 @@ class StatisticsProvider extends ChangeNotifier {
   }
 
   /// Obtiene los detalles de una evaluación específica.
-  Future<void> fetchEvaluationDetails(int assessStrengthId) async {
+  Future<void> fetchEvaluationDetails(String assessStrengthId) async {
     _detailsStatus = StatsLoadingStatus.loading;
     _detailsError = null;
     notifyListeners();
@@ -164,7 +164,7 @@ class StatisticsProvider extends ChangeNotifier {
   }
 
   /// Carga estadísticas y detalles de una evaluación a la vez.
-  Future<void> fetchFullEvaluationData(int assessStrengthId) async {
+  Future<void> fetchFullEvaluationData(String assessStrengthId) async {
     await Future.wait([
       fetchEvaluationStatistics(assessStrengthId),
       fetchEvaluationDetails(assessStrengthId),
@@ -225,7 +225,7 @@ class StatisticsProvider extends ChangeNotifier {
       _athleteDashboardStatus == StatsLoadingStatus.loading;
 
   /// Obtiene los indicadores del dashboard del coach.
-  Future<void> fetchDashboardIndicators({int? coachId, int? teamId}) async {
+  Future<void> fetchDashboardIndicators({String? coachId, String? teamId}) async {
     _dashboardIndicatorsStatus = StatsLoadingStatus.loading;
     notifyListeners();
 
@@ -248,7 +248,7 @@ class StatisticsProvider extends ChangeNotifier {
   }
 
   /// Obtiene el dashboard completo del coach.
-  Future<void> fetchDashboardComplete({int? coachId}) async {
+  Future<void> fetchDashboardComplete({String? coachId}) async {
     _dashboardCompleteStatus = StatsLoadingStatus.loading;
     notifyListeners();
 
@@ -271,8 +271,8 @@ class StatisticsProvider extends ChangeNotifier {
 
   /// Obtiene los atletas con mejor rendimiento.
   Future<void> fetchTopPerformanceAthletes({
-    int? coachId,
-    int? teamId,
+    String? coachId,
+    String? teamId,
     int limit = 5,
   }) async {
     _topAthletesStatus = StatsLoadingStatus.loading;
@@ -303,8 +303,8 @@ class StatisticsProvider extends ChangeNotifier {
 
   /// Obtiene los tests más recientes.
   Future<void> fetchRecentTests({
-    int? coachId,
-    int? teamId,
+    String? coachId,
+    String? teamId,
     int limit = 10,
   }) async {
     _recentTestsStatus = StatsLoadingStatus.loading;
@@ -335,8 +335,8 @@ class StatisticsProvider extends ChangeNotifier {
 
   /// Obtiene la evolución mensual.
   Future<void> fetchMonthlyEvolution({
-    int? coachId,
-    int? teamId,
+    String? coachId,
+    String? teamId,
     int months = 12,
   }) async {
     _monthlyEvolutionStatus = StatsLoadingStatus.loading;
@@ -362,7 +362,7 @@ class StatisticsProvider extends ChangeNotifier {
   }
 
   /// Obtiene el dashboard completo de un atleta individual.
-  Future<void> fetchAthleteFullDashboard(int athleteId) async {
+  Future<void> fetchAthleteFullDashboard(String athleteId) async {
     _athleteDashboardStatus = StatsLoadingStatus.loading;
     notifyListeners();
 
@@ -383,7 +383,7 @@ class StatisticsProvider extends ChangeNotifier {
   }
 
   /// Carga todos los datos del dashboard del coach de una vez.
-  Future<void> fetchAllDashboardData({int? coachId, int? teamId}) async {
+  Future<void> fetchAllDashboardData({String? coachId, String? teamId}) async {
     await Future.wait([
       fetchDashboardIndicators(coachId: coachId, teamId: teamId),
       fetchTopPerformanceAthletes(coachId: coachId, teamId: teamId),
@@ -418,7 +418,7 @@ class StatisticsProvider extends ChangeNotifier {
       _coachHasEvaluationsStatus == StatsLoadingStatus.loading;
 
   /// Consulta las tres APIs `CoachHasEvaluations` en paralelo.
-  Future<void> fetchCoachHasEvaluations(int coachId) async {
+  Future<void> fetchCoachHasEvaluations(String coachId) async {
     _coachHasEvaluationsStatus = StatsLoadingStatus.loading;
     notifyListeners();
 

@@ -197,7 +197,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
             if (_athleteSearchController.text.isNotEmpty) {
               provider.addAthlete(
                 Athlete(
-                  id: DateTime.now().millisecondsSinceEpoch,
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
                   name: _athleteSearchController.text,
                 ),
               );
@@ -216,7 +216,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
         if (value.isNotEmpty) {
           provider.addAthlete(
             Athlete(
-              id: DateTime.now().millisecondsSinceEpoch,
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
               name: value,
             ),
           );
@@ -233,8 +233,8 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
     final sessionProvider = context.read<SessionProvider>();
     final teamProvider = context.read<TeamProvider>();
 
-    final coachId = sessionProvider.session?.userId ?? 1;
-    final teamId = teamProvider.selectedTeam?.teamId ?? 1;
+    final coachId = sessionProvider.session?.userId ?? '';
+    final teamId = teamProvider.selectedTeam?.teamId ?? '';
 
     try {
       await provider.startNewEvaluation(

@@ -11,7 +11,7 @@ class TeamService {
   Future<Map<String, dynamic>?> addNewTeam({
     String? nameTeam,
     String? description,
-    required int coachId,
+    required String coachId,
     String? image,
     bool? bc1,
     bool? bc2,
@@ -52,8 +52,8 @@ class TeamService {
 
   // POST /api/Team/AddNewTeamMember
   Future<Map<String, dynamic>?> addNewTeamMember({
-    required int userId,
-    required int teamId,
+    required String userId,
+    required String teamId,
     required DateTime dateCreation,
   }) async {
     try {
@@ -76,7 +76,7 @@ class TeamService {
   }
 
   // GET /api/Team/GetTeamsForUser/{coachId}
-  Future<List<Team>?> getTeamsForUser({required int coachId}) async {
+  Future<List<Team>?> getTeamsForUser({required String coachId}) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Team/GetTeamsForUser/$coachId'),
@@ -98,8 +98,8 @@ class TeamService {
 
   // POST /api/Team/GetUsersForTeam
   Future<List<TeamMember>?> getUsersForTeam({
-    required int teamId,
-    required int rolId,
+    required String teamId,
+    required String rolId,
   }) async {
     try {
       final response = await HttpLogger.post(
@@ -123,7 +123,7 @@ class TeamService {
 
   // POST /api/Team/UpdateTeam
   Future<bool?> updateTeam({
-    required int teamId,
+    required String teamId,
     String? image,
     bool? bc1,
     bool? bc2,
@@ -158,8 +158,8 @@ class TeamService {
 
   // POST /api/Team/GetRecentStatistics
   Future<Map<String, dynamic>?> getRecentStatistics({
-    required int coachId,
-    required int teamId,
+    required String coachId,
+    required String teamId,
   }) async {
     try {
       final response = await HttpLogger.post(

@@ -2,7 +2,7 @@
 ///
 /// Responde al endpoint GET /api/Statistics/SaremasTeamStats/{teamId}.
 class SaremasTeamStatsDto {
-  final int teamId;
+  final String teamId;
   final String? teamName;
   final int totalEvaluations;
   final double teamAverageScore;
@@ -18,7 +18,7 @@ class SaremasTeamStatsDto {
 
   factory SaremasTeamStatsDto.fromJson(Map<String, dynamic> json) {
     return SaremasTeamStatsDto(
-      teamId: json['teamId'] as int,
+      teamId: json['teamId'] as String,
       teamName: json['teamName'] as String?,
       totalEvaluations: json['totalEvaluations'] as int? ?? 0,
       teamAverageScore:
@@ -42,7 +42,7 @@ class SaremasTeamStatsDto {
 
 /// Estadísticas SAREMAS+ individuales de un atleta dentro de las stats del equipo.
 class SaremasAthleteStatsItemDto {
-  final int athleteId;
+  final String athleteId;
   final String? athleteName;
   final int totalEvaluations;
   final double averageScore;
@@ -60,7 +60,7 @@ class SaremasAthleteStatsItemDto {
 
   factory SaremasAthleteStatsItemDto.fromJson(Map<String, dynamic> json) {
     return SaremasAthleteStatsItemDto(
-      athleteId: json['athleteId'] as int,
+      athleteId: json['athleteId'] as String,
       athleteName: json['athleteName'] as String?,
       totalEvaluations: json['totalEvaluations'] as int? ?? 0,
       averageScore: (json['averageScore'] as num?)?.toDouble() ?? 0.0,

@@ -17,21 +17,21 @@ class EvaluationRepository {
   }
 
   /// Obtiene evaluaciones de fuerza de un equipo.
-  Future<Map<String, dynamic>> getStrengthTeamEvaluations(int teamId) async {
+  Future<Map<String, dynamic>> getStrengthTeamEvaluations(String teamId) async {
     return await _apiClient
         .get(ApiEndpoints.strengthGetTeamEvaluations(teamId));
   }
 
   /// Obtiene detalles de una evaluación de fuerza.
   Future<Map<String, dynamic>> getStrengthEvaluationDetails(
-      int assessStrengthId) async {
+      String assessStrengthId) async {
     return await _apiClient
         .get(ApiEndpoints.strengthGetEvaluationDetails(assessStrengthId));
   }
 
   /// Obtiene estadísticas de una evaluación de fuerza.
   Future<Map<String, dynamic>> getStrengthEvaluationStatistics(
-      int assessStrengthId) async {
+      String assessStrengthId) async {
     return await _apiClient
         .get(ApiEndpoints.strengthGetEvaluationStatistics(assessStrengthId));
   }
@@ -45,21 +45,21 @@ class EvaluationRepository {
   }
 
   /// Obtiene evaluaciones de dirección de un equipo.
-  Future<Map<String, dynamic>> getDirectionTeamEvaluations(int teamId) async {
+  Future<Map<String, dynamic>> getDirectionTeamEvaluations(String teamId) async {
     return await _apiClient
         .get(ApiEndpoints.directionGetTeamEvaluations(teamId));
   }
 
   /// Obtiene detalles de una evaluación de dirección.
   Future<Map<String, dynamic>> getDirectionEvaluationDetails(
-      int assessDirectionId) async {
+      String assessDirectionId) async {
     return await _apiClient
         .get(ApiEndpoints.directionGetEvaluationDetails(assessDirectionId));
   }
 
   /// Obtiene estadísticas de una evaluación de dirección.
   Future<Map<String, dynamic>> getDirectionEvaluationStatistics(
-      int assessDirectionId) async {
+      String assessDirectionId) async {
     return await _apiClient
         .get(ApiEndpoints.directionGetEvaluationStatistics(assessDirectionId));
   }

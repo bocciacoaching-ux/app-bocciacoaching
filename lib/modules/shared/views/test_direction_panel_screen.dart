@@ -186,8 +186,8 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
     final sessionProvider = context.read<SessionProvider>();
     final teamProvider = context.read<TeamProvider>();
 
-    final coachId = sessionProvider.session?.userId ?? 1;
-    final teamId = teamProvider.selectedTeam?.teamId ?? 1;
+    final coachId = sessionProvider.session?.userId ?? '';
+    final teamId = teamProvider.selectedTeam?.teamId ?? '';
 
     // ── 1) Validar si ya existe una evaluación de dirección pendiente ──
     final activeEval = await provider.checkForActiveEvaluation(teamId, coachId);

@@ -8,8 +8,8 @@ class AssessStrengthService {
   // POST /api/AssessStrength/AddEvaluation
   Future<Map<String, dynamic>?> addEvaluation({
     required String description,
-    required int teamId,
-    required int coachId,
+    required String teamId,
+    required String coachId,
   }) async {
     try {
       final response = await HttpLogger.post(
@@ -32,9 +32,9 @@ class AssessStrengthService {
 
   // POST /api/AssessStrength/AthletesToEvaluated
   Future<List<dynamic>?> addAthleteToEvaluation({
-    required int coachId,
-    required int athleteId,
-    required int assessStrengthId,
+    required String coachId,
+    required String athleteId,
+    required String assessStrengthId,
   }) async {
     try {
       final response = await HttpLogger.post(
@@ -63,8 +63,8 @@ class AssessStrengthService {
     double? scoreObtained,
     String? observations,
     required bool status,
-    required int athleteId,
-    required int assessStrengthId,
+    required String athleteId,
+    required String assessStrengthId,
     double? coordinateX,
     double? coordinateY,
     bool isStrength = false,
@@ -103,7 +103,7 @@ class AssessStrengthService {
   }
 
   // GET /api/AssessStrength/GetActiveEvaluation/{teamId}/{coachId}
-  Future<Map<String, dynamic>?> getActiveEvaluation(int teamId, int coachId) async {
+  Future<Map<String, dynamic>?> getActiveEvaluation(String teamId, String coachId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/AssessStrength/GetActiveEvaluation/$teamId/$coachId'),
@@ -119,10 +119,10 @@ class AssessStrengthService {
 
   // PUT /api/AssessStrength/UpdateState
   Future<Map<String, dynamic>?> updateState({
-    required int id,
+    required String id,
     required DateTime evaluationDate,
     String? description,
-    required int teamId,
+    required String teamId,
     String? state,
   }) async {
     try {
@@ -148,8 +148,8 @@ class AssessStrengthService {
 
   // POST /api/AssessStrength/Cancel
   Future<Map<String, dynamic>?> cancel({
-    required int assessStrengthId,
-    required int coachId,
+    required String assessStrengthId,
+    required String coachId,
     String? reason,
   }) async {
     try {
@@ -172,7 +172,7 @@ class AssessStrengthService {
   }
 
   // GET /api/AssessStrength/DebugEvaluations/{teamId}
-  Future<void> debugEvaluations(int teamId) async {
+  Future<void> debugEvaluations(String teamId) async {
     try {
       await HttpLogger.get(
         Uri.parse('$_base/AssessStrength/DebugEvaluations/$teamId'),
@@ -183,7 +183,7 @@ class AssessStrengthService {
   }
 
   // GET /api/AssessStrength/GetTeamEvaluations/{teamId}
-  Future<Map<String, dynamic>?> getTeamEvaluations(int teamId) async {
+  Future<Map<String, dynamic>?> getTeamEvaluations(String teamId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/AssessStrength/GetTeamEvaluations/$teamId'),
@@ -198,7 +198,7 @@ class AssessStrengthService {
   }
 
   // GET /api/AssessStrength/GetEvaluationStatistics/{assessStrengthId}
-  Future<Map<String, dynamic>?> getEvaluationStatistics(int assessStrengthId) async {
+  Future<Map<String, dynamic>?> getEvaluationStatistics(String assessStrengthId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/AssessStrength/GetEvaluationStatistics/$assessStrengthId'),
@@ -213,7 +213,7 @@ class AssessStrengthService {
   }
 
   // GET /api/AssessStrength/GetEvaluationDetails/{assessStrengthId}
-  Future<Map<String, dynamic>?> getEvaluationDetails(int assessStrengthId) async {
+  Future<Map<String, dynamic>?> getEvaluationDetails(String assessStrengthId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/AssessStrength/GetEvaluationDetails/$assessStrengthId'),
@@ -228,7 +228,7 @@ class AssessStrengthService {
   }
 
   // GET /api/AssessStrength/CoachHasEvaluations/{coachId}
-  Future<Map<String, dynamic>?> coachHasEvaluations(int coachId) async {
+  Future<Map<String, dynamic>?> coachHasEvaluations(String coachId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/AssessStrength/CoachHasEvaluations/$coachId'),

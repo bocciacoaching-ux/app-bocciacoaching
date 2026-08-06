@@ -419,7 +419,7 @@ class AthleteProfileScreen extends StatelessWidget {
   // ── Acciones ─────────────────────────────────────────────────────────────
   void _startForceEvaluation(BuildContext context) async {
     final providerAthlete = model.Athlete(
-      id: int.tryParse(athlete.id) ?? 0,
+      id: athlete.id,
       name: athlete.name,
     );
     final provider = context.read<ForceTestProvider>();

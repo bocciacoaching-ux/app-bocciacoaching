@@ -12,7 +12,7 @@ import '../../core/services/assess_direction_service.dart';
 class DirectionTestProvider extends ChangeNotifier {
   final AssessDirectionService _service = AssessDirectionService();
 
-  int? _assessDirectionId;
+  String? _assessDirectionId;
   int _currentShotIndex = 0;
   List<Athlete> _selectedAthletes = [];
   List<DirectionEvaluationThrow> _completedThrows = [];
@@ -30,7 +30,7 @@ class DirectionTestProvider extends ChangeNotifier {
   bool _causeCadence = false;
   final TextEditingController _observationsController = TextEditingController();
 
-  int? get assessDirectionId => _assessDirectionId;
+  String? get assessDirectionId => _assessDirectionId;
   int get currentShotNumber => _currentShotIndex + 1;
   int get totalShots => _testConfig.length;
   List<Athlete> get selectedAthletes => _selectedAthletes;
@@ -81,13 +81,13 @@ class DirectionTestProvider extends ChangeNotifier {
 
   Future<void> _checkActiveEvaluation() async {
     final prefs = await SharedPreferences.getInstance();
-    _assessDirectionId = prefs.getInt('assessDirectionId');
+    _assessDirectionId = prefs.getString('assessDirectionId');
     notifyListeners();
   }
 
   /// Check if there is an active direction evaluation for the team/coach.
   Future<ActiveDirectionEvaluation?> checkForActiveEvaluation(
-      int teamId, int coachId) async {
+      String teamId, String coachId) async {
     _isLoading = true;
     notifyListeners();
 
@@ -115,7 +115,7 @@ class DirectionTestProvider extends ChangeNotifier {
     _assessDirectionId = activeEval.assessDirectionId;
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('assessDirectionId', _assessDirectionId!);
+    await prefs.setString('assessDirectionId', _assessDirectionId!);
 
     // Restore athletes
     _selectedAthletes = activeEval.athletes
@@ -201,7 +201,7 @@ class DirectionTestProvider extends ChangeNotifier {
     }
   }
 
-  void removeAthlete(int id) {
+  void removeAthlete(String id) {
     _selectedAthletes.removeWhere((a) => a.id == id);
     notifyListeners();
   }
@@ -222,8 +222,8 @@ class DirectionTestProvider extends ChangeNotifier {
   /// [coachId] es el ID del coach que realiza la cancelación.
   /// [reason] es un mensaje opcional de motivo.
   Future<bool> cancelEvaluation({
-    required int assessDirectionId,
-    required int coachId,
+    required String assessDirectionId,
+    required String coachId,
     String? reason,
   }) async {
     final result = await _service.cancel(
@@ -235,12 +235,12 @@ class DirectionTestProvider extends ChangeNotifier {
     return result != null;
   }
 
-  Future<void> startNewEvaluation(String name, int teamId, int coachId) async {
+  Future<void> startNewEvaluation(String name, String teamId, String coachId) async {
     _isLoading = true;
     notifyListeners();
 
     // ── 1) Crear evaluación en el backend ─────────────────────────────
-    int? remoteId;
+    String? remoteId;
     try {
       final result = await _service.addEvaluation(
         description: name,
@@ -256,11 +256,11 @@ class DirectionTestProvider extends ChangeNotifier {
     // Si la API devolvió un id real, lo usamos; si no, se usa un id local
     // sólo para permitir continuar en modo demo (los atletas se intentan
     // igualmente, pero seguramente el backend los rechazará).
-    _assessDirectionId = remoteId ?? DateTime.now().millisecondsSinceEpoch;
+    _assessDirectionId = remoteId ?? DateTime.now().millisecondsSinceEpoch.toString();
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('assessDirectionId', _assessDirectionId!);
+      await prefs.setString('assessDirectionId', _assessDirectionId!);
     } catch (e) {
       debugPrint('[DirectionTestProvider] prefs.setInt error: $e');
     }
@@ -297,22 +297,22 @@ class DirectionTestProvider extends ChangeNotifier {
 
   /// Lee `assessDirectionId` del payload de `addEvaluation` de forma
   /// resiliente, aceptando distintos paths y tipos numéricos.
-  int? _extractAssessDirectionId(Map<String, dynamic>? result) {
+  String? _extractAssessDirectionId(Map<String, dynamic>? result) {
     if (result == null) return null;
     // Intento 1: result.data.assessDirectionId (estructura estándar)
     final data = result['data'];
     if (data is Map<String, dynamic>) {
-      final fromData = (data['assessDirectionId'] as num?)?.toInt() ??
-          (data['AssessDirectionId'] as num?)?.toInt() ??
-          (data['id'] as num?)?.toInt() ??
-          (data['Id'] as num?)?.toInt();
+      final fromData = data['assessDirectionId']?.toString() ??
+          data['AssessDirectionId']?.toString() ??
+          data['id']?.toString() ??
+          data['Id']?.toString();
       if (fromData != null) return fromData;
     }
     // Intento 2: el id viene en la raíz del response
-    return (result['assessDirectionId'] as num?)?.toInt() ??
-        (result['AssessDirectionId'] as num?)?.toInt() ??
-        (result['id'] as num?)?.toInt() ??
-        (result['Id'] as num?)?.toInt();
+    return result['assessDirectionId']?.toString() ??
+        result['AssessDirectionId']?.toString() ??
+        result['id']?.toString() ??
+        result['Id']?.toString();
   }
 
   Future<void> nextShot() async {
@@ -326,7 +326,7 @@ class DirectionTestProvider extends ChangeNotifier {
       scoreObtained: _currentScore!,
       observations: _observationsController.text,
       status: true,
-      athleteId: _selectedAthletes.isNotEmpty ? _selectedAthletes.first.id : 0,
+      athleteId: _selectedAthletes.isNotEmpty ? _selectedAthletes.first.id : '',
       assessDirectionId: _assessDirectionId!,
       coordinateX: _currentSelection!.dx,
       coordinateY: _currentSelection!.dy,

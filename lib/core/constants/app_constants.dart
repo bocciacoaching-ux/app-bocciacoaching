@@ -14,4 +14,10 @@ abstract final class AppConstants {
   // ── App Info ─────────────────────────────────────────────────────
   static const String appName = 'Boccia Coaching App';
   static const String appVersion = '1.0.0';
+
+  // ── Roles (uuid) ─────────────────────────────────────────────────
+  // NOTA: El backend usa GUIDs para los roles. Sustituye estos valores por
+  // los identificadores reales devueltos por `/api/Rol/GetAll`.
+  static const String roleCoachId = '00000000-0000-0000-0000-000000000002';
+  static const String roleAthleteId = '00000000-0000-0000-0000-000000000003';
 }

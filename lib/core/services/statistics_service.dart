@@ -6,7 +6,7 @@ class StatisticsService {
   final String _base = AppConfig.baseUrl;
 
   // GET /api/Statistics/RecentStrengthStats?coachId=&teamId=
-  Future<Map<String, dynamic>?> getRecentStrengthStats({int? coachId, int? teamId}) async {
+  Future<Map<String, dynamic>?> getRecentStrengthStats({String? coachId, String? teamId}) async {
     try {
       final uri = Uri.parse('$_base/Statistics/RecentStrengthStats').replace(
         queryParameters: {
@@ -25,7 +25,7 @@ class StatisticsService {
   }
 
   // GET /api/Statistics/TeamStrengthStats/{teamId}
-  Future<Map<String, dynamic>?> getTeamStrengthStats(int teamId) async {
+  Future<Map<String, dynamic>?> getTeamStrengthStats(String teamId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/TeamStrengthStats/$teamId'),
@@ -40,7 +40,7 @@ class StatisticsService {
   }
 
   // GET /api/Statistics/DebugTeamEvaluations/{teamId}
-  Future<Map<String, dynamic>?> debugTeamEvaluations(int teamId) async {
+  Future<Map<String, dynamic>?> debugTeamEvaluations(String teamId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/DebugTeamEvaluations/$teamId'),
@@ -55,7 +55,7 @@ class StatisticsService {
   }
 
   // GET /api/Statistics/TeamStrengthStatsIndividualized/{teamId}
-  Future<Map<String, dynamic>?> getTeamStrengthStatsIndividualized(int teamId) async {
+  Future<Map<String, dynamic>?> getTeamStrengthStatsIndividualized(String teamId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/TeamStrengthStatsIndividualized/$teamId'),
@@ -70,7 +70,7 @@ class StatisticsService {
   }
 
   // GET /api/Statistics/AthleteStats/{athleteId}
-  Future<Map<String, dynamic>?> getAthleteStats(int athleteId) async {
+  Future<Map<String, dynamic>?> getAthleteStats(String athleteId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/AthleteStats/$athleteId'),
@@ -117,7 +117,7 @@ class StatisticsService {
   }
 
   // GET /api/Statistics/DashboardIndicators?coachId=&teamId=
-  Future<Map<String, dynamic>?> getDashboardIndicators({int? coachId, int? teamId}) async {
+  Future<Map<String, dynamic>?> getDashboardIndicators({String? coachId, String? teamId}) async {
     try {
       final uri = Uri.parse('$_base/Statistics/DashboardIndicators').replace(
         queryParameters: {
@@ -136,7 +136,7 @@ class StatisticsService {
   }
 
   // GET /api/Statistics/DashboardComplete?coachId=
-  Future<Map<String, dynamic>?> getDashboardComplete({int? coachId}) async {
+  Future<Map<String, dynamic>?> getDashboardComplete({String? coachId}) async {
     try {
       final uri = Uri.parse('$_base/Statistics/DashboardComplete').replace(
         queryParameters: {
@@ -155,8 +155,8 @@ class StatisticsService {
 
   // GET /api/Statistics/TopPerformanceAthletes?coachId=&teamId=&limit=
   Future<Map<String, dynamic>?> getTopPerformanceAthletes({
-    int? coachId,
-    int? teamId,
+    String? coachId,
+    String? teamId,
     int limit = 5,
   }) async {
     try {
@@ -179,8 +179,8 @@ class StatisticsService {
 
   // GET /api/Statistics/RecentTests?coachId=&teamId=&limit=
   Future<Map<String, dynamic>?> getRecentTests({
-    int? coachId,
-    int? teamId,
+    String? coachId,
+    String? teamId,
     int limit = 10,
   }) async {
     try {
@@ -202,7 +202,7 @@ class StatisticsService {
   }
 
   // GET /api/Statistics/PendingTasks?coachId=&priority=
-  Future<Map<String, dynamic>?> getPendingTasks({int? coachId, String? priority}) async {
+  Future<Map<String, dynamic>?> getPendingTasks({String? coachId, String? priority}) async {
     try {
       final uri = Uri.parse('$_base/Statistics/PendingTasks').replace(
         queryParameters: {
@@ -222,8 +222,8 @@ class StatisticsService {
 
   // GET /api/Statistics/MonthlyEvolution?coachId=&teamId=&months=
   Future<Map<String, dynamic>?> getMonthlyEvolution({
-    int? coachId,
-    int? teamId,
+    String? coachId,
+    String? teamId,
     int months = 12,
   }) async {
     try {
@@ -245,7 +245,7 @@ class StatisticsService {
   }
 
   // GET /api/Statistics/NextSession/{coachId}
-  Future<Map<String, dynamic>?> getNextSession(int coachId) async {
+  Future<Map<String, dynamic>?> getNextSession(String coachId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/NextSession/$coachId'),
@@ -260,7 +260,7 @@ class StatisticsService {
   }
 
   // GET /api/Statistics/CoachTeamsOverview/{coachId}
-  Future<Map<String, dynamic>?> getCoachTeamsOverview(int coachId) async {
+  Future<Map<String, dynamic>?> getCoachTeamsOverview(String coachId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/CoachTeamsOverview/$coachId'),
@@ -275,7 +275,7 @@ class StatisticsService {
   }
 
   // GET /api/Statistics/SaremasTeamStats/{teamId}
-  Future<Map<String, dynamic>?> getSaremasTeamStats(int teamId) async {
+  Future<Map<String, dynamic>?> getSaremasTeamStats(String teamId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/SaremasTeamStats/$teamId'),
@@ -290,7 +290,7 @@ class StatisticsService {
   }
 
   // GET /api/Statistics/SaremasAthleteStats/{athleteId}
-  Future<Map<String, dynamic>?> getSaremasAthleteStats(int athleteId) async {
+  Future<Map<String, dynamic>?> getSaremasAthleteStats(String athleteId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/SaremasAthleteStats/$athleteId'),
@@ -305,7 +305,7 @@ class StatisticsService {
   }
 
   // GET /api/Statistics/MacrocycleProgress/{macrocycleId}
-  Future<Map<String, dynamic>?> getMacrocycleProgress(int macrocycleId) async {
+  Future<Map<String, dynamic>?> getMacrocycleProgress(String macrocycleId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/MacrocycleProgress/$macrocycleId'),
@@ -320,7 +320,7 @@ class StatisticsService {
   }
 
   // GET /api/Statistics/AthleteFullDashboard/{athleteId}
-  Future<Map<String, dynamic>?> getAthleteFullDashboard(int athleteId) async {
+  Future<Map<String, dynamic>?> getAthleteFullDashboard(String athleteId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Statistics/AthleteFullDashboard/$athleteId'),

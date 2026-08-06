@@ -8,7 +8,7 @@ class TeamRepository {
   TeamRepository({required ApiClient apiClient}) : _apiClient = apiClient;
 
   /// Obtiene los equipos de un entrenador.
-  Future<Map<String, dynamic>> getTeamsForUser(int coachId) async {
+  Future<Map<String, dynamic>> getTeamsForUser(String coachId) async {
     return await _apiClient.get(ApiEndpoints.getTeamsForUser(coachId));
   }
 

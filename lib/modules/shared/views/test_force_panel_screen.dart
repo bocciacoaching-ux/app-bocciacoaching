@@ -174,8 +174,8 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
     final sessionProvider = context.read<SessionProvider>();
     final teamProvider = context.read<TeamProvider>();
 
-    final coachId = sessionProvider.session?.userId ?? 1;
-    final teamId = teamProvider.selectedTeam?.teamId ?? 1;
+    final coachId = sessionProvider.session?.userId ?? '';
+    final teamId = teamProvider.selectedTeam?.teamId ?? '';
 
     try {
       await provider.startNewEvaluation(

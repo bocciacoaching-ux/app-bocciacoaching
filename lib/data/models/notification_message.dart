@@ -1,14 +1,14 @@
 /// Modelo que representa un mensaje/notificación devuelto por la API.
 class NotificationMessage {
-  final int notificationMessageId;
+  final String notificationMessageId;
   final String? message;
   final String? image;
-  final int senderId;
-  final int receiverId;
-  final int notificationTypeId;
+  final String senderId;
+  final String receiverId;
+  final String notificationTypeId;
   final String? typeName;
   final bool isRead; // status en la API
-  final int? referenceId;
+  final String? referenceId;
   final DateTime? createdAt;
 
   const NotificationMessage({
@@ -26,15 +26,15 @@ class NotificationMessage {
 
   factory NotificationMessage.fromJson(Map<String, dynamic> json) {
     return NotificationMessage(
-      notificationMessageId: (json['notificationMessageId'] as num?)?.toInt() ?? 0,
+      notificationMessageId: json['notificationMessageId'] as String? ?? '',
       message: json['message'] as String?,
       image: json['image'] as String?,
-      senderId: (json['senderId'] as num?)?.toInt() ?? 0,
-      receiverId: (json['receiverId'] as num?)?.toInt() ?? 0,
-      notificationTypeId: (json['notificationTypeId'] as num?)?.toInt() ?? 0,
+      senderId: json['senderId'] as String? ?? '',
+      receiverId: json['receiverId'] as String? ?? '',
+      notificationTypeId: json['notificationTypeId'] as String? ?? '',
       typeName: json['typeName'] as String?,
       isRead: json['status'] as bool? ?? false,
-      referenceId: (json['referenceId'] as num?)?.toInt(),
+      referenceId: json['referenceId'] as String?,
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString())
           : null,

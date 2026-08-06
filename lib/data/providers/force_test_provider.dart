@@ -12,7 +12,7 @@ import '../../core/services/assess_strength_service.dart';
 class ForceTestProvider extends ChangeNotifier {
   final AssessStrengthService _service = AssessStrengthService();
   
-  int? _assessStrengthId;
+  String? _assessStrengthId;
   int _currentShotIndex = 0;
   List<Athlete> _selectedAthletes = [];
   List<EvaluationThrow> _completedThrows = [];
@@ -32,7 +32,7 @@ class ForceTestProvider extends ChangeNotifier {
   // Evaluation metadata
   String _evaluationName = '';
 
-  int? get assessStrengthId => _assessStrengthId;
+  String? get assessStrengthId => _assessStrengthId;
   int get currentShotNumber => _currentShotIndex + 1;
   int get totalShots => _testConfig.length;
   List<Athlete> get selectedAthletes => _selectedAthletes;
@@ -91,14 +91,14 @@ class ForceTestProvider extends ChangeNotifier {
 
   Future<void> _checkActiveEvaluation() async {
     final prefs = await SharedPreferences.getInstance();
-    _assessStrengthId = prefs.getInt('assessStrengthId');
+    _assessStrengthId = prefs.getString('assessStrengthId');
     notifyListeners();
   }
 
   /// Consulta la API para verificar si existe una evaluación activa
   /// para el equipo y coach dados.
   /// Retorna el [ActiveEvaluation] si existe, o `null` si no hay ninguna.
-  Future<ActiveEvaluation?> checkForActiveEvaluation(int teamId, int coachId) async {
+  Future<ActiveEvaluation?> checkForActiveEvaluation(String teamId, String coachId) async {
     _isLoading = true;
     notifyListeners();
 
@@ -132,7 +132,7 @@ class ForceTestProvider extends ChangeNotifier {
     _assessStrengthId = activeEval.assessStrengthId;
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('assessStrengthId', _assessStrengthId!);
+    await prefs.setString('assessStrengthId', _assessStrengthId!);
 
     // Restaurar atletas desde la evaluación activa
     _selectedAthletes = activeEval.athletes
@@ -199,7 +199,7 @@ class ForceTestProvider extends ChangeNotifier {
     }
   }
 
-  void removeAthlete(int id) {
+  void removeAthlete(String id) {
     _selectedAthletes.removeWhere((a) => a.id == id);
     notifyListeners();
   }
@@ -220,8 +220,8 @@ class ForceTestProvider extends ChangeNotifier {
   /// [coachId] es el ID del coach que realiza la cancelación.
   /// [reason] es un mensaje opcional de motivo.
   Future<bool> cancelEvaluation({
-    required int assessStrengthId,
-    required int coachId,
+    required String assessStrengthId,
+    required String coachId,
     String? reason,
   }) async {
     final result = await _service.cancel(
@@ -233,7 +233,7 @@ class ForceTestProvider extends ChangeNotifier {
     return result != null;
   }
 
-  Future<void> startNewEvaluation(String name, int teamId, int coachId) async {
+  Future<void> startNewEvaluation(String name, String teamId, String coachId) async {
     _isLoading = true;
     _evaluationName = name;
     notifyListeners();
@@ -244,16 +244,16 @@ class ForceTestProvider extends ChangeNotifier {
         teamId: teamId,
         coachId: coachId,
       );
-      final id = result != null ? (result['data']?['assessStrengthId'] as int?) : null;
+      final id = result != null ? (result['data']?['assessStrengthId'] as String?) : null;
       if (id != null) {
         _assessStrengthId = id;
       } else {
         // Fallback for demo purposes if API fails
-        _assessStrengthId = DateTime.now().millisecondsSinceEpoch;
+        _assessStrengthId = DateTime.now().millisecondsSinceEpoch.toString();
       }
 
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('assessStrengthId', _assessStrengthId!);
+      await prefs.setString('assessStrengthId', _assessStrengthId!);
       
       // Attempt to add athletes but don't block if it fails in demo
       // Add athletes one by one using the new API signature
@@ -270,7 +270,7 @@ class ForceTestProvider extends ChangeNotifier {
       _resetCurrentShotState();
     } catch (e) {
       // Final fallback to ensure we always advance
-      _assessStrengthId = DateTime.now().millisecondsSinceEpoch;
+      _assessStrengthId = DateTime.now().millisecondsSinceEpoch.toString();
       notifyListeners();
     }
 
@@ -288,7 +288,7 @@ class ForceTestProvider extends ChangeNotifier {
       scoreObtained: _currentScore!,
       observations: _observationsController.text,
       status: true,
-      athleteId: _selectedAthletes.isNotEmpty ? _selectedAthletes.first.id : 0,
+      athleteId: _selectedAthletes.isNotEmpty ? _selectedAthletes.first.id : '',
       assessStrengthId: _assessStrengthId!,
       coordinateX: _currentSelection!.dx,
       coordinateY: _currentSelection!.dy,

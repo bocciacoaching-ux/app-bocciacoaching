@@ -131,7 +131,7 @@ class TrainingDistribution {
 
 /// Microciclo — unidad mínima de planificación, generalmente 1 semana.
 class Microcycle {
-  final int? microcycleId;
+  final String? microcycleId;
   final int number;
   final DateTime startDate;
   final DateTime endDate;
@@ -173,7 +173,7 @@ class Microcycle {
   String get label => 'Micro $number (Sem $weekNumber)';
 
   Microcycle copyWith({
-    int? microcycleId,
+    String? microcycleId,
     int? number,
     DateTime? startDate,
     DateTime? endDate,
@@ -244,7 +244,7 @@ class Microcycle {
       orElse: () => MicrocycleType.ordinario,
     );
     return Microcycle(
-      microcycleId: json['microcycleId'] as int?,
+      microcycleId: json['microcycleId'] as String?,
       number: json['number'] as int,
       startDate: DateTime.parse(json['startDate'] as String),
       endDate: DateTime.parse(json['endDate'] as String),

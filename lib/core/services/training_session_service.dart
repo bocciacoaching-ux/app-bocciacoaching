@@ -15,7 +15,7 @@ class TrainingSessionService {
   /// Crea una sesión de entrenamiento completa con partes y secciones.
   /// Retorna TrainingSessionResponseDtoResponseContract.
   Future<TrainingSession?> create({
-    required int microcycleId,
+    required String microcycleId,
     String? dayOfWeek,
     required int duration,
     DateTime? startTime,
@@ -70,7 +70,7 @@ class TrainingSessionService {
 
   // ─── GET /api/TrainingSession/GetById/{sessionId} ───────────────
   /// Retorna TrainingSessionResponseDtoResponseContract.
-  Future<TrainingSession?> getById(int sessionId) async {
+  Future<TrainingSession?> getById(String sessionId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/TrainingSession/GetById/$sessionId'),
@@ -92,7 +92,7 @@ class TrainingSessionService {
   // ─── GET /api/TrainingSession/GetByMicrocycle/{microcycleId} ────
   /// Retorna TrainingSessionSummaryDtoListResponseContract.
   Future<List<TrainingSessionSummary>?> getByMicrocycle(
-      int microcycleId) async {
+      String microcycleId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/TrainingSession/GetByMicrocycle/$microcycleId'),
@@ -117,7 +117,7 @@ class TrainingSessionService {
   /// Actualiza una sesión existente (UpdateTrainingSessionDto).
   /// Retorna TrainingSessionResponseDtoResponseContract.
   Future<TrainingSession?> update({
-    required int trainingSessionId,
+    required String trainingSessionId,
     String? status,
     int? duration,
     DateTime? startTime,
@@ -173,7 +173,7 @@ class TrainingSessionService {
 
   // ─── DELETE /api/TrainingSession/Delete/{sessionId} ─────────────
   /// Retorna BooleanResponseContract.
-  Future<bool> delete(int sessionId) async {
+  Future<bool> delete(String sessionId) async {
     try {
       final response = await HttpLogger.delete(
         Uri.parse('$_base/TrainingSession/Delete/$sessionId'),
@@ -193,7 +193,7 @@ class TrainingSessionService {
   /// Agrega una sección a una parte de sesión (AddSessionSectionDto).
   /// Retorna SessionSectionResponseDtoResponseContract.
   Future<SessionSection?> addSection({
-    required int sessionPartId,
+    required String sessionPartId,
     String? name,
     required int numberOfThrows,
     required bool isOwnDiagonal,
@@ -247,7 +247,7 @@ class TrainingSessionService {
   /// Actualiza una sección existente (UpdateSessionSectionDto).
   /// Retorna SessionSectionResponseDtoResponseContract.
   Future<SessionSection?> updateSection({
-    required int sessionSectionId,
+    required String sessionSectionId,
     String? name,
     int? numberOfThrows,
     String? status,
@@ -304,7 +304,7 @@ class TrainingSessionService {
 
   // ─── DELETE /api/TrainingSession/DeleteSection/{sectionId} ──────
   /// Retorna BooleanResponseContract.
-  Future<bool> deleteSection(int sectionId) async {
+  Future<bool> deleteSection(String sectionId) async {
     try {
       final response = await HttpLogger.delete(
         Uri.parse('$_base/TrainingSession/DeleteSection/$sectionId'),
@@ -329,7 +329,7 @@ class TrainingSessionService {
   /// Body: GetAthleteSessionsDto { athleteId, startDate, endDate }.
   /// Retorna AthleteSessionSummaryDtoListResponseContract.
   Future<List<AthleteSessionSummary>?> getAthleteSessionsByDateRange({
-    required int athleteId,
+    required String athleteId,
     required DateTime startDate,
     required DateTime endDate,
   }) async {
@@ -365,8 +365,8 @@ class TrainingSessionService {
   /// Obtiene el detalle completo de una sesión para un atleta específico.
   /// Retorna TrainingSessionResponseDtoResponseContract.
   Future<TrainingSession?> getAthleteSessionDetail({
-    required int sessionId,
-    required int athleteId,
+    required String sessionId,
+    required String athleteId,
   }) async {
     try {
       final response = await HttpLogger.get(
@@ -393,8 +393,8 @@ class TrainingSessionService {
   /// Body: AthleteUpdateSessionStatusDto { trainingSessionId, athleteId }.
   /// Retorna TrainingSessionResponseDtoResponseContract.
   Future<TrainingSession?> athleteStartSession({
-    required int trainingSessionId,
-    required int athleteId,
+    required String trainingSessionId,
+    required String athleteId,
   }) async {
     try {
       final body = {
@@ -425,8 +425,8 @@ class TrainingSessionService {
   /// Body: AthleteUpdateSessionStatusDto { trainingSessionId, athleteId }.
   /// Retorna TrainingSessionResponseDtoResponseContract.
   Future<TrainingSession?> athleteFinishSession({
-    required int trainingSessionId,
-    required int athleteId,
+    required String trainingSessionId,
+    required String athleteId,
   }) async {
     try {
       final body = {

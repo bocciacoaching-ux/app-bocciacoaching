@@ -1,15 +1,15 @@
 class Athlete {
-  final int id;
+  final String id;
   final String name;
-  final int? teamId;
+  final String? teamId;
 
   Athlete({required this.id, required this.name, this.teamId});
 
   factory Athlete.fromJson(Map<String, dynamic> json) {
     return Athlete(
-      id: json['id'] ?? 0,
+      id: (json['id'] ?? '').toString(),
       name: json['name'] ?? '',
-      teamId: json['teamId'],
+      teamId: json['teamId']?.toString(),
     );
   }
 

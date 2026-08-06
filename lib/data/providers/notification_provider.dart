@@ -49,7 +49,7 @@ class NotificationProvider extends ChangeNotifier {
   ///
   /// Si [isCoach] es `true` usa `GetMessagesByCoach`, si no `GetMessagesByAthlete`.
   Future<void> fetchForUser({
-    required int userId,
+    required String userId,
     required bool isCoach,
     int page = 1,
     int pageSize = 50,
@@ -162,7 +162,7 @@ class NotificationProvider extends ChangeNotifier {
   Future<bool> acceptInvitation(
     NotificationMessage notification, {
     required TeamProvider teamProvider,
-    required int userId,
+    required String userId,
   }) async {
     try {
       final result = await _service.acceptTeamInvitation(
@@ -205,7 +205,7 @@ class NotificationProvider extends ChangeNotifier {
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
-  void _updateLocally(int id, {required bool isRead}) {
+  void _updateLocally(String id, {required bool isRead}) {
     _notifications = _notifications.map((n) {
       return n.notificationMessageId == id ? n.copyWith(isRead: isRead) : n;
     }).toList();

@@ -25,8 +25,8 @@ class _RegisterScreenState extends State<RegisterScreen>
   String? _selectedRole = 'Deportista';
   String? _selectedCategory = 'BC3';
 
-  final List<String> _roles = ['Deportista', 'Entrenador', 'Árbitro'];
-  final List<String> _categories = ['BC1', 'BC2', 'BC3'];
+  final List<String> _roles = ['Deportista', 'Entrenador'];
+  final List<String> _categories = ['BC1', 'BC2', 'BC3', 'BC4'];
 
   // Verification code (6 digits)
   final List<TextEditingController> _codeCtrls =
@@ -213,18 +213,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     await _sendCode();
   }
 
-  // ── Mapeo de rol ──────────────────────────────────────────────────
-  int _roleToInt(String? role) {
-    switch (role) {
-      case 'Entrenador':
-        return 1;
-      case 'Árbitro':
-        return 2;
-      case 'Deportista':
-      default:
-        return 3;
-    }
-  }
+
 
   // ── Registro ──────────────────────────────────────────────────────
   Future<void> _register() async {
@@ -238,7 +227,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         name: _nameCtrl.text.trim(),
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
-        rol: _roleToInt(_selectedRole),
+        rol: _selectedRole ?? 'Deportista',
         category: _selectedCategory,
       );
 

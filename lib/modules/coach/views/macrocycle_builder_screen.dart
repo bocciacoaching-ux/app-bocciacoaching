@@ -34,7 +34,7 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
 
   DateTime? _startDate;
   DateTime? _endDate;
-  int? _selectedAthleteId;
+  String? _selectedAthleteId;
   String _selectedAthleteName = '';
   final List<MacrocycleEvent> _events = [];
 
@@ -263,7 +263,7 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
           ),
         const SizedBox(height: 8),
         if (members.isNotEmpty) ...[
-          DropdownButtonFormField<int>(
+          DropdownButtonFormField<String>(
             value: members.any((m) => m.userId == _selectedAthleteId)
                 ? _selectedAthleteId
                 : null,
@@ -298,7 +298,7 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
             ),
             onChanged: (value) {
               _selectedAthleteName = value;
-              _selectedAthleteId = value.hashCode;
+              _selectedAthleteId = value.hashCode.toString();
             },
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
@@ -1366,7 +1366,7 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
     Future.delayed(const Duration(milliseconds: 500), () {
       final macro = MacrocycleProvider.buildMacrocycle(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        athleteId: _selectedAthleteId ?? _selectedAthleteName.hashCode,
+        athleteId: _selectedAthleteId ?? _selectedAthleteName.hashCode.toString(),
         athleteName: _selectedAthleteName,
         name: _nameController.text.trim(),
         startDate: _startDate!,

@@ -1,7 +1,7 @@
 /// Mesociclo — agrupación de microciclos dentro de un período.
 /// Generalmente dura entre 3 y 6 semanas.
 class Mesocycle {
-  final int? mesocycleId;
+  final String? mesocycleId;
   final int number;
   final String name;
   final MesocycleType type;
@@ -9,7 +9,7 @@ class Mesocycle {
   final DateTime endDate;
   final int weeks;
   final String? objective;
-  final int? macrocycleId;
+  final String? macrocycleId;
 
   const Mesocycle({
     this.mesocycleId,
@@ -24,7 +24,7 @@ class Mesocycle {
   });
 
   Mesocycle copyWith({
-    int? mesocycleId,
+    String? mesocycleId,
     int? number,
     String? name,
     MesocycleType? type,
@@ -32,7 +32,7 @@ class Mesocycle {
     DateTime? endDate,
     int? weeks,
     String? objective,
-    int? macrocycleId,
+    String? macrocycleId,
   }) {
     return Mesocycle(
       mesocycleId: mesocycleId ?? this.mesocycleId,
@@ -72,7 +72,7 @@ class Mesocycle {
 
   factory Mesocycle.fromJson(Map<String, dynamic> json) {
     return Mesocycle(
-      mesocycleId: json['mesocycleId'] as int?,
+      mesocycleId: json['mesocycleId'] as String?,
       number: json['number'] as int,
       name: json['name'] as String,
       type: MesocycleType.values.firstWhere(
@@ -83,7 +83,7 @@ class Mesocycle {
       endDate: DateTime.parse(json['endDate'] as String),
       weeks: json['weeks'] as int,
       objective: json['objective'] as String?,
-      macrocycleId: json['macrocycleId'] as int?,
+      macrocycleId: json['macrocycleId'] as String?,
     );
   }
 }

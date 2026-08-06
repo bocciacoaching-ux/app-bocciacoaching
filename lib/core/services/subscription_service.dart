@@ -58,7 +58,7 @@ class SubscriptionService {
   }
 
   // GET /api/Subscription/types/{id}
-  Future<Map<String, dynamic>?> getTypeById(int id) async {
+  Future<Map<String, dynamic>?> getTypeById(String id) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/types/$id'),
@@ -73,7 +73,7 @@ class SubscriptionService {
   }
 
   // PUT /api/Subscription/types/{id}
-  Future<Map<String, dynamic>?> updateType(int id, {
+  Future<Map<String, dynamic>?> updateType(String id, {
     String? name,
     String? description,
     required double monthlyPrice,
@@ -112,7 +112,7 @@ class SubscriptionService {
   }
 
   // DELETE /api/Subscription/types/{id}
-  Future<Map<String, dynamic>?> deleteType(int id) async {
+  Future<Map<String, dynamic>?> deleteType(String id) async {
     try {
       final response = await HttpLogger.delete(
         Uri.parse('$_base/Subscription/types/$id'),
@@ -127,7 +127,7 @@ class SubscriptionService {
   }
 
   // GET /api/Subscription/user/{userId}
-  Future<Map<String, dynamic>?> getUserSubscription(int userId) async {
+  Future<Map<String, dynamic>?> getUserSubscription(String userId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/user/$userId'),
@@ -142,7 +142,7 @@ class SubscriptionService {
   }
 
   // GET /api/Subscription/user/{userId}/history
-  Future<Map<String, dynamic>?> getUserSubscriptionHistory(int userId) async {
+  Future<Map<String, dynamic>?> getUserSubscriptionHistory(String userId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/user/$userId/history'),
@@ -158,8 +158,8 @@ class SubscriptionService {
 
   // POST /api/Subscription/create
   Future<Map<String, dynamic>?> createSubscription({
-    required int userId,
-    required int subscriptionTypeId,
+    required String userId,
+    required String subscriptionTypeId,
     required bool isAnnual,
     required bool isTrial,
     int? trialDays,
@@ -189,7 +189,7 @@ class SubscriptionService {
 
   // POST /api/Subscription/cancel
   Future<Map<String, dynamic>?> cancelSubscription({
-    required int subscriptionId,
+    required String subscriptionId,
     required bool cancelAtPeriodEnd,
     String? cancellationReason,
   }) async {
@@ -214,7 +214,7 @@ class SubscriptionService {
 
   // PUT /api/Subscription/update
   Future<Map<String, dynamic>?> updateSubscription({
-    required int subscriptionId,
+    required String subscriptionId,
     required int newSubscriptionTypeId,
     required bool isAnnual,
     required bool prorationBehavior,
@@ -240,7 +240,7 @@ class SubscriptionService {
   }
 
   // POST /api/Subscription/reactivate/{subscriptionId}
-  Future<Map<String, dynamic>?> reactivateSubscription(int subscriptionId) async {
+  Future<Map<String, dynamic>?> reactivateSubscription(String subscriptionId) async {
     try {
       final response = await HttpLogger.post(
         Uri.parse('$_base/Subscription/reactivate/$subscriptionId'),
@@ -256,8 +256,8 @@ class SubscriptionService {
 
   // POST /api/Subscription/trial/start?userId=&subscriptionTypeId=&trialDays=
   Future<Map<String, dynamic>?> startTrial({
-    required int userId,
-    required int subscriptionTypeId,
+    required String userId,
+    required String subscriptionTypeId,
     int trialDays = 7,
   }) async {
     try {
@@ -279,7 +279,7 @@ class SubscriptionService {
   }
 
   // GET /api/Subscription/trial/available/{userId}/{subscriptionTypeId}
-  Future<Map<String, dynamic>?> isTrialAvailable(int userId, int subscriptionTypeId) async {
+  Future<Map<String, dynamic>?> isTrialAvailable(String userId, String subscriptionTypeId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/trial/available/$userId/$subscriptionTypeId'),
@@ -294,7 +294,7 @@ class SubscriptionService {
   }
 
   // GET /api/Subscription/validate/{userId}?feature=
-  Future<Map<String, dynamic>?> validateSubscription(int userId, {String? feature}) async {
+  Future<Map<String, dynamic>?> validateSubscription(String userId, {String? feature}) async {
     try {
       final uri = Uri.parse('$_base/Subscription/validate/$userId').replace(
         queryParameters: {
@@ -312,7 +312,7 @@ class SubscriptionService {
   }
 
   // GET /api/Subscription/access/{userId}/{featureName}
-  Future<Map<String, dynamic>?> checkFeatureAccess(int userId, String featureName) async {
+  Future<Map<String, dynamic>?> checkFeatureAccess(String userId, String featureName) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/access/$userId/$featureName'),
@@ -327,7 +327,7 @@ class SubscriptionService {
   }
 
   // GET /api/Subscription/limits/{userId}/can-create-team
-  Future<Map<String, dynamic>?> canCreateTeam(int userId) async {
+  Future<Map<String, dynamic>?> canCreateTeam(String userId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/limits/$userId/can-create-team'),
@@ -342,7 +342,7 @@ class SubscriptionService {
   }
 
   // GET /api/Subscription/limits/{userId}/can-add-athlete/{teamId}
-  Future<Map<String, dynamic>?> canAddAthlete(int userId, int teamId) async {
+  Future<Map<String, dynamic>?> canAddAthlete(String userId, String teamId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/limits/$userId/can-add-athlete/$teamId'),
@@ -357,7 +357,7 @@ class SubscriptionService {
   }
 
   // GET /api/Subscription/limits/{userId}/can-evaluate
-  Future<Map<String, dynamic>?> canEvaluate(int userId) async {
+  Future<Map<String, dynamic>?> canEvaluate(String userId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/limits/$userId/can-evaluate'),
@@ -372,7 +372,7 @@ class SubscriptionService {
   }
 
   // GET /api/Subscription/limits/{userId}/remaining-teams
-  Future<Map<String, dynamic>?> getRemainingTeams(int userId) async {
+  Future<Map<String, dynamic>?> getRemainingTeams(String userId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/limits/$userId/remaining-teams'),
@@ -387,7 +387,7 @@ class SubscriptionService {
   }
 
   // GET /api/Subscription/limits/{userId}/remaining-athletes/{teamId}
-  Future<Map<String, dynamic>?> getRemainingAthletes(int userId, int teamId) async {
+  Future<Map<String, dynamic>?> getRemainingAthletes(String userId, String teamId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/limits/$userId/remaining-athletes/$teamId'),
@@ -402,7 +402,7 @@ class SubscriptionService {
   }
 
   // GET /api/Subscription/limits/{userId}/remaining-evaluations
-  Future<Map<String, dynamic>?> getRemainingEvaluations(int userId) async {
+  Future<Map<String, dynamic>?> getRemainingEvaluations(String userId) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Subscription/limits/$userId/remaining-evaluations'),
@@ -418,8 +418,8 @@ class SubscriptionService {
 
   // POST /api/Subscription/payment/create-intent
   Future<Map<String, dynamic>?> createPaymentIntent({
-    required int subscriptionTypeId,
-    required int userId,
+    required String subscriptionTypeId,
+    required String userId,
     required bool isAnnual,
     String? currency,
     String? paymentMethodId,

@@ -5,8 +5,8 @@ class DirectionEvaluationThrow {
   final int scoreObtained;
   final String observations;
   final bool status;
-  final int athleteId;
-  final int assessDirectionId;
+  final String athleteId;
+  final String assessDirectionId;
   final double coordinateX;
   final double coordinateY;
   final bool deviatedRight;

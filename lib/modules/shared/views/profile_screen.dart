@@ -9,6 +9,7 @@ import '../../../data/models/user_session.dart';
 import '../../../core/services/biometric_service.dart';
 import '../../../core/services/user_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../shared/widgets/app_dialog.dart';
 import '../../../shared/widgets/profile_image_picker.dart';
 import 'change_password_screen.dart';
@@ -90,11 +91,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   /// Etiqueta legible del rol.
-  static String _roleLabel(int rolId) {
+  static String _roleLabel(String rolId) {
     switch (rolId) {
-      case 1:
+      case AppConstants.roleCoachId:
         return 'Entrenador';
-      case 3:
+      case AppConstants.roleAthleteId:
         return 'Deportista';
       default:
         return 'Usuario';
@@ -102,7 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   /// Lista de roles disponibles según los rolIds que devuelve la API.
-  static List<String> _availableRoles(List<int> rolIds) {
+  static List<String> _availableRoles(List<String> rolIds) {
     return rolIds.map(_roleLabel).toList();
   }
 

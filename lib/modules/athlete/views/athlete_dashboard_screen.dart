@@ -15,7 +15,7 @@ import '../../../data/providers/athlete_session_provider.dart';
 import '../../../data/providers/onboarding_provider.dart';
 import '../../onboarding/views/onboarding_intro_screen.dart';
 
-/// Dashboard específico para el rol de **atleta** (rolId == 3).
+/// Dashboard específico para el rol de **atleta**.
 ///
 /// Tiene la misma estructura visual que [DashboardScreen] (coach) pero con:
 /// - Título «Panel Deportista».

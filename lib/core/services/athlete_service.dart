@@ -8,7 +8,7 @@ class AthleteService {
   // POST /api/User/SearchAthletesForNameAndTeams
   Future<Map<String, dynamic>?> searchAthletes({
     String? firstName,
-    required int teamId,
+    required String teamId,
   }) async {
     try {
       final response = await HttpLogger.post(
@@ -35,8 +35,8 @@ class AthleteService {
     String? address,
     DateTime? seniority,
     required bool status,
-    required int coachId,
-    int? teamId,
+    required String coachId,
+    String? teamId,
   }) async {
     try {
       final response = await HttpLogger.post(

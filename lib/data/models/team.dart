@@ -1,8 +1,8 @@
 class Team {
-  final int teamId;
+  final String teamId;
   final String nameTeam;
   final String? description;
-  final int coachId;
+  final String coachId;
   final bool status;
   final String? image;
   final bool bc1;
@@ -39,10 +39,10 @@ class Team {
 
   factory Team.fromJson(Map<String, dynamic> json) {
     return Team(
-      teamId: (json['teamId'] as num?)?.toInt() ?? 0,
+      teamId: json['teamId'] as String? ?? '',
       nameTeam: json['nameTeam'] as String? ?? '',
       description: json['description'] as String?,
-      coachId: (json['coachId'] as num?)?.toInt() ?? 0,
+      coachId: json['coachId'] as String? ?? '',
       status: json['status'] as bool? ?? true,
       image: json['image'] as String?,
       bc1: json['bc1'] as bool? ?? false,

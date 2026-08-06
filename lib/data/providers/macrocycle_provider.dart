@@ -29,13 +29,13 @@ class MacrocycleProvider extends ChangeNotifier {
   bool get hasMacrocycles => _macrocycles.isNotEmpty;
 
   /// Retorna macrociclos filtrados por atleta.
-  List<Macrocycle> macrocyclesForAthlete(int athleteId) =>
+  List<Macrocycle> macrocyclesForAthlete(String athleteId) =>
       _macrocycles.where((m) => m.athleteId == athleteId).toList();
 
   // ── Persistencia ───────────────────────────────────────────────────
 
   /// Carga los macrociclos desde la API (por equipo) con fallback a local.
-  Future<void> loadMacrocycles({int? teamId}) async {
+  Future<void> loadMacrocycles({String? teamId}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -114,8 +114,8 @@ class MacrocycleProvider extends ChangeNotifier {
         name: macrocycle.name,
         athleteId: macrocycle.athleteId,
         athleteName: macrocycle.athleteName,
-        coachId: macrocycle.coachId ?? 0,
-        teamId: macrocycle.teamId ?? 0,
+        coachId: macrocycle.coachId ?? '',
+        teamId: macrocycle.teamId ?? '',
         startDate: macrocycle.startDate,
         endDate: macrocycle.endDate,
         notes: macrocycle.notes,
@@ -170,8 +170,8 @@ class MacrocycleProvider extends ChangeNotifier {
             name: macrocycle.name,
             athleteId: macrocycle.athleteId,
             athleteName: macrocycle.athleteName,
-            coachId: macrocycle.coachId ?? 0,
-            teamId: macrocycle.teamId ?? 0,
+            coachId: macrocycle.coachId ?? '',
+            teamId: macrocycle.teamId ?? '',
             startDate: macrocycle.startDate,
             endDate: macrocycle.endDate,
             notes: macrocycle.notes,
@@ -223,14 +223,14 @@ class MacrocycleProvider extends ChangeNotifier {
   /// 3. Los mesociclos agrupando microciclos en bloques de 4 semanas.
   static Macrocycle buildMacrocycle({
     required String id,
-    required int athleteId,
+    required String athleteId,
     required String athleteName,
     required String name,
     required DateTime startDate,
     required DateTime endDate,
     required List<MacrocycleEvent> events,
-    int? coachId,
-    int? teamId,
+    String? coachId,
+    String? teamId,
     String? notes,
   }) {
     // Normalizar fechas al inicio de semana (lunes)

@@ -19,7 +19,7 @@ class NotificationService {
   }
 
   // GET /api/Notification/GetType/{id}
-  Future<Map<String, dynamic>?> getType(int id) async {
+  Future<Map<String, dynamic>?> getType(String id) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Notification/GetType/$id'),
@@ -55,7 +55,7 @@ class NotificationService {
 
   // PUT /api/Notification/UpdateType
   Future<Map<String, dynamic>?> updateType({
-    required int notificationTypeId,
+    required String notificationTypeId,
     String? name,
     String? description,
     bool? status,
@@ -81,7 +81,7 @@ class NotificationService {
   }
 
   // GET /api/Notification/GetMessage/{id}
-  Future<Map<String, dynamic>?> getMessage(int id) async {
+  Future<Map<String, dynamic>?> getMessage(String id) async {
     try {
       final response = await HttpLogger.get(
         Uri.parse('$_base/Notification/GetMessage/$id'),
@@ -99,11 +99,11 @@ class NotificationService {
   Future<Map<String, dynamic>?> createMessage({
     String? message,
     String? image,
-    required int senderId,
-    required int receiverId,
-    required int notificationTypeId,
+    required String senderId,
+    required String receiverId,
+    required String notificationTypeId,
     bool? status,
-    int? referenceId,
+    String? referenceId,
   }) async {
     try {
       final response = await HttpLogger.post(
@@ -130,14 +130,14 @@ class NotificationService {
 
   // PUT /api/Notification/UpdateMessage
   Future<Map<String, dynamic>?> updateMessage({
-    required int notificationMessageId,
+    required String notificationMessageId,
     String? message,
     String? image,
-    required int senderId,
-    required int receiverId,
-    required int notificationTypeId,
+    required String senderId,
+    required String receiverId,
+    required String notificationTypeId,
     bool? status,
-    int? referenceId,
+    String? referenceId,
   }) async {
     try {
       final response = await HttpLogger.put(
@@ -165,7 +165,7 @@ class NotificationService {
 
   // GET /api/Notification/GetMessagesByCoach/{coachId}?page=&pageSize=
   Future<Map<String, dynamic>?> getMessagesByCoach(
-    int coachId, {
+    String coachId, {
     int? page,
     int? pageSize,
   }) async {
@@ -188,7 +188,7 @@ class NotificationService {
 
   // GET /api/Notification/GetMessagesByAthlete/{athleteId}?page=&pageSize=
   Future<Map<String, dynamic>?> getMessagesByAthlete(
-    int athleteId, {
+    String athleteId, {
     int? page,
     int? pageSize,
   }) async {
@@ -211,9 +211,9 @@ class NotificationService {
 
   // POST /api/Notification/SendTeamInvitation
   Future<Map<String, dynamic>?> sendTeamInvitation({
-    required int coachId,
+    required String coachId,
     String? email,
-    required int teamId,
+    required String teamId,
     String? message,
   }) async {
     try {
@@ -237,7 +237,7 @@ class NotificationService {
   }
 
   // PUT /api/Notification/AcceptTeamInvitation/{notificationMessageId}
-  Future<Map<String, dynamic>?> acceptTeamInvitation(int notificationMessageId) async {
+  Future<Map<String, dynamic>?> acceptTeamInvitation(String notificationMessageId) async {
     try {
       final response = await HttpLogger.put(
         Uri.parse('$_base/Notification/AcceptTeamInvitation/$notificationMessageId'),

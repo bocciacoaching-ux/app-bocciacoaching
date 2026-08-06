@@ -613,7 +613,7 @@ class _MicrocycleOverviewScreenState extends State<MicrocycleOverviewScreen> {
 
     // Mostrar bottom sheet con sesiones para elegir
     if (!mounted) return;
-    final selectedSessionId = await showModalBottomSheet<int>(
+    final selectedSessionId = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
