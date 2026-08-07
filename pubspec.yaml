@@ -29,6 +29,7 @@ dependencies:
   open_filex: ^4.7.0
   table_calendar: ^3.1.2
   image_picker: ^1.2.3
+  lottie: ^3.1.2
 
 dev_dependencies:
   flutter_test:
@@ -47,6 +48,7 @@ flutter:
     - assets/images/google-logo.svg
     - assets/data/test.force.json
     - assets/data/test.direction.json
+    - assets/animations/splash_animation.json
 
 flutter_launcher_icons:
   android: true
