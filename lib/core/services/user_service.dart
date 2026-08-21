@@ -139,6 +139,47 @@ class UserService {
     }
   }
 
+  // POST /api/User/ResetPassword
+  Future<Map<String, dynamic>> resetPassword({
+    required String email,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await HttpLogger.post(
+        Uri.parse('$_base/User/ResetPassword'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'newPassword': newPassword,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        return {'success': true, 'data': body};
+      }
+
+      final String message = switch (response.statusCode) {
+        400 => 'Los datos son inválidos.',
+        404 => 'Usuario no encontrado.',
+        >= 500 => 'Error en el servidor. Inténtalo más tarde.',
+        _ => 'No se pudo restablecer la contraseña (código ${response.statusCode}).',
+      };
+
+      return {'success': false, 'message': message};
+    } on SocketException {
+      return {
+        'success': false,
+        'message': 'Sin conexión a Internet.',
+      };
+    } catch (_) {
+      return {
+        'success': false,
+        'message': 'Error inesperado.',
+      };
+    }
+  }
+
   // PUT /api/User/UpdateUserInfo
   //
   // Actualiza la información de perfil del usuario autenticado.

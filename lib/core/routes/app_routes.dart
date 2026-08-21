@@ -4,6 +4,7 @@ abstract final class AppRoutes {
   static const String splash = '/splash';
   static const String login = '/';
   static const String register = '/register';
+  static const String forgotPassword = '/forgot-password';
   static const String biometricLock = '/biometric-lock';
   static const String home = '/home';
   static const String dashboard = '/dashboard';

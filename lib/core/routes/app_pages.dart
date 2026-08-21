@@ -5,6 +5,7 @@ import 'app_routes.dart';
 import '../../modules/auth/views/splash_screen.dart';
 import '../../modules/auth/views/login_screen.dart';
 import '../../modules/auth/views/register_screen.dart';
+import '../../modules/auth/views/forgot_password_screen.dart';
 import '../../modules/auth/views/biometric_lock_screen.dart';
 
 // ── Módulo Coach (pantallas exclusivas del entrenador) ─────────────
@@ -62,6 +63,10 @@ abstract final class AppPages {
     GetPage(
       name: AppRoutes.register,
       page: () => const RegisterScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.forgotPassword,
+      page: () => const ForgotPasswordScreen(),
     ),
     GetPage(
       name: AppRoutes.biometricLock,

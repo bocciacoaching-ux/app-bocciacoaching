@@ -5,6 +5,7 @@ import '../../../data/providers/session_provider.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/navigation_helper.dart';
+import 'widgets/responsive_auth_layout.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService? authService;
@@ -172,296 +173,227 @@ class _LoginScreenState extends State<LoginScreen>
   // ── Build ─────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    final topPadding = MediaQuery.of(context).padding.top;
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
-    final screenHeight = MediaQuery.of(context).size.height;
-    // Altura del header (status bar + padding top + logo area)
-    const headerHeight = 220.0;
+    return ResponsiveAuthLayout(
+      logo: Image.asset(
+        'assets/images/isologo-horizontal.png',
+        height: 80,
+        fit: BoxFit.contain,
+      ),
+      fadeIn: _fadeIn,
+      slideUp: _slideUp,
+      content: _buildLoginForm(context),
+    );
+  }
 
-    return Scaffold(
-      backgroundColor: AppColors.headerGradientTop,
-      resizeToAvoidBottomInset: true,
-      body: Container(
-        width: double.infinity,
-        height: screenHeight,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.headerGradientTop,
-              AppColors.headerGradientBottom,
-            ],
+  Widget _buildLoginForm(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(24, 28, 24, 28 + bottomPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            '¡Bienvenido!',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            // ── Header con logo (centrado) ──────────────────────
-            SizedBox(
-              height: headerHeight + topPadding,
-              child: Center(
-                child: Padding(
-                  padding: EdgeInsets.only(top: topPadding),
-                  child: Image.asset(
-                    'assets/images/isologo-horizontal.png',
-                    height: 80,
-                    fit: BoxFit.contain,
+          const SizedBox(height: 6),
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              const Text(
+                '¿Primera vez en Boccia Coaching? ',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              GestureDetector(
+                onTap: () => Navigator.of(context).pushNamed('/register'),
+                child: const Text(
+                  'Regístrate',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                    decoration: TextDecoration.underline,
+                    decorationColor: AppColors.primary,
                   ),
                 ),
               ),
-            ),
+            ],
+          ),
+          const SizedBox(height: 24),
 
-            // ── Card blanca (ocupa el resto) ─────────────────────
-            Expanded(
-              child: FadeTransition(
-                opacity: _fadeIn,
-                child: SlideTransition(
-                  position: _slideUp,
-                  child: Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(32),
-                        topRight: Radius.circular(32),
+          // ── Form ────────────────────────────────
+          Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _label('Tu correo electrónico'),
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: _inputDecoration(
+                    hint: 'anagonzalez@email.com',
+                    prefixIcon: Icons.email_outlined,
+                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) {
+                      return 'Introduce tu correo';
+                    }
+                    if (!v.contains('@')) return 'Correo no válido';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 18),
+
+                _label('Tu contraseña'),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: _obscure,
+                  decoration: _inputDecoration(
+                    hint: '••••••••',
+                    prefixIcon: Icons.lock_outline,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscure
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        color: AppColors.neutral5,
+                        size: 20,
+                      ),
+                      onPressed: () => setState(() => _obscure = !_obscure),
+                    ),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) {
+                      return 'Introduce la contraseña';
+                    }
+                    if (v.length < 6) {
+                      return 'La contraseña es muy corta';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 4),
+
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pushNamed('/forgot-password'),
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(0, 32),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text(
+                      '¿Olvidaste tu contraseña?',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(
-                          24, 28, 24, 28 + bottomPadding),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                              const Text(
-                                '¡Bienvenido!',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Wrap(
-                                alignment: WrapAlignment.center,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [
-                                  const Text(
-                                    '¿Primera vez en Boccia Coaching? ',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () => Navigator.of(context)
-                                        .pushNamed('/register'),
-                                    child: const Text(
-                                      'Regístrate',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: AppColors.primary,
-                                        fontWeight: FontWeight.w700,
-                                        decoration: TextDecoration.underline,
-                                        decorationColor: AppColors.primary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 24),
+                  ),
+                ),
+                const SizedBox(height: 16),
 
-                              // ── Form ────────────────────────────────
-                              Form(
-                                key: _formKey,
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    _label('Tu correo electrónico'),
-                                    TextFormField(
-                                      controller: _emailController,
-                                      keyboardType:
-                                          TextInputType.emailAddress,
-                                      decoration: _inputDecoration(
-                                        hint: 'anagonzalez@email.com',
-                                        prefixIcon: Icons.email_outlined,
-                                      ),
-                                      validator: (v) {
-                                        if (v == null || v.isEmpty) {
-                                          return 'Introduce tu correo';
-                                        }
-                                        if (!v.contains('@'))
-                                          return 'Correo no válido';
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 18),
+                if (_errorMessage != null) ...[
+                  _errorBanner(_errorMessage!),
+                  const SizedBox(height: 14),
+                ],
 
-                                    _label('Tu contraseña'),
-                                    TextFormField(
-                                      controller: _passwordController,
-                                      obscureText: _obscure,
-                                      decoration: _inputDecoration(
-                                        hint: '••••••••',
-                                        prefixIcon: Icons.lock_outline,
-                                        suffixIcon: IconButton(
-                                          icon: Icon(
-                                            _obscure
-                                                ? Icons.visibility_outlined
-                                                : Icons
-                                                    .visibility_off_outlined,
-                                            color: AppColors.neutral5,
-                                            size: 20,
-                                          ),
-                                          onPressed: () => setState(
-                                              () => _obscure = !_obscure),
-                                        ),
-                                      ),
-                                      validator: (v) {
-                                        if (v == null || v.isEmpty) {
-                                          return 'Introduce la contraseña';
-                                        }
-                                        if (v.length < 6) {
-                                          return 'La contraseña es muy corta';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 4),
-
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: TextButton(
-                                        onPressed: () {},
-                                        style: TextButton.styleFrom(
-                                          padding: EdgeInsets.zero,
-                                          minimumSize: const Size(0, 32),
-                                          tapTargetSize: MaterialTapTargetSize
-                                              .shrinkWrap,
-                                        ),
-                                        child: const Text(
-                                          '¿Olvidaste tu contraseña?',
-                                          style: TextStyle(
-                                            color: AppColors.primary,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-
-                                    if (_errorMessage != null) ...[
-                                      _errorBanner(_errorMessage!),
-                                      const SizedBox(height: 14),
-                                    ],
-
-                                    SizedBox(
-                                      height: 50,
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              AppColors.actionPrimaryDefault,
-                                          foregroundColor: AppColors.white,
-                                          disabledBackgroundColor: AppColors
-                                              .actionPrimaryDisabled,
-                                          elevation: 0,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          textStyle: const TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        onPressed: _loading ? null : _submit,
-                                        child: _loading
-                                            ? const SizedBox(
-                                                width: 22,
-                                                height: 22,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  strokeWidth: 2.5,
-                                                  color: AppColors.white,
-                                                ),
-                                              )
-                                            : const Text('Iniciar sesión'),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              const SizedBox(height: 22),
-
-                              // ── Separador ────────────────────────────
-                              Row(
-                                children: [
-                                  const Expanded(
-                                      child:
-                                          Divider(color: AppColors.neutral7)),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12),
-                                    child: Text(
-                                      'O inicia sesión con',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                  ),
-                                  const Expanded(
-                                      child:
-                                          Divider(color: AppColors.neutral7)),
-                                ],
-                              ),
-                              const SizedBox(height: 18),
-
-                              // ── Botón Google ─────────────────────────
-                              Center(
-                                child: SizedBox(
-                                  height: 48,
-                                  width: 48,
-                                  child: OutlinedButton(
-                                    onPressed: () {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                              'Google sign-in no implementado'),
-                                        ),
-                                      );
-                                    },
-                                    style: OutlinedButton.styleFrom(
-                                      padding: EdgeInsets.zero,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12),
-                                      ),
-                                      side: const BorderSide(
-                                          color: AppColors.neutral7),
-                                    ),
-                                    child: SvgPicture.asset(
-                                      'assets/images/google-logo.svg',
-                                      width: 24,
-                                      height: 24,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                SizedBox(
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.actionPrimaryDefault,
+                      foregroundColor: AppColors.white,
+                      disabledBackgroundColor: AppColors.actionPrimaryDisabled,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
+                    onPressed: _loading ? null : _submit,
+                    child: _loading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: AppColors.white,
+                            ),
+                          )
+                        : const Text('Iniciar sesión'),
                   ),
                 ),
               ],
             ),
           ),
-        );
-      }
-    }
+
+          const SizedBox(height: 22),
+
+          // ── Separador ────────────────────────────
+          Row(
+            children: [
+              const Expanded(child: Divider(color: AppColors.neutral7)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  'O inicia sesión con',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              const Expanded(child: Divider(color: AppColors.neutral7)),
+            ],
+          ),
+          const SizedBox(height: 18),
+
+          // ── Botón Google ─────────────────────────
+          Center(
+            child: SizedBox(
+              height: 48,
+              width: 48,
+              child: OutlinedButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Google sign-in no implementado'),
+                    ),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  side: const BorderSide(color: AppColors.neutral7),
+                ),
+                child: SvgPicture.asset(
+                  'assets/images/google-logo.svg',
+                  width: 24,
+                  height: 24,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

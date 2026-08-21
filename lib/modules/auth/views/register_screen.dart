@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/user_service.dart';
 import '../../../core/services/email_service.dart';
+import 'widgets/responsive_auth_layout.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -909,147 +910,92 @@ class _RegisterScreenState extends State<RegisterScreen>
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
-    final screenHeight = MediaQuery.of(context).size.height;
-    const headerHeight = 220.0;
 
-    return Scaffold(
-      backgroundColor: AppColors.headerGradientTop,
-      resizeToAvoidBottomInset: true,
-      body: Container(
-        width: double.infinity,
-        height: screenHeight,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.headerGradientTop,
-              AppColors.headerGradientBottom,
-            ],
-          ),
-        ),
-        child: Column(
-          children: [
-            // ── Header con logo (centrado) ──────────────────────
-            SizedBox(
-              height: headerHeight + topPadding,
-              child: Column(
-                children: [
-                  SizedBox(height: topPadding + 12),
-                  // Back button
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () => Navigator.of(context)
-                              .pushReplacementNamed('/'),
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.arrow_back,
-                                color: AppColors.white, size: 18),
-                          ),
-                        ),
-                        const SizedBox(width: 36, height: 36),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Image.asset(
-                        'assets/images/isologo-horizontal.png',
-                        height: 80,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                ],
-              ),
-            ),
-
-            // ── Card blanca (ocupa el resto) ─────────────────────
-            Expanded(
-              child: FadeTransition(
-                opacity: _fadeIn,
-                child: SlideTransition(
-                  position: _slideUp,
+    return ResponsiveAuthLayout(
+      logo: Image.asset(
+        'assets/images/isologo-horizontal.png',
+        height: 80,
+        fit: BoxFit.contain,
+      ),
+      mobileHeaderExtra: Column(
+        children: [
+          SizedBox(height: topPadding + 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pushReplacementNamed('/'),
                   child: Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(32),
-                        topRight: Radius.circular(32),
-                      ),
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      shape: BoxShape.circle,
                     ),
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(
-                          24, 24, 24, 24 + bottomPadding),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                              const Text(
-                                'Crea tu cuenta',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    '¿Ya tienes usuario? ',
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        color: AppColors.textSecondary),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () => Navigator.of(context)
-                                        .pushReplacementNamed('/'),
-                                    child: const Text(
-                                      'Inicia sesión',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: AppColors.primary,
-                                        fontWeight: FontWeight.w700,
-                                        decoration: TextDecoration.underline,
-                                        decorationColor: AppColors.primary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 20),
-                              _buildStepper(),
-                              const SizedBox(height: 24),
-                              if (_step == 0) _buildStep0Email(),
-                              if (_step == 1) _buildStep1Code(),
-                              if (_step == 2) _buildStep2Password(),
-                              if (_step == 3) _buildStep3Profile(),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: const Icon(Icons.arrow_back,
+                        color: AppColors.white, size: 18),
                   ),
                 ),
               ],
             ),
           ),
-        );
-      }
-    }
+        ],
+      ),
+      fadeIn: _fadeIn,
+      slideUp: _slideUp,
+      content: _buildRegisterForm(context),
+    );
+  }
+
+  Widget _buildRegisterForm(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            'Crea tu cuenta',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                '¿Ya tienes usuario? ',
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              ),
+              GestureDetector(
+                onTap: () => Navigator.of(context).pushReplacementNamed('/'),
+                child: const Text(
+                  'Inicia sesión',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                    decoration: TextDecoration.underline,
+                    decorationColor: AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _buildStepper(),
+          const SizedBox(height: 24),
+          if (_step == 0) _buildStep0Email(),
+          if (_step == 1) _buildStep1Code(),
+          if (_step == 2) _buildStep2Password(),
+          if (_step == 3) _buildStep3Profile(),
+        ],
+      ),
+    );
+  }
+}

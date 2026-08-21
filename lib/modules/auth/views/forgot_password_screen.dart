@@ -230,6 +230,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
         TextFormField(
           controller: _emailCtrl,
           keyboardType: TextInputType.emailAddress,
+          onChanged: (_) => setState(() {}),
           decoration: _inputDecoration(
             hint: 'ejemplo@correo.com',
             prefixIcon: Icons.email_outlined,
@@ -297,6 +298,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
         TextFormField(
           controller: _passwordCtrl,
           obscureText: !_showPassword,
+          onChanged: (_) => setState(() {}),
           decoration: _inputDecoration(
             hint: '••••••••',
             prefixIcon: Icons.lock_outline,
@@ -311,6 +313,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
         TextFormField(
           controller: _confirmPasswordCtrl,
           obscureText: !_showPassword,
+          onChanged: (_) => setState(() {}),
           decoration: _inputDecoration(
             hint: '••••••••',
             prefixIcon: Icons.lock_outline,
@@ -321,6 +324,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
           label: 'Restablecer contraseña',
           onPressed: _pwValid && _pwMatch ? _resetPassword : null,
           loading: _loading,
+        ),
+        const SizedBox(height: 16),
+        Center(
+          child: TextButton(
+            onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
+            child: const Text(
+              'Regresar al inicio de sesión',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
         ),
       ],
     );
