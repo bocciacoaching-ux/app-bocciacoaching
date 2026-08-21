@@ -233,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen>
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                               const Text(
-                                '¡Hola de nuevo!',
+                                '¡Bienvenido!',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 26,
