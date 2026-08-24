@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/user_service.dart';
 import '../../../core/services/email_service.dart';
+import '../../../core/routes/app_routes.dart';
 import 'widgets/responsive_auth_layout.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -242,6 +243,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
           onPressed: _emailValid ? _sendCode : null,
           loading: _loading,
         ),
+        const SizedBox(height: 16),
+        _backToLoginBtn(),
       ],
     );
   }
@@ -282,10 +285,25 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
           onPressed: _codeCtrls.every((c) => c.text.length == 1) ? _verifyCode : null,
           loading: _loading,
         ),
-        TextButton(
-          onPressed: _loading ? null : _sendCode,
-          child: const Text('Reenviar código'),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextButton(
+              onPressed: _loading ? null : () => _goToStep(0),
+              child: const Text(
+                'Cambiar correo',
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              ),
+            ),
+            const Text(' | ', style: TextStyle(color: AppColors.textSecondary)),
+            TextButton(
+              onPressed: _loading ? null : _sendCode,
+              child: const Text('Reenviar código', style: TextStyle(fontSize: 13)),
+            ),
+          ],
         ),
+        _backToLoginBtn(),
       ],
     );
   }
@@ -328,18 +346,31 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
         const SizedBox(height: 16),
         Center(
           child: TextButton(
-            onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
+            onPressed: () => _goToStep(1),
             child: const Text(
-              'Regresar al inicio de sesión',
-              style: TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
-                decoration: TextDecoration.underline,
-              ),
+              'Atrás',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
             ),
           ),
         ),
+        _backToLoginBtn(),
       ],
+    );
+  }
+
+  Widget _backToLoginBtn() {
+    return Center(
+      child: TextButton(
+        onPressed: () => Navigator.of(context).pushReplacementNamed(AppRoutes.login),
+        child: const Text(
+          'Volver al inicio de sesión',
+          style: TextStyle(
+            color: AppColors.primary,
+            fontWeight: FontWeight.w600,
+            decoration: TextDecoration.underline,
+          ),
+        ),
+      ),
     );
   }
 
