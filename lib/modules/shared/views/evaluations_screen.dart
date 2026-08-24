@@ -9,6 +9,7 @@ import '../../../data/providers/saremas_provider.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive_utils.dart';
 import '../../../shared/widgets/app_dialog.dart';
 import '../../../shared/widgets/info_card.dart';
 
@@ -315,16 +316,17 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
     return SafeArea(
       top: false,
       bottom: false,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-          24.0,
-          24.0,
-          24.0,
-          24.0 + MediaQuery.of(context).padding.bottom,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      child: ResponsiveUtils.constrainedContainer(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            24.0,
+            24.0,
+            24.0,
+            24.0 + MediaQuery.of(context).padding.bottom,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // ── Tarjeta Evaluación de Fuerza ──────────────────────
             GestureDetector(
               onTap: _checking ? null : _onForceCardTap,
@@ -377,8 +379,9 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ─────────────────────────────────────────────────────────────────
   //  Tarjeta de Evaluación de Fuerza con indicador de loading

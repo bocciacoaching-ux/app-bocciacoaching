@@ -12,6 +12,7 @@ import '../../../data/providers/team_provider.dart';
 import '../../../data/providers/statistics_provider.dart';
 import '../../../data/providers/onboarding_provider.dart';
 import '../../../core/routes/app_routes.dart';
+import '../../../core/utils/responsive_utils.dart';
 import '../../onboarding/views/onboarding_intro_screen.dart';
 
 // Widget para el logo BOCCIA COACHING
@@ -271,7 +272,9 @@ class _DashboardScreenState extends State<DashboardScreen>
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 8, 16, 8 + bottomPadding),
-      child: _isNewUser ? _buildEmptyStateContent() : _buildContent(),
+      child: ResponsiveUtils.constrainedContainer(
+        child: _isNewUser ? _buildEmptyStateContent() : _buildContent(),
+      ),
     );
   }
 
@@ -329,12 +332,22 @@ class _DashboardScreenState extends State<DashboardScreen>
     final isLoading = stats.isLoadingCoachHasEvaluations;
 
     return GridView.count(
-      crossAxisCount: 2,
+      crossAxisCount: ResponsiveUtils.valueByDevice<int>(
+        context,
+        mobile: 2,
+        tablet: 3,
+        desktop: 4,
+      ),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.3,
+      childAspectRatio: ResponsiveUtils.valueByDevice<double>(
+        context,
+        mobile: 1.3,
+        tablet: 1.5,
+        desktop: 1.8,
+      ),
       children: [
         _statCard(
           icon: Icons.group_outlined,

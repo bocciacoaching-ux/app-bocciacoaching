@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive_utils.dart';
 import '../../../data/models/notification_message.dart';
 import '../../../data/providers/notification_provider.dart';
 import '../../../data/providers/session_provider.dart';
@@ -166,10 +167,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           return SafeArea(
             top: false,
             bottom: false,
-            child: ListView(
-              padding: EdgeInsets.fromLTRB(
-                  0, 16, 0, 16 + MediaQuery.of(context).padding.bottom),
-              children: [
+            child: ResponsiveUtils.constrainedContainer(
+              child: ListView(
+                padding: EdgeInsets.fromLTRB(
+                    0, 16, 0, 16 + MediaQuery.of(context).padding.bottom),
+                children: [
                 if (today.isNotEmpty) ...[
                   _SectionHeader(label: 'Hoy'),
                   const SizedBox(height: 8),
@@ -190,11 +192,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 const SizedBox(height: 24),
               ],
             ),
-          );
-        },
-      ),
-    );
-  }
+          ),
+        );
+      },
+    ),
+  );
+}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

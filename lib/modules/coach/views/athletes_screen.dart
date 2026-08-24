@@ -7,6 +7,7 @@ import '../../../shared/widgets/profile_menu_button.dart';
 import '../../../shared/widgets/team_selector_chip.dart';
 import '../../../shared/widgets/team_end_drawer.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive_utils.dart';
 import '../../../core/services/athlete_service.dart';
 import '../../../core/services/notification_service.dart';
 import '../../../data/providers/team_provider.dart';
@@ -162,23 +163,25 @@ class _AthletesScreenState extends State<AthletesScreen> {
       body: SafeArea(
         top: false,
         bottom: false,
-        child: Column(
-          children: [
-            _buildToolbar(),
-            Expanded(
-              child: teamProvider.isMembersLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(color: AppColors.primary),
-                    )
-                  : teamProvider.hasMembersError
-                      ? _buildMembersError(teamProvider)
-                      : _filtered.isEmpty
-                          ? _buildEmpty()
-                          : _viewMode == _ViewMode.cards
-                              ? _buildCardsView()
-                              : _buildTableView(),
-            ),
-          ],
+        child: ResponsiveUtils.constrainedContainer(
+          child: Column(
+            children: [
+              _buildToolbar(),
+              Expanded(
+                child: teamProvider.isMembersLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(color: AppColors.primary),
+                      )
+                    : teamProvider.hasMembersError
+                        ? _buildMembersError(teamProvider)
+                        : _filtered.isEmpty
+                            ? _buildEmpty()
+                            : _viewMode == _ViewMode.cards
+                                ? _buildCardsView()
+                                : _buildTableView(),
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: _buildSpeedDial(),
@@ -551,10 +554,20 @@ class _AthletesScreenState extends State<AthletesScreen> {
     return GridView.builder(
       padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomPadding),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+        crossAxisCount: ResponsiveUtils.valueByDevice<int>(
+          context,
+          mobile: 2,
+          tablet: 3,
+          desktop: 4,
+        ),
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: MediaQuery.of(context).size.width < 360 ? 0.72 : 0.90,
+        childAspectRatio: ResponsiveUtils.valueByDevice<double>(
+          context,
+          mobile: MediaQuery.of(context).size.width < 360 ? 0.72 : 0.90,
+          tablet: 1.0,
+          desktop: 1.1,
+        ),
       ),
       itemCount: _filtered.length,
       itemBuilder: (_, i) => _AthleteCard(athlete: _filtered[i]),

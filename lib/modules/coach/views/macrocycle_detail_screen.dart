@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/utils/responsive_utils.dart';
 import '../../../data/models/macrocycle.dart';
 import '../../../data/models/macrocycle_event.dart';
 import '../../../data/models/mesocycle.dart';
@@ -164,93 +165,79 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
             const SizedBox(width: 4),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_isEditing) ...[
-                _buildEditModeBanner(),
-                const SizedBox(height: 12),
-              ],
-              _buildHeaderCard(),
-              const SizedBox(height: 16),
-              _buildTimelineBar(),
-              const SizedBox(height: 20),
-              _sectionTitle('Etapas / Períodos', Icons.layers_outlined),
-              const SizedBox(height: 8),
-              ..._macrocycle.periods.asMap().entries.map(
-                    (entry) => _buildPeriodCard(entry.value, entry.key)),
-              const SizedBox(height: 20),
-              _sectionTitle('Eventos', Icons.event_outlined),
-              const SizedBox(height: 8),
-              if (_isEditing) ...[
-                _buildAddEventButton(),
-                const SizedBox(height: 8),
-              ],
-              if (_macrocycle.events.isEmpty)
-                _emptySection('Sin eventos registrados')
-              else
-                ..._macrocycle.events.asMap().entries.map(
-                      (entry) => _buildEventCard(entry.value, entry.key)),
-              const SizedBox(height: 20),
-              _sectionTitle('Mesociclos', Icons.view_week_outlined),
-              const SizedBox(height: 8),
-              ..._macrocycle.mesocycles.asMap().entries.map(
-                    (entry) => _buildMesocycleCard(entry.value, entry.key)),
-              const SizedBox(height: 20),
-              _sectionTitle('Microciclos (Semanas)', Icons.grid_view_outlined),
-              const SizedBox(height: 8),
-              if (_isEditing) ...[
-                _buildMicrocycleLegend(),
-                const SizedBox(height: 8),
-              ],
-              _buildMicrocycleTable(),
-              const SizedBox(height: 20),
-              _sectionTitle('Distribución de Entrenamiento', Icons.pie_chart_outline),
-              const SizedBox(height: 8),
-              _buildTrainingDistributionSection(),
-              const SizedBox(height: 20),
-              if (_macrocycle.notes != null && _macrocycle.notes!.isNotEmpty) ...[
-                _sectionTitle('Notas', Icons.notes_outlined),
-                const SizedBox(height: 8),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.neutral8),
-                  ),
-                  child: Text(_macrocycle.notes!, style: AppTextStyles.bodyMedium),
-                ),
-                const SizedBox(height: 20),
-              ],
-              if (_isEditing && _hasChanges) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _saveMacrocycle,
-                    icon: const Icon(Icons.save_outlined),
-                    label: const Text('Guardar Cambios'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.success,
-                      foregroundColor: AppColors.white,
-                      minimumSize: const Size(0, 52),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        body: SafeArea(
+          top: false,
+          bottom: false,
+          child: ResponsiveUtils.constrainedContainer(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (_isEditing) ...[
+                    _buildEditModeBanner(),
+                    const SizedBox(height: 12),
+                  ],
+                  _buildHeaderCard(),
+                  const SizedBox(height: 16),
+                  _buildTimelineBar(),
+                  const SizedBox(height: 20),
+                  _sectionTitle('Etapas / Períodos', Icons.layers_outlined),
+                  const SizedBox(height: 8),
+                  ..._macrocycle.periods.asMap().entries.map(
+                        (entry) => _buildPeriodCard(entry.value, entry.key)),
+                  const SizedBox(height: 20),
+                  _sectionTitle('Eventos', Icons.event_outlined),
+                  const SizedBox(height: 8),
+                  if (_isEditing) ...[
+                    _buildAddEventButton(),
+                    const SizedBox(height: 8),
+                  ],
+                  if (_macrocycle.events.isEmpty)
+                    _emptySection('Sin eventos registrados')
+                  else
+                    ..._macrocycle.events.asMap().entries.map(
+                          (entry) => _buildEventCard(entry.value, entry.key)),
+                  const SizedBox(height: 20),
+                  _sectionTitle('Mesociclos', Icons.view_week_outlined),
+                  const SizedBox(height: 8),
+                  ..._macrocycle.mesocycles.asMap().entries.map(
+                        (entry) => _buildMesocycleCard(entry.value, entry.key)),
+                  const SizedBox(height: 20),
+                  _sectionTitle('Microciclos (Semanas)', Icons.grid_view_outlined),
+                  const SizedBox(height: 8),
+                  if (_isEditing) ...[
+                    _buildMicrocycleLegend(),
+                    const SizedBox(height: 8),
+                  ],
+                  _buildMicrocycleTable(),
+                  const SizedBox(height: 20),
+                  _sectionTitle('Distribución de Entrenamiento', Icons.pie_chart_outline),
+                  const SizedBox(height: 8),
+                  _buildTrainingDistributionSection(),
+                  const SizedBox(height: 20),
+                  if (_macrocycle.notes != null && _macrocycle.notes!.isNotEmpty) ...[
+                    _sectionTitle('Notas', Icons.notes_outlined),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.neutral8),
+                      ),
+                      child: Text(_macrocycle.notes!, style: AppTextStyles.bodyMedium),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-              if (!_isEditing)
-                Row(
-                  children: [
-                    Expanded(
+                    const SizedBox(height: 20),
+                  ],
+                  if (_isEditing && _hasChanges) ...[
+                    SizedBox(
+                      width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: () => _exportToExcel(context),
-                        icon: const Icon(Icons.file_download_outlined),
-                        label: const Text('Exportar'),
+                        onPressed: _saveMacrocycle,
+                        icon: const Icon(Icons.save_outlined),
+                        label: const Text('Guardar Cambios'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.success,
                           foregroundColor: AppColors.white,
@@ -259,24 +246,44 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _shareAsExcel(context),
-                        icon: const Icon(Icons.share_outlined),
-                        label: const Text('Compartir'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: AppColors.white,
-                          minimumSize: const Size(0, 52),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 12),
                   ],
-                ),
-              const SizedBox(height: 32),
-            ],
+                  if (!_isEditing)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _exportToExcel(context),
+                            icon: const Icon(Icons.file_download_outlined),
+                            label: const Text('Exportar'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.success,
+                              foregroundColor: AppColors.white,
+                              minimumSize: const Size(0, 52),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _shareAsExcel(context),
+                            icon: const Icon(Icons.share_outlined),
+                            label: const Text('Compartir'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: AppColors.white,
+                              minimumSize: const Size(0, 52),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
           ),
         ),
       ),

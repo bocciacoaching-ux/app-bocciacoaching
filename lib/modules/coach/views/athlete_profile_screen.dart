@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../data/providers/force_test_provider.dart';
 import '../../../data/models/athlete.dart' as model;
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive_utils.dart';
 import 'athletes_screen.dart' show Athlete;
 
 // ---------------------------------------------------------------------------
@@ -21,37 +22,39 @@ class AthleteProfileScreen extends StatelessWidget {
         slivers: [
           _buildSliverAppBar(context),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                16,
-                20,
-                16,
-                32 + MediaQuery.of(context).padding.bottom,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildInfoCard(),
-                  const SizedBox(height: 14),
-                  _buildStatsRow(),
-                  const SizedBox(height: 4),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        'Mostrar más',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: AppColors.black,
+            child: ResponsiveUtils.constrainedContainer(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  20,
+                  16,
+                  32 + MediaQuery.of(context).padding.bottom,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildInfoCard(),
+                    const SizedBox(height: 14),
+                    _buildStatsRow(),
+                    const SizedBox(height: 4),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          'Mostrar más',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: AppColors.black,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildEvaluationsSection(context),
-                ],
+                    const SizedBox(height: 8),
+                    _buildEvaluationsSection(context),
+                  ],
+                ),
               ),
             ),
           ),

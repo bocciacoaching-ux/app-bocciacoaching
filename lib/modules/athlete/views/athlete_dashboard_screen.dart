@@ -7,6 +7,7 @@ import '../../../shared/widgets/profile_menu_button.dart';
 import '../../../shared/widgets/team_selector_chip.dart';
 import '../../../shared/widgets/team_end_drawer.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive_utils.dart';
 import '../../../data/models/training_session.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
@@ -217,7 +218,9 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 8, 16, 8 + bottomPadding),
-      child: _isNewUser ? _buildEmptyStateContent() : _buildContent(),
+      child: ResponsiveUtils.constrainedContainer(
+        child: _isNewUser ? _buildEmptyStateContent() : _buildContent(),
+      ),
     );
   }
 
@@ -280,12 +283,22 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
     final upcomingCount = sessionProv.upcomingSessions.length;
 
     return GridView.count(
-      crossAxisCount: 2,
+      crossAxisCount: ResponsiveUtils.valueByDevice<int>(
+        context,
+        mobile: 2,
+        tablet: 3,
+        desktop: 4,
+      ),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.4,
+      childAspectRatio: ResponsiveUtils.valueByDevice<double>(
+        context,
+        mobile: 1.4,
+        tablet: 1.6,
+        desktop: 1.8,
+      ),
       children: [
         _statCard(
           icon: Icons.calendar_today_outlined,

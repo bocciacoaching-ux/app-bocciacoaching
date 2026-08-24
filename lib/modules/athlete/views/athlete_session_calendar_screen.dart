@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive_utils.dart';
 import '../../../data/models/training_session.dart';
 import '../../../data/providers/athlete_session_provider.dart';
 import '../../../data/providers/session_provider.dart';
@@ -108,7 +109,13 @@ class _AthleteSessionCalendarScreenState
         teamName: '',
         teamFlag: '',
       ),
-      body: body,
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: ResponsiveUtils.constrainedContainer(
+          child: body,
+        ),
+      ),
     );
   }
 

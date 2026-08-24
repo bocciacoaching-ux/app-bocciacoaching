@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive_utils.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
 import '../../../data/providers/statistics_provider.dart';
@@ -91,7 +92,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       body: SafeArea(
         top: false,
         bottom: false,
-        child: _buildBody(),
+        child: ResponsiveUtils.constrainedContainer(
+          child: _buildBody(),
+        ),
       ),
     );
   }

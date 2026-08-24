@@ -9,6 +9,7 @@ import '../../../data/models/user_session.dart';
 import '../../../core/services/biometric_service.dart';
 import '../../../core/services/user_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive_utils.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../shared/widgets/app_dialog.dart';
 import '../../../shared/widgets/profile_image_picker.dart';
@@ -142,10 +143,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         top: false,
         bottom: false,
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(
-              16, 16, 16, 16 + MediaQuery.of(context).padding.bottom),
-          children: [
+        child: ResponsiveUtils.constrainedContainer(
+          child: ListView(
+            padding: EdgeInsets.fromLTRB(
+                16, 16, 16, 16 + MediaQuery.of(context).padding.bottom),
+            children: [
             // ── User info card ─────────────────────────────────────────
             Container(
               padding: const EdgeInsets.all(16),
@@ -379,8 +381,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _roleOption(String role, bool isActive) {
     return GestureDetector(

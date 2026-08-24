@@ -5,6 +5,7 @@ import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/routes/app_routes.dart';
+import '../../../core/utils/responsive_utils.dart';
 
 class TeamsScreen extends StatefulWidget {
   const TeamsScreen({super.key});
@@ -56,10 +57,12 @@ class _TeamsScreenState extends State<TeamsScreen> {
       body: SafeArea(
         top: false,
         bottom: false,
-        child: RefreshIndicator(
-          onRefresh: _loadTeams,
-          color: AppColors.primary,
-          child: _buildBody(teamProvider),
+        child: ResponsiveUtils.constrainedContainer(
+          child: RefreshIndicator(
+            onRefresh: _loadTeams,
+            color: AppColors.primary,
+            child: _buildBody(teamProvider),
+          ),
         ),
       ),
     );

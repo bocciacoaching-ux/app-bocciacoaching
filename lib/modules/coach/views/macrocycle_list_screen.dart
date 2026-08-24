@@ -10,6 +10,7 @@ import '../../../data/providers/team_provider.dart';
 import '../../../shared/widgets/app_drawer.dart';
 import '../../../shared/widgets/profile_menu_button.dart';
 import '../../../core/routes/app_routes.dart';
+import '../../../core/utils/responsive_utils.dart';
 import '../../coach/services/macrocycle_excel_export.dart';
 
 /// Pantalla que lista todos los macrociclos creados.
@@ -81,7 +82,9 @@ class _MacrocycleListScreenState extends State<MacrocycleListScreen> {
             return _buildEmptyState(context);
           }
 
-          return _buildMacrocycleList(context, provider);
+          return ResponsiveUtils.constrainedContainer(
+            child: _buildMacrocycleList(context, provider),
+          );
         },
       ),
     );
