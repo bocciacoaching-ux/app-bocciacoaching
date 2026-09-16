@@ -263,16 +263,31 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                 controller: _codeCtrls[i],
                 focusNode: _codeNodes[i],
                 textAlign: TextAlign.center,
+                textAlignVertical: TextAlignVertical.center,
                 keyboardType: TextInputType.number,
                 maxLength: 1,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
                 decoration: InputDecoration(
                   counterText: '',
                   filled: true,
                   fillColor: AppColors.white,
+                  contentPadding: EdgeInsets.zero,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: AppColors.inputBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.inputBorder),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
                   ),
                 ),
               ),
