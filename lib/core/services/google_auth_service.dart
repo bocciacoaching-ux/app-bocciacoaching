@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../network/http_logger.dart';
@@ -25,6 +26,15 @@ class GoogleAuthService {
         _googleSignIn = googleSignIn ??
             GoogleSignIn(
               scopes: const ['email'],
+              // En Flutter Web, el plugin `google_sign_in_web` necesita el
+              // `clientId` (ID de cliente OAuth de tipo Web) para poder
+              // inicializar el flujo de Google Identity Services. Si no se
+              // proporciona (o falta el meta tag equivalente en
+              // web/index.html), la librería falla al iniciar el flujo con
+              // "Null check operator used on a null value".
+              clientId: kIsWeb
+                  ? '492594867983-ggod61bakp64jgolr1o3mokmc3rlnqci.apps.googleusercontent.com'
+                  : null,
               // Debe coincidir con el "ID de cliente web" configurado en
               // Firebase Console > Authentication > Sign-in method > Google.
               serverClientId:
