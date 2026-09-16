@@ -34,6 +34,14 @@ dependencies:
   firebase_auth: ^5.3.3
   google_sign_in: ^6.2.2
 
+dependency_overrides:
+  # La versión resuelta de google_sign_in_web (>=1.0.0) elimina el flujo
+  # imperativo `signIn()` en web (requiere renderButton/FedCM), lo que
+  # provoca "Null check operator used on a null value" al iniciar sesión
+  # con Google desde la app web. Se fija a la última versión que aún
+  # soporta el popup clásico usado por GoogleAuthService.signInWithGoogle().
+  google_sign_in_web: 0.12.4+4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
