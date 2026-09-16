@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'app.dart';
+import 'firebase_options.dart';
 import 'core/network/api_client.dart';
 import 'core/services/storage_service.dart';
 import 'data/providers/direction_test_provider.dart';
@@ -19,6 +21,11 @@ import 'data/providers/microcycle_type_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ── Firebase (Google Sign-In) ───────────────────────────────────
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // ── Inyección de dependencias globales (GetX) ──────────────────
   await _initServices();

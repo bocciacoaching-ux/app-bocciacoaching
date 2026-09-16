@@ -3,13 +3,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/services/google_auth_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/navigation_helper.dart';
 import 'widgets/responsive_auth_layout.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService? authService;
-  const LoginScreen({super.key, this.authService});
+  final GoogleAuthService? googleAuthService;
+  const LoginScreen({super.key, this.authService, this.googleAuthService});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -22,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen>
   final _passwordController = TextEditingController();
   bool _obscure = true;
   bool _loading = false;
+  bool _googleLoading = false;
   String? _errorMessage;
 
   late AnimationController _animController;
@@ -29,6 +32,8 @@ class _LoginScreenState extends State<LoginScreen>
   late Animation<Offset> _slideUp;
 
   AuthService get _auth => widget.authService ?? AuthService();
+  GoogleAuthService get _googleAuth =>
+      widget.googleAuthService ?? GoogleAuthService();
 
   @override
   void initState() {
@@ -77,6 +82,30 @@ class _LoginScreenState extends State<LoginScreen>
           ? result['message'] as String
           : 'Correo o contraseña incorrectos. Inténtalo de nuevo.';
       setState(() => _errorMessage = message);
+    }
+  }
+
+  Future<void> _submitGoogle() async {
+    setState(() {
+      _errorMessage = null;
+      _googleLoading = true;
+    });
+
+    final result = await _googleAuth.signInWithGoogle();
+    if (!mounted) return;
+    setState(() => _googleLoading = false);
+
+    if (result['cancelled'] == true) return;
+
+    if (result['success'] == true && result['data'] != null) {
+      final sessionProvider = context.read<SessionProvider>();
+      await sessionProvider
+          .saveSession(result['data'] as Map<String, dynamic>);
+      if (!mounted) return;
+      NavigationHelper.goToDashboard(context);
+    } else {
+      setState(() => _errorMessage = (result['message'] as String?) ??
+          'No se pudo iniciar sesión con Google. Inténtalo de nuevo.');
     }
   }
 
@@ -370,13 +399,7 @@ class _LoginScreenState extends State<LoginScreen>
               height: 48,
               width: 48,
               child: OutlinedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Google sign-in no implementado'),
-                    ),
-                  );
-                },
+                onPressed: _googleLoading ? null : _submitGoogle,
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.zero,
                   shape: RoundedRectangleBorder(
@@ -384,11 +407,20 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                   side: const BorderSide(color: AppColors.neutral7),
                 ),
-                child: SvgPicture.asset(
-                  'assets/images/google-logo.svg',
-                  width: 24,
-                  height: 24,
-                ),
+                child: _googleLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.2,
+                          color: AppColors.primary,
+                        ),
+                      )
+                    : SvgPicture.asset(
+                        'assets/images/google-logo.svg',
+                        width: 24,
+                        height: 24,
+                      ),
               ),
             ),
           ),

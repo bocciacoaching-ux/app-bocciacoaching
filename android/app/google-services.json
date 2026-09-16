@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "492594867983",
+    "project_id": "boccia-coaching",
+    "storage_bucket": "boccia-coaching.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:492594867983:android:5479ef0dda73a5a8aa187a",
+        "android_client_info": {
+          "package_name": "com.example.boccia_coaching_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "492594867983-fitapckeuucj4ghuh1n1h9tffnukolin.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.boccia_coaching_app",
+            "certificate_hash": "b92b657fa41663ac007f97656fc513b1451ce486"
+          }
+        },
+        {
+          "client_id": "492594867983-ggod61bakp64jgolr1o3mokmc3rlnqci.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNPI0SKKvCFpoPxHhtW3dy41oyIGd85kg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "492594867983-ggod61bakp64jgolr1o3mokmc3rlnqci.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
