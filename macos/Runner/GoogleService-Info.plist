@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>492594867983-nl167femsq663olrh22bvtmpjjc041fe.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.492594867983-nl167femsq663olrh22bvtmpjjc041fe</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>492594867983-fitapckeuucj4ghuh1n1h9tffnukolin.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBztGYqfuOoJH0YcjGXpK4iMGOH6hgfY00</string>
+	<key>GCM_SENDER_ID</key>
+	<string>492594867983</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.bocciaCoachingApp</string>
+	<key>PROJECT_ID</key>
+	<string>boccia-coaching</string>
+	<key>STORAGE_BUCKET</key>
+	<string>boccia-coaching.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:492594867983:ios:2c1af0f30cc97bd4aa187a</string>
+</dict>
+</plist>

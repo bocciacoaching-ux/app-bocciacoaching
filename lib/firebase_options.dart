@@ -54,14 +54,14 @@ class DefaultFirebaseOptions {
     }
   }
 
-  // TODO(flutterfire): Reemplaza estos valores ejecutando `flutterfire configure`.
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'TODO',
-    appId: 'TODO',
+    apiKey: 'AIzaSyByf1jIUCYIhfjvwdf9QcztmCBUDPyLQWM',
+    appId: '1:492594867983:web:9c63ad0f2bb59530aa187a',
     messagingSenderId: '492594867983',
     projectId: 'boccia-coaching',
     authDomain: 'boccia-coaching.firebaseapp.com',
     storageBucket: 'boccia-coaching.firebasestorage.app',
+    measurementId: 'G-9C726GPXBR',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -71,22 +71,24 @@ class DefaultFirebaseOptions {
     projectId: 'boccia-coaching',
     storageBucket: 'boccia-coaching.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'TODO',
-    appId: 'TODO',
+    apiKey: 'AIzaSyBztGYqfuOoJH0YcjGXpK4iMGOH6hgfY00',
+    appId: '1:492594867983:ios:2c1af0f30cc97bd4aa187a',
     messagingSenderId: '492594867983',
     projectId: 'boccia-coaching',
     storageBucket: 'boccia-coaching.firebasestorage.app',
+    androidClientId: '492594867983-fitapckeuucj4ghuh1n1h9tffnukolin.apps.googleusercontent.com',
+    iosClientId: '492594867983-nl167femsq663olrh22bvtmpjjc041fe.apps.googleusercontent.com',
     iosBundleId: 'com.example.bocciaCoachingApp',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'TODO',
-    appId: 'TODO',
+    apiKey: 'AIzaSyBztGYqfuOoJH0YcjGXpK4iMGOH6hgfY00',
+    appId: '1:492594867983:ios:2c1af0f30cc97bd4aa187a',
     messagingSenderId: '492594867983',
     projectId: 'boccia-coaching',
     storageBucket: 'boccia-coaching.firebasestorage.app',
+    androidClientId: '492594867983-fitapckeuucj4ghuh1n1h9tffnukolin.apps.googleusercontent.com',
+    iosClientId: '492594867983-nl167femsq663olrh22bvtmpjjc041fe.apps.googleusercontent.com',
     iosBundleId: 'com.example.bocciaCoachingApp',
   );
 }
