@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/user_service.dart';
 import '../../../core/services/email_service.dart';
@@ -163,8 +164,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
     return ResponsiveAuthLayout(
-      logo: Image.asset(
-        'assets/images/isologo-horizontal.png',
+      logo: SvgPicture.asset(
+        'assets/images/isologo-h-crema.svg',
         height: 80,
         fit: BoxFit.contain,
       ),
@@ -208,7 +209,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                     ? 'Introduce el código de 6 dígitos enviado a ${_emailCtrl.text}.'
                     : 'Crea una nueva contraseña segura.',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
           const SizedBox(height: 24),
           if (_step == 0) _buildStepEmail(),
@@ -308,13 +309,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
               onPressed: _loading ? null : () => _goToStep(0),
               child: const Text(
                 'Cambiar correo',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
             ),
             const Text(' | ', style: TextStyle(color: AppColors.textSecondary)),
             TextButton(
               onPressed: _loading ? null : _sendCode,
-              child: const Text('Reenviar código', style: TextStyle(fontSize: 13)),
+              child: const Text('Reenviar código', style: TextStyle(fontSize: 14)),
             ),
           ],
         ),
@@ -364,7 +365,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             onPressed: () => _goToStep(1),
             child: const Text(
               'Atrás',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
           ),
         ),
@@ -392,7 +393,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
   Widget _label(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: Text(text, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+      child: Text(text, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
     );
   }
 
@@ -426,7 +427,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(color: AppColors.errorBg, borderRadius: BorderRadius.circular(12)),
-      child: Text(message, style: const TextStyle(color: AppColors.error, fontSize: 13)),
+      child: Text(message, style: const TextStyle(color: AppColors.error, fontSize: 14)),
     );
   }
 }

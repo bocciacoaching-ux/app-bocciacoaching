@@ -8,6 +8,8 @@ abstract final class ApiEndpoints {
   static const String addInfoUser = '/User/AddInfoUser';
   static const String login = '/User/login';
   static const String loginGoogle = '/User/login/google';
+  static const String verifyEmailGoogle = '/User/verify-email/google';
+  static const String registerGoogle = '/User/register/google';
   static const String addAthlete = '/User/AddAthlete';
   static const String validateEmail = '/User/ValidateEmail';
   static const String searchAthletes = '/User/SearchAthletesForNameAndTeams';

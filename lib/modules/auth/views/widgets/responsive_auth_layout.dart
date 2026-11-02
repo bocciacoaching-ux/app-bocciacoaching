@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class ResponsiveAuthLayout extends StatelessWidget {
@@ -52,19 +53,25 @@ class ResponsiveAuthLayout extends StatelessWidget {
             flex: 1,
             child: Container(
               decoration: const BoxDecoration(
+                // Fondo azul gradiente horizontal de #477D9E a #2F536A
                 gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
                   colors: [
-                    AppColors.headerGradientTop,
-                    AppColors.headerGradientBottom,
+                    Color(0xFF477D9E),
+                    Color(0xFF2F536A),
                   ],
                 ),
               ),
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(64.0),
-                  child: logo,
+                  // Logo isologo-h-crema.svg, 30% más grande (80 → 104)
+                  child: SvgPicture.asset(
+                    'assets/images/isologo-h-crema.svg',
+                    height: 104,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
@@ -89,7 +96,6 @@ class ResponsiveAuthLayout extends StatelessWidget {
 
   Widget _buildMobileLayout(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
-    final screenHeight = MediaQuery.of(context).size.height;
 
     Widget innerContent = Container(
       width: double.infinity,
@@ -114,41 +120,43 @@ class ResponsiveAuthLayout extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.headerGradientTop,
+      backgroundColor: const Color(0xFF477D9E),
       resizeToAvoidBottomInset: true,
-      body: Container(
-        width: double.infinity,
-        height: screenHeight,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.headerGradientTop,
-              AppColors.headerGradientBottom,
+      body: SizedBox.expand(
+        child: Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            // Fondo azul gradiente vertical de #477D9E a #2F536A
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF477D9E),
+                Color(0xFF2F536A),
+              ],
+            ),
+          ),
+          child: Column(
+            children: [
+              // Header with logo
+              SizedBox(
+                height: mobileHeaderHeight + topPadding,
+                child: Stack(
+                  children: [
+                    if (mobileHeaderExtra != null) mobileHeaderExtra!,
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: topPadding),
+                        child: logo,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // White card content
+              Expanded(child: innerContent),
             ],
           ),
-        ),
-        child: Column(
-          children: [
-            // Header with logo
-            SizedBox(
-              height: mobileHeaderHeight + topPadding,
-              child: Stack(
-                children: [
-                  if (mobileHeaderExtra != null) mobileHeaderExtra!,
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: topPadding),
-                      child: logo,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // White card content
-            Expanded(child: innerContent),
-          ],
         ),
       ),
     );

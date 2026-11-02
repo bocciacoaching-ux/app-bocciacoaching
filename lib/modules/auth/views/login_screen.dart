@@ -130,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen>
             child: Text(
               message,
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: AppColors.error,
                 height: 1.4,
@@ -183,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen>
           TextSpan(
             text: text,
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
@@ -203,8 +203,8 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return ResponsiveAuthLayout(
-      logo: Image.asset(
-        'assets/images/isologo-horizontal.png',
+      logo: SvgPicture.asset(
+        'assets/images/isologo-h-crema.svg',
         height: 80,
         fit: BoxFit.contain,
       ),
@@ -238,7 +238,7 @@ class _LoginScreenState extends State<LoginScreen>
               const Text(
                 '¿Primera vez en Boccia Coaching? ',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -247,7 +247,7 @@ class _LoginScreenState extends State<LoginScreen>
                 child: const Text(
                   'Regístrate',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     color: AppColors.primary,
                     fontWeight: FontWeight.w700,
                     decoration: TextDecoration.underline,
@@ -326,7 +326,7 @@ class _LoginScreenState extends State<LoginScreen>
                       '¿Olvidaste tu contraseña?',
                       style: TextStyle(
                         color: AppColors.primary,
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -383,7 +383,7 @@ class _LoginScreenState extends State<LoginScreen>
                 child: Text(
                   'O inicia sesión con',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 14,
                     color: AppColors.textSecondary,
                   ),
                 ),

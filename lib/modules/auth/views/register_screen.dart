@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/user_service.dart';
 import '../../../core/services/email_service.dart';
+import '../../../core/services/google_auth_service.dart';
 import 'widgets/responsive_auth_layout.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -38,6 +39,12 @@ class _RegisterScreenState extends State<RegisterScreen>
   bool _loading = false;
   String? _errorMessage;
   int _step = 0; // 0 = email, 1 = code, 2 = password, 3 = profile
+
+  // ── Registro con Google ───────────────────────────────────────────
+  final GoogleAuthService _googleAuth = GoogleAuthService();
+  bool _googleLoading = false;
+  bool _isGoogleFlow = false; // true cuando el registro proviene de Google
+  String? _googleIdToken; // idToken de Firebase obtenido en la verificación
 
   late AnimationController _animController;
   late Animation<double> _fadeIn;
@@ -112,6 +119,36 @@ class _RegisterScreenState extends State<RegisterScreen>
       _loading = true;
       _errorMessage = null;
     });
+
+    final email = _emailCtrl.text.trim();
+
+    // Verificar primero si ya existe un usuario registrado con ese email,
+    // para no dejar avanzar al usuario si el correo ya está en uso.
+    try {
+      final emailCheck = await UserService().validateEmail(email);
+      if (emailCheck != null) {
+        final message = emailCheck['message']?.toString();
+        final stateCode = emailCheck['stateCode'];
+        final exists = emailCheck['exists'] == true ||
+            emailCheck['isRegistered'] == true ||
+            emailCheck['available'] == false ||
+            stateCode == 409 ||
+            (message != null &&
+                message.toLowerCase().contains('existe un usuario'));
+        if (exists) {
+          if (!mounted) return;
+          setState(() {
+            _loading = false;
+            _errorMessage = 'Ya existe un usuario con ese email';
+          });
+          return;
+        }
+      }
+    } catch (_) {
+      // Si la verificación falla por un error de red, continuamos con el
+      // envío del código; el backend volverá a validar en el registro final.
+    }
+
     final code = (100000 + Random().nextInt(900000)).toString();
     final result = await EmailService().sendCodeVerify(
       toEmail: _emailCtrl.text.trim(),
@@ -201,8 +238,8 @@ class _RegisterScreenState extends State<RegisterScreen>
     if (ok) {
       _goToStep(2);
     } else {
-      setState(() =>
-          _errorMessage = apiMessage ?? 'Código inválido o expirado.');
+      setState(
+          () => _errorMessage = apiMessage ?? 'Código inválido o expirado.');
     }
   }
 
@@ -213,8 +250,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     _codeNodes.first.requestFocus();
     await _sendCode();
   }
-
-
 
   // ── Registro ──────────────────────────────────────────────────────
   Future<void> _register() async {
@@ -256,12 +291,142 @@ class _RegisterScreenState extends State<RegisterScreen>
       if (!mounted) return;
       setState(() {
         _loading = false;
-        _errorMessage = 'Error de conexión. Verifica tu internet e inténtalo de nuevo.';
+        _errorMessage =
+            'Error de conexión. Verifica tu internet e inténtalo de nuevo.';
       });
     }
   }
 
-  void _showSelectionSheet(BuildContext ctx, String title, List<String> items,      ValueChanged<String> onSelected) {
+  // ── Registro con Google ───────────────────────────────────────────
+
+  /// Mapea el rol seleccionado (texto) a su UUID correspondiente en el backend.
+  String _rolToUuid(String rol) {
+    switch (rol.toLowerCase()) {
+      case 'entrenador':
+        return '00000000-0000-0000-0000-000000000002';
+      case 'deportista':
+        return '00000000-0000-0000-0000-000000000003';
+      default:
+        return rol;
+    }
+  }
+
+  /// Paso 1: autentica con Google, verifica el correo y pasa al perfil.
+  Future<void> _registerWithGoogleStart() async {
+    setState(() {
+      _googleLoading = true;
+      _errorMessage = null;
+    });
+
+    final result = await _googleAuth.verifyEmailWithGoogle();
+    if (!mounted) return;
+    setState(() => _googleLoading = false);
+
+    // El usuario canceló el selector de cuentas.
+    if (result['cancelled'] == true) return;
+
+    if (result['success'] == true && result['emailVerified'] == true) {
+      _googleIdToken = result['idToken'] as String?;
+      _isGoogleFlow = true;
+      // Prellenar correo y nombre con los datos de la cuenta de Google.
+      _emailCtrl.text = (result['email'] as String?) ?? _emailCtrl.text;
+      final displayName = result['displayName'] as String?;
+      if (displayName != null && displayName.isNotEmpty) {
+        _nameCtrl.text = displayName;
+      }
+      // Avanzar al paso de perfil para seleccionar el rol.
+      _goToStep(3);
+    } else {
+      final emailVerified = result['emailVerified'];
+      setState(() => _errorMessage = (result['message'] as String?) ??
+          (emailVerified == false
+              ? 'Tu correo de Google no está verificado. Usa una cuenta verificada.'
+              : 'No se pudo registrar con Google. Inténtalo de nuevo.'));
+    }
+  }
+
+  /// Paso 2: completa el registro con Google en el backend.
+  Future<void> _registerWithGoogleFinish() async {
+    final idToken = _googleIdToken;
+    if (idToken == null) {
+      setState(() =>
+          _errorMessage = 'La sesión de Google expiró. Vuelve a intentarlo.');
+      return;
+    }
+
+    setState(() {
+      _loading = true;
+      _errorMessage = null;
+    });
+
+    final result = await _googleAuth.registerWithGoogle(
+      idToken: idToken,
+      name: _nameCtrl.text.trim(),
+      rol: _rolToUuid(_selectedRole ?? 'Deportista'),
+    );
+
+    if (!mounted) return;
+    setState(() => _loading = false);
+
+    if (result['success'] == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('¡Cuenta creada exitosamente!'),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+      Navigator.of(context).pushReplacementNamed('/');
+    } else {
+      setState(() => _errorMessage = (result['message'] as String?) ??
+          'No se pudo crear la cuenta. Inténtalo de nuevo.');
+    }
+  }
+
+  void _showSelectionSheet(BuildContext ctx, String title, List<String> items,
+      ValueChanged<String> onSelected) {
+    // En pantallas grandes (desktop/tablet) usar un diálogo modal/pop up en
+    // lugar del bottom sheet.
+    final isLargeScreen = MediaQuery.of(ctx).size.width >= 800;
+    if (isLargeScreen) {
+      showDialog(
+        context: ctx,
+        builder: (c) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 380),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(title,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 16)),
+                  ),
+                  const Divider(height: 1),
+                  ...items.map((it) => ListTile(
+                        title: Text(it),
+                        onTap: () {
+                          Navigator.of(c).pop();
+                          onSelected(it);
+                        },
+                      )),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+      return;
+    }
+
     showModalBottomSheet(
       context: ctx,
       shape: const RoundedRectangleBorder(
@@ -344,7 +509,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           TextSpan(
             text: text,
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
@@ -476,12 +641,40 @@ class _RegisterScreenState extends State<RegisterScreen>
         TextFormField(
           controller: _emailCtrl,
           keyboardType: TextInputType.emailAddress,
-          onChanged: (_) => setState(() {}),
+          onChanged: (_) => setState(() => _errorMessage = null),
           decoration: _inputDecoration(
             hint: 'anagonzalez@email.com',
             prefixIcon: Icons.email_outlined,
           ),
         ),
+        if (_errorMessage != null) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.errorBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.error.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.error_outline,
+                    color: AppColors.error, size: 18),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 24),
         _buildNavButtons(
           onNext: _emailValid ? _sendCode : null,
@@ -497,7 +690,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text('O regístrate con',
                   style:
-                      TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      TextStyle(fontSize: 14, color: AppColors.textSecondary)),
             ),
             const Expanded(child: Divider(color: AppColors.neutral7)),
           ],
@@ -508,23 +701,27 @@ class _RegisterScreenState extends State<RegisterScreen>
             height: 48,
             width: 48,
             child: OutlinedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Google sign-in no implementado')),
-                );
-              },
+              onPressed: _googleLoading ? null : _registerWithGoogleStart,
               style: OutlinedButton.styleFrom(
                 padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 side: const BorderSide(color: AppColors.neutral7),
               ),
-              child: SvgPicture.asset(
-                'assets/images/google-logo.svg',
-                width: 24,
-                height: 24,
-              ),
+              child: _googleLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.2,
+                        color: AppColors.primary,
+                      ),
+                    )
+                  : SvgPicture.asset(
+                      'assets/images/google-logo.svg',
+                      width: 24,
+                      height: 24,
+                    ),
             ),
           ),
         ),
@@ -565,7 +762,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           'Ingresa el código de 6 dígitos que\nenviamos a $email.',
           textAlign: TextAlign.center,
           style: const TextStyle(
-              color: AppColors.textSecondary, fontSize: 13, height: 1.4),
+              color: AppColors.textSecondary, fontSize: 14, height: 1.4),
         ),
         const SizedBox(height: 24),
         Row(
@@ -580,8 +777,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
                 maxLength: 1,
-                style: const TextStyle(
-                    fontSize: 20, fontWeight: FontWeight.w700),
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   counterText: '',
@@ -638,7 +835,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                     _errorMessage!,
                     style: const TextStyle(
                       color: AppColors.error,
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -690,7 +887,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         const Text(
           'La usarás más adelante para iniciar sesión.',
           textAlign: TextAlign.center,
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
         ),
         const SizedBox(height: 24),
 
@@ -754,7 +951,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           child: Text(
             text,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               color: met ? AppColors.success : AppColors.textSecondary,
               fontWeight: met ? FontWeight.w600 : FontWeight.normal,
             ),
@@ -795,7 +992,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           'Completa tu perfil para personalizar\ntu experiencia.',
           textAlign: TextAlign.center,
           style: TextStyle(
-              color: AppColors.textSecondary, fontSize: 13, height: 1.4),
+              color: AppColors.textSecondary, fontSize: 14, height: 1.4),
         ),
         const SizedBox(height: 24),
 
@@ -848,7 +1045,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                     _errorMessage!,
                     style: const TextStyle(
                       color: AppColors.error,
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -860,13 +1057,21 @@ class _RegisterScreenState extends State<RegisterScreen>
         ],
 
         _buildNavButtons(
-          onBack: () => _goToStep(2),
+          onBack: _isGoogleFlow
+              ? () {
+                  setState(() {
+                    _isGoogleFlow = false;
+                    _googleIdToken = null;
+                  });
+                  _goToStep(0);
+                }
+              : () => _goToStep(2),
           nextLabel: 'Finalizar',
           onNext: (_nameCtrl.text.trim().isNotEmpty &&
                   _selectedRole != null &&
                   _selectedCategory != null &&
                   !_loading)
-              ? _register
+              ? (_isGoogleFlow ? _registerWithGoogleFinish : _register)
               : null,
           loading: _loading,
         ),
@@ -912,8 +1117,8 @@ class _RegisterScreenState extends State<RegisterScreen>
     final topPadding = MediaQuery.of(context).padding.top;
 
     return ResponsiveAuthLayout(
-      logo: Image.asset(
-        'assets/images/isologo-horizontal.png',
+      logo: SvgPicture.asset(
+        'assets/images/isologo-h-crema.svg',
         height: 80,
         fit: BoxFit.contain,
       ),
@@ -950,44 +1155,50 @@ class _RegisterScreenState extends State<RegisterScreen>
 
   Widget _buildRegisterForm(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+    // Ocultar el título y el enlace de inicio de sesión en los pasos 2, 3 y 4
+    // (_step 1, 2 y 3), tanto en móvil como en desktop/tablet.
+    final showHeader = _step == 0;
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Crea tu cuenta',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                '¿Ya tienes usuario? ',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          if (showHeader) ...[
+            const Text(
+              'Crea tu cuenta',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
               ),
-              GestureDetector(
-                onTap: () => Navigator.of(context).pushReplacementNamed('/'),
-                child: const Text(
-                  'Inicia sesión',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w700,
-                    decoration: TextDecoration.underline,
-                    decorationColor: AppColors.primary,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  '¿Ya tienes usuario? ',
+                  style:
+                      TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                ),
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pushReplacementNamed('/'),
+                  child: const Text(
+                    'Inicia sesión',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColors.primary,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
+              ],
+            ),
+            const SizedBox(height: 20),
+          ],
           _buildStepper(),
           const SizedBox(height: 24),
           if (_step == 0) _buildStep0Email(),

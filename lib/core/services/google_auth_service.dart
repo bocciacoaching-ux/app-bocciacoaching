@@ -96,8 +96,7 @@ class GoogleAuthService {
           error: e, stackTrace: st, name: 'GoogleAuthService');
       return {
         'success': false,
-        'message':
-            'Ocurrió un error inesperado al iniciar sesión con Google. '
+        'message': 'Ocurrió un error inesperado al iniciar sesión con Google. '
             '($e)',
       };
     }
@@ -124,10 +123,184 @@ class GoogleAuthService {
       403 => 'Tu cuenta no tiene permiso para acceder. Contacta con soporte.',
       404 => 'No existe una cuenta asociada a este correo de Google.',
       >= 500 => 'Error en el servidor. Inténtalo más tarde.',
-      _ => 'No se pudo iniciar sesión con Google (código ${response.statusCode}).',
+      _ =>
+        'No se pudo iniciar sesión con Google (código ${response.statusCode}).',
     };
 
     return {'success': false, 'message': message};
+  }
+
+  /// Ejecuta el flujo de Google Sign-In + autenticación con Firebase y retorna
+  /// el `idToken` de Firebase junto a los datos básicos de la cuenta.
+  ///
+  /// Retorna un Map con:
+  ///   {'success': true, 'idToken': '...', 'email': '...', 'displayName': '...'}
+  ///   {'success': false, 'cancelled': true}      → el usuario canceló el flujo
+  ///   {'success': false, 'message': 'Texto...'}  → error con mensaje legible
+  Future<Map<String, dynamic>> _authenticateWithFirebase() async {
+    // 1. Selección de cuenta de Google.
+    final googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) {
+      // El usuario cerró el selector de cuentas sin elegir ninguna.
+      return {'success': false, 'cancelled': true};
+    }
+
+    // 2. Obtener credenciales de Google y autenticar con Firebase.
+    final googleAuth = await googleUser.authentication;
+    final credential = fb.GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final userCredential = await _firebaseAuth.signInWithCredential(credential);
+
+    // 3. Obtener el idToken de Firebase (JWT) para enviarlo al backend.
+    final firebaseIdToken = await userCredential.user?.getIdToken();
+    if (firebaseIdToken == null) {
+      return {
+        'success': false,
+        'message': 'No se pudo obtener el token de Firebase.',
+      };
+    }
+
+    return {
+      'success': true,
+      'idToken': firebaseIdToken,
+      'email': userCredential.user?.email,
+      'displayName': userCredential.user?.displayName,
+    };
+  }
+
+  /// Paso 1 del registro con Google: autentica con Google/Firebase y verifica
+  /// el correo contra el backend (`POST /api/User/verify-email/google`).
+  ///
+  /// Retorna un Map con:
+  ///   {'success': true, 'idToken': '...', 'email': '...', 'emailVerified': bool,
+  ///    'displayName': '...'}
+  ///   {'success': false, 'cancelled': true}      → el usuario canceló el flujo
+  ///   {'success': false, 'message': 'Texto...'}  → error con mensaje legible
+  Future<Map<String, dynamic>> verifyEmailWithGoogle() async {
+    try {
+      final authResult = await _authenticateWithFirebase();
+      if (authResult['success'] != true) {
+        return authResult;
+      }
+
+      final idToken = authResult['idToken'] as String;
+      final displayName = authResult['displayName'] as String?;
+
+      final response = await HttpLogger.post(
+        Uri.parse('$_base${ApiEndpoints.verifyEmailGoogle}'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'idToken': idToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        final data = body['data'] as Map<String, dynamic>?;
+        return {
+          'success': body['success'] ?? true,
+          'message': body['message'],
+          'idToken': idToken,
+          'displayName': displayName,
+          'email': data?['email'] ?? authResult['email'],
+          'emailVerified': data?['emailVerified'] ?? false,
+        };
+      }
+
+      final String message = switch (response.statusCode) {
+        401 => 'No se pudo verificar tu cuenta de Google. Inténtalo de nuevo.',
+        >= 500 => 'Error en el servidor. Inténtalo más tarde.',
+        _ =>
+          'No se pudo verificar el correo con Google (código ${response.statusCode}).',
+      };
+      return {'success': false, 'message': message};
+    } on fb.FirebaseAuthException catch (e, st) {
+      developer.log('FirebaseAuthException en verifyEmailWithGoogle',
+          error: e, stackTrace: st, name: 'GoogleAuthService');
+      return {
+        'success': false,
+        'message': e.message ?? 'Error al autenticar con Firebase.',
+      };
+    } on SocketException {
+      return {
+        'success': false,
+        'message':
+            'Sin conexión a Internet. Comprueba tu red e inténtalo de nuevo.',
+      };
+    } catch (e, st) {
+      developer.log('Error inesperado en verifyEmailWithGoogle',
+          error: e, stackTrace: st, name: 'GoogleAuthService');
+      return {
+        'success': false,
+        'message':
+            'Ocurrió un error inesperado al verificar tu cuenta de Google. '
+                '($e)',
+      };
+    }
+  }
+
+  /// Paso 2 del registro con Google: registra al usuario en el backend
+  /// (`POST /api/User/register/google`).
+  ///
+  /// [idToken] es el token de Firebase obtenido en [verifyEmailWithGoogle].
+  /// [rol] es el UUID del rol seleccionado.
+  ///
+  /// Retorna un Map con:
+  ///   {'success': true,  'data': ...}             → registro OK
+  ///   {'success': false, 'message': 'Texto...'}   → error con mensaje legible
+  Future<Map<String, dynamic>> registerWithGoogle({
+    required String idToken,
+    required String name,
+    required String rol,
+    String? region,
+  }) async {
+    try {
+      final response = await HttpLogger.post(
+        Uri.parse('$_base${ApiEndpoints.registerGoogle}'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'idToken': idToken,
+          'name': name,
+          if (region != null && region.isNotEmpty) 'region': region,
+          'rol': rol,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        return {
+          'success': body['success'] ?? true,
+          'message': body['message'],
+          'data': body['data'],
+        };
+      }
+
+      final String message = switch (response.statusCode) {
+        400 =>
+          'Los datos de registro no son válidos. Revísalos e inténtalo de nuevo.',
+        401 => 'No se pudo verificar tu cuenta de Google. Inténtalo de nuevo.',
+        409 => 'Ya existe una cuenta asociada a este correo de Google.',
+        >= 500 => 'Error en el servidor. Inténtalo más tarde.',
+        _ =>
+          'No se pudo completar el registro con Google (código ${response.statusCode}).',
+      };
+      return {'success': false, 'message': message};
+    } on SocketException {
+      return {
+        'success': false,
+        'message':
+            'Sin conexión a Internet. Comprueba tu red e inténtalo de nuevo.',
+      };
+    } catch (e, st) {
+      developer.log('Error inesperado en registerWithGoogle',
+          error: e, stackTrace: st, name: 'GoogleAuthService');
+      return {
+        'success': false,
+        'message':
+            'Ocurrió un error inesperado al registrarte con Google. ($e)',
+      };
+    }
   }
 
   /// Cierra la sesión de Google y Firebase (usar junto al logout general).
