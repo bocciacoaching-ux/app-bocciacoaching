@@ -46,7 +46,7 @@ import '../../modules/shared/views/test_direction_panel_screen.dart';
 import '../../modules/shared/views/saremas_panel_screen.dart';
 import '../../modules/shared/views/strength_test_screen.dart';
 import '../../modules/shared/views/test_statistics_screen.dart';
-
+import '../../modules/shared/views/body_map_screen.dart';
 /// Páginas de la aplicación registradas con GetX.
 /// Usa las pantallas originales (*_screen.dart) para mantener la funcionalidad.
 abstract final class AppPages {
@@ -253,6 +253,12 @@ abstract final class AppPages {
     GetPage(
       name: AppRoutes.onboardingIntro,
       page: () => const OnboardingIntroScreen(),
+    ),
+
+    // ── Mapa corporal interactivo ────────────────────────────────
+    GetPage(
+      name: AppRoutes.bodyMap,
+      page: () => const BodyMapScreen(),
     ),
   ];
 }

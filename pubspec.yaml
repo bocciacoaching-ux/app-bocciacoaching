@@ -58,6 +58,9 @@ flutter:
     - assets/images/isologo-h-crema.svg
     - assets/images/splash_logo.png
     - assets/images/google-logo.svg
+    # Incluye todo el directorio para que las imagenes del mapa corporal
+    # (body_front.png / body_back.png) se carguen al agregarlas.
+    - assets/images/
     - assets/data/test.force.json
     - assets/data/test.direction.json
     - assets/animations/splash_animation.json

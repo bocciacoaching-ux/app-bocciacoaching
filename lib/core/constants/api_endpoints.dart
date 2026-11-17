@@ -16,14 +16,15 @@ abstract final class ApiEndpoints {
   static const String updatePassword = '/User/UpdatePassword';
   static const String updateUserInfo = '/User/UpdateUserInfo';
 
-  // ── Team ─────────────────────────────────────────────────────────
-  static const String addNewTeam = '/Team/AddNewTeam';
-  static const String addNewTeamMember = '/Team/AddNewTeamMember';
-  static String getTeamsForUser(String coachId) =>
-      '/Team/GetTeamsForUser/$coachId';
-  static const String getUsersForTeam = '/Team/GetUsersForTeam';
-  static const String updateTeam = '/Team/UpdateTeam';
-  static const String getRecentStatistics = '/Team/GetRecentStatistics';
+  // ── Teams (v1) ───────────────────────────────────────────────────
+  static const String teams = '/v1/teams';
+  static String teamById(String teamId) => '/v1/teams/$teamId';
+  /// GET (filtra con `?roleId=`) y POST (body `{ userId }`).
+  static String teamMembers(String teamId) => '/v1/teams/$teamId/members';
+  /// GET con `?coachId=`.
+  static String teamRecentStrengthStatistics(String teamId) =>
+      '/v1/teams/$teamId/strength-statistics/recent';
+  static String userTeams(String userId) => '/v1/users/$userId/teams';
 
   // ── AssessStrength ───────────────────────────────────────────────
   static const String strengthAddEvaluation = '/AssessStrength/AddEvaluation';
@@ -277,18 +278,17 @@ abstract final class ApiEndpoints {
   static const String athleteFinishSession =
       '/TrainingSession/Athlete/FinishSession';
 
-  // ── Wellness ─────────────────────────────────────────────────────
-  static const String wellnessAddDailyWellness = '/Wellness/AddDailyWellness';
-  static const String wellnessUpdateDailyWellness =
-      '/Wellness/UpdateDailyWellness';
-  static String wellnessGetTodayWellness(String athleteId) =>
-      '/Wellness/GetTodayWellness/$athleteId';
-  static String wellnessGetWellnessByDate(String athleteId, String date) =>
-      '/Wellness/GetWellnessByDate/$athleteId/$date';
-  static String wellnessGetWellnessById(String dailyWellnessId) =>
-      '/Wellness/GetWellnessById/$dailyWellnessId';
-  static String wellnessGetAthleteHistory(String athleteId) =>
-      '/Wellness/GetAthleteHistory/$athleteId';
-  static String wellnessGetTeamWellnessByDate(String teamId, String date) =>
-      '/Wellness/GetTeamWellnessByDate/$teamId/$date';
+  // ── Wellness (v1) ────────────────────────────────────────────────
+  static const String wellness = '/v1/wellness';
+  static String wellnessById(String dailyWellnessId) =>
+      '/v1/wellness/$dailyWellnessId';
+  static String athleteWellness(String athleteId) =>
+      '/v1/athletes/$athleteId/wellness';
+  static String athleteWellnessToday(String athleteId) =>
+      '/v1/athletes/$athleteId/wellness/today';
+  /// [date] en formato `yyyy-MM-dd`.
+  static String athleteWellnessByDate(String athleteId, String date) =>
+      '/v1/athletes/$athleteId/wellness/$date';
+  /// GET con `?date=yyyy-MM-dd` opcional (por defecto, hoy).
+  static String teamWellness(String teamId) => '/v1/teams/$teamId/wellness';
 }

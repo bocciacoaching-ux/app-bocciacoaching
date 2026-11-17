@@ -39,7 +39,7 @@ class TeamProvider extends ChangeNotifier {
 
   // ── Equipos ───────────────────────────────────────────────────────────
 
-  /// Obtiene los equipos del coach desde GET /api/Team/GetTeamsForUser/{coachId}
+  /// Obtiene los equipos del coach desde GET /api/v1/users/{userId}/teams
   Future<void> fetchTeams(String coachId) async {
     if (_status == TeamLoadingStatus.loading) return;
 
@@ -81,7 +81,7 @@ class TeamProvider extends ChangeNotifier {
   // ── Miembros (atletas) ────────────────────────────────────────────────
 
   /// Obtiene los atletas del equipo desde
-  /// POST /api/Team/GetUsersForTeam
+  /// GET /api/v1/teams/{teamId}/members?roleId=
   Future<void> fetchMembers(String teamId) async {
     if (_membersStatus == TeamLoadingStatus.loading) return;
 

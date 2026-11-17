@@ -5,7 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/navigation_helper.dart';
 
 /// Rutas que tienen entrada en el menú lateral.
-enum AppDrawerRoute { inicio, evaluaciones, atletas, estadisticas, macrociclos, entrenamiento, miCalendario }
+enum AppDrawerRoute { inicio, evaluaciones, atletas, estadisticas, macrociclos, entrenamiento, miCalendario, mapaCorporal }
 
 /// Menú lateral compartido por todas las pantallas de la app.
 ///
@@ -175,6 +175,19 @@ class AppDrawer extends StatelessWidget {
                             if (activeRoute != AppDrawerRoute.estadisticas) {
                               Navigator.of(context)
                                   .pushNamed('/statistics');
+                            }
+                          },
+                        ),
+                        _item(
+                          context,
+                          icon: Icons.accessibility_new_outlined,
+                          activeIcon: Icons.accessibility_new,
+                          label: 'Mapa corporal',
+                          active: activeRoute == AppDrawerRoute.mapaCorporal,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            if (activeRoute != AppDrawerRoute.mapaCorporal) {
+                              Navigator.of(context).pushNamed('/body-map');
                             }
                           },
                         ),
