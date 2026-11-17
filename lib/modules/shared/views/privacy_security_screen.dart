@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 class PrivacySecurityScreen extends StatefulWidget {
   const PrivacySecurityScreen({super.key});
@@ -24,19 +25,19 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen>
 
   // ── Estado de sesiones ──
   final List<_SessionItem> _activeSessions = [
-    _SessionItem(
+    const _SessionItem(
       device: 'iPhone 15 Pro · iOS 17',
       location: 'Ciudad de México, MX',
       lastActive: 'Activa ahora',
       isCurrent: true,
     ),
-    _SessionItem(
+    const _SessionItem(
       device: 'MacBook Pro · macOS 14',
       location: 'Ciudad de México, MX',
       lastActive: 'Hace 2 horas',
       isCurrent: false,
     ),
-    _SessionItem(
+    const _SessionItem(
       device: 'iPad Air · iPadOS 17',
       location: 'Guadalajara, MX',
       lastActive: 'Hace 3 días',
@@ -67,7 +68,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.compact,
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.surface,
@@ -349,7 +351,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen>
             Switch(
               value: value,
               onChanged: onChanged,
-              activeColor: AppColors.primary,
+              activeThumbColor: AppColors.primary,
             ),
           ],
         ),

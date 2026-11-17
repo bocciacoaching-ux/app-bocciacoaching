@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 class HomeScreen extends StatelessWidget {
   final AuthService? authService;
@@ -7,7 +8,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.medium,
       appBar: AppBar(
         title: const Text('Boccia Coaching'),
         actions: [

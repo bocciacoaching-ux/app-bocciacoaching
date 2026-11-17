@@ -14,6 +14,8 @@ import '../../../data/providers/onboarding_provider.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/utils/responsive_utils.dart';
 import '../../onboarding/views/onboarding_intro_screen.dart';
+import '../../../shared/widgets/app_scaffold.dart';
+import '../../../shared/widgets/adaptive_layout.dart';
 
 // Widget para el logo BOCCIA COACHING
 class BocciaLogo extends StatelessWidget {
@@ -189,7 +191,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     final selectedName = selected?.nameTeam ?? 'Sin equipo';
     final selectedCountry = selected?.country ?? '';
 
-    return Scaffold(
+    return AppScaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -311,12 +313,12 @@ class _DashboardScreenState extends State<DashboardScreen>
         _buildQuickActions(),
         const SizedBox(height: 20),
 
-        // ── Atletas destacados ──────────────────────────────────────
-        _buildTopAthletesSection(),
-        const SizedBox(height: 20),
-
-        // ── Actividad reciente ──────────────────────────────────────
-        _buildRecentActivitySection(),
+        // ── Atletas destacados + actividad reciente ─────────────────
+        // En pantallas anchas se muestran en dos columnas.
+        TwoColumnSection(
+          left: _buildTopAthletesSection(),
+          right: _buildRecentActivitySection(),
+        ),
         const SizedBox(height: 20),
 
         // ── Próximas evaluaciones ───────────────────────────────────
@@ -331,7 +333,8 @@ class _DashboardScreenState extends State<DashboardScreen>
     final hasEvals = stats.coachHasAnyEvaluations;
     final isLoading = stats.isLoadingCoachHasEvaluations;
 
-    return GridView.count(
+    return AdaptiveStatGrid(
+      itemHeight: 124,
       crossAxisCount: ResponsiveUtils.valueByDevice<int>(
         context,
         mobile: 2,
@@ -1337,7 +1340,8 @@ class _DashboardScreenState extends State<DashboardScreen>
       children: [
         _sectionHeader('Tu Resumen'),
         const SizedBox(height: 12),
-        GridView.count(
+        AdaptiveStatGrid(
+          itemHeight: 112,
           crossAxisCount: 2,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),

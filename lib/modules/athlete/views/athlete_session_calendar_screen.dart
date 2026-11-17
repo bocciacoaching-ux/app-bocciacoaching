@@ -8,6 +8,7 @@ import '../../../data/providers/athlete_session_provider.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../shared/widgets/app_drawer.dart';
 import '../../../shared/widgets/profile_menu_button.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 /// Pantalla de calendario de sesiones para el atleta.
 ///
@@ -86,7 +87,7 @@ class _AthleteSessionCalendarScreenState
     // Modo embebido: sin Scaffold
     if (widget.embedded) return body;
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.surface,

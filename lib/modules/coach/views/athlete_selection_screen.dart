@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 class AthleteSelectionScreen extends StatefulWidget {
   final String evaluationType;
@@ -87,7 +88,8 @@ class _AthleteSelectionScreenState extends State<AthleteSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.compact,
       appBar: AppBar(
         title: Text(_getEvaluationTitle()),
         backgroundColor: AppColors.primary,

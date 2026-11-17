@@ -8,6 +8,7 @@ import '../../../shared/widgets/force_target_widget.dart';
 import '../../../shared/widgets/statistics_panel.dart';
 import '../../../data/models/athlete.dart';
 import '../../../data/models/team_member.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 class TestForcePanelScreen extends StatefulWidget {
   const TestForcePanelScreen({super.key});
@@ -39,7 +40,8 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
   // ═══════════════════════════════════════════════════════════════════
 
   Widget _buildSetupScreen(BuildContext context, ForceTestProvider provider) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.wide,
       backgroundColor: AppColors.surface,
       appBar: AppBar(
         title: const Text(
@@ -334,7 +336,8 @@ class _TestForcePanelScreenState extends State<TestForcePanelScreen> {
         ? 'Evaluación de Fuerza de $athleteName'
         : 'Evaluación de Fuerza';
 
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.wide,
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Column(

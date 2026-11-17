@@ -6,6 +6,7 @@ import '../../../data/providers/team_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/utils/responsive_utils.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 class TeamsScreen extends StatefulWidget {
   const TeamsScreen({super.key});
@@ -35,7 +36,7 @@ class _TeamsScreenState extends State<TeamsScreen> {
   Widget build(BuildContext context) {
     final teamProvider = context.watch<TeamProvider>();
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.surface,

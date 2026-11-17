@@ -7,6 +7,7 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/team.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 /// Pantalla de formulario para crear o editar un equipo.
 ///
@@ -87,7 +88,8 @@ class _TeamFormScreenState extends State<TeamFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.compact,
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.surface,

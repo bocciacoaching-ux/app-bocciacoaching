@@ -6,6 +6,7 @@ import '../../../data/models/notification_message.dart';
 import '../../../data/providers/notification_provider.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -34,7 +35,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.surface,
@@ -168,12 +169,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             top: false,
             bottom: false,
             child: ResponsiveUtils.constrainedContainer(
+              maxWidth: AppContentWidth.compact,
               child: ListView(
                 padding: EdgeInsets.fromLTRB(
                     0, 16, 0, 16 + MediaQuery.of(context).padding.bottom),
                 children: [
                 if (today.isNotEmpty) ...[
-                  _SectionHeader(label: 'Hoy'),
+                  const _SectionHeader(label: 'Hoy'),
                   const SizedBox(height: 8),
                   ...today.map((n) => _NotificationCard(
                         notification: n,
@@ -182,7 +184,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ],
                 if (earlier.isNotEmpty) ...[
                   const SizedBox(height: 20),
-                  _SectionHeader(label: 'Anteriores'),
+                  const _SectionHeader(label: 'Anteriores'),
                   const SizedBox(height: 8),
                   ...earlier.map((n) => _NotificationCard(
                         notification: n,
@@ -241,7 +243,15 @@ class _NotificationCardState extends State<_NotificationCard> {
   bool? _invitationResult;
   bool _actionLoading = false;
 
-  bool get _isInvitation => widget.notification.notificationTypeId == 2;
+  /// Los tipos de notificacion son UUID, asi que se identifica la
+  /// invitacion por el nombre del tipo. Respaldo: las invitaciones a equipo
+  /// traen el TeamId en `referenceId`.
+  bool get _isInvitation {
+    final n = widget.notification;
+    if ((n.typeName ?? '').toLowerCase().contains('invit')) return true;
+    return n.referenceId != null &&
+        (n.message ?? '').toLowerCase().contains('invit');
+  }
 
   Future<void> _accept() async {
     setState(() => _actionLoading = true);
@@ -514,18 +524,7 @@ class _NotificationCardState extends State<_NotificationCard> {
     if (name.contains('estadística') || name.contains('rendimiento')) {
       return Icons.show_chart_rounded;
     }
-    switch (typeId) {
-      case 1:
-        return Icons.group_add_outlined;
-      case 2:
-        return Icons.fitness_center_rounded;
-      case 3:
-        return Icons.assignment_outlined;
-      case 4:
-        return Icons.warning_amber_rounded;
-      default:
-        return Icons.notifications_none_rounded;
-    }
+    return Icons.notifications_none_rounded;
   }
 
   Color _colorForType(String typeId, String? typeName) {
@@ -543,17 +542,6 @@ class _NotificationCardState extends State<_NotificationCard> {
     if (name.contains('estadística') || name.contains('rendimiento')) {
       return AppColors.success;
     }
-    switch (typeId) {
-      case 1:
-        return AppColors.info;
-      case 2:
-        return AppColors.primary;
-      case 3:
-        return AppColors.accent4;
-      case 4:
-        return AppColors.warning;
-      default:
-      return AppColors.neutral4;
-    }
+    return AppColors.neutral4;
   }
 }

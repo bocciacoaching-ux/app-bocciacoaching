@@ -9,6 +9,7 @@ import '../../../shared/widgets/statistics_panel.dart';
 import '../../../shared/widgets/app_dialog.dart';
 import '../../../data/models/athlete.dart';
 import '../../../data/models/team_member.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 class TestDirectionPanelScreen extends StatefulWidget {
   const TestDirectionPanelScreen({super.key});
@@ -43,7 +44,8 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
 
   Widget _buildSetupScreen(
       BuildContext context, DirectionTestProvider provider) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.wide,
       backgroundColor: AppColors.surface,
       appBar: AppBar(
         title: const Text(
@@ -366,7 +368,8 @@ class _TestDirectionPanelScreenState extends State<TestDirectionPanelScreen> {
 
     final progressPct = provider.currentShotNumber / provider.totalShots;
 
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.wide,
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Column(

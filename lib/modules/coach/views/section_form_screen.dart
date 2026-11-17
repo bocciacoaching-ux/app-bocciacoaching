@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/training_session.dart';
 import '../../../data/providers/training_session_provider.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 /// Pantalla completa para agregar o editar una sección de sesión.
 ///
@@ -76,7 +77,8 @@ class _SectionFormScreenState extends State<SectionFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.compact,
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.white,

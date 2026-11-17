@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../data/providers/session_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/navigation_helper.dart';
+import 'app_scaffold.dart' show AppDrawerScope;
 
 /// Rutas que tienen entrada en el menú lateral.
 enum AppDrawerRoute { inicio, evaluaciones, atletas, estadisticas, macrociclos, entrenamiento, miCalendario, mapaCorporal }
@@ -35,10 +36,20 @@ class AppDrawer extends StatelessWidget {
     this.onCalendarSelected,
   });
 
+  /// Cierra el menu si se muestra como cajon modal. Cuando esta fijo al
+  /// lado del contenido (escritorio) no hay nada que cerrar.
+  static void _close(BuildContext context) {
+    if (!AppDrawerScope.isEmbedded(context)) Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final embedded = AppDrawerScope.isEmbedded(context);
     return Drawer(
       backgroundColor: AppColors.surface,
+      width: embedded ? double.infinity : null,
+      elevation: embedded ? 0 : null,
+      shape: embedded ? const RoundedRectangleBorder() : null,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -57,12 +68,13 @@ class AppDrawer extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close,
-                        color: AppColors.neutral4, size: 22),
-                    tooltip: 'Cerrar menú',
-                  ),
+                  if (!embedded)
+                    IconButton(
+                      onPressed: () => _close(context),
+                      icon: const Icon(Icons.close,
+                          color: AppColors.neutral4, size: 22),
+                      tooltip: 'Cerrar menú',
+                    ),
                 ],
               ),
             ),
@@ -90,7 +102,7 @@ class AppDrawer extends StatelessWidget {
                           label: 'Inicio',
                           active: activeRoute == AppDrawerRoute.inicio,
                           onTap: () {
-                            Navigator.of(context).pop();
+                            _close(context);
                             if (onHomeSelected != null) {
                               onHomeSelected!();
                             } else {
@@ -110,7 +122,7 @@ class AppDrawer extends StatelessWidget {
                             label: 'Mi Calendario',
                             active: activeRoute == AppDrawerRoute.miCalendario,
                             onTap: () {
-                              Navigator.of(context).pop();
+                              _close(context);
                               if (onCalendarSelected != null) {
                                 onCalendarSelected!();
                               } else {
@@ -128,7 +140,7 @@ class AppDrawer extends StatelessWidget {
                             label: 'Evaluaciones',
                             active: activeRoute == AppDrawerRoute.evaluaciones,
                             onTap: () {
-                              Navigator.of(context).pop();
+                              _close(context);
                               if (onEvaluationsSelected != null) {
                                 onEvaluationsSelected!();
                               } else {
@@ -146,7 +158,7 @@ class AppDrawer extends StatelessWidget {
                             label: 'Atletas',
                             active: activeRoute == AppDrawerRoute.atletas,
                             onTap: () {
-                              Navigator.of(context).pop();
+                              _close(context);
                               if (activeRoute != AppDrawerRoute.atletas) {
                                 Navigator.of(context).pushNamed(
                                   '/athletes',
@@ -171,7 +183,7 @@ class AppDrawer extends StatelessWidget {
                               : 'Estadísticas',
                           active: activeRoute == AppDrawerRoute.estadisticas,
                           onTap: () {
-                            Navigator.of(context).pop();
+                            _close(context);
                             if (activeRoute != AppDrawerRoute.estadisticas) {
                               Navigator.of(context)
                                   .pushNamed('/statistics');
@@ -185,7 +197,7 @@ class AppDrawer extends StatelessWidget {
                           label: 'Mapa corporal',
                           active: activeRoute == AppDrawerRoute.mapaCorporal,
                           onTap: () {
-                            Navigator.of(context).pop();
+                            _close(context);
                             if (activeRoute != AppDrawerRoute.mapaCorporal) {
                               Navigator.of(context).pushNamed('/body-map');
                             }
@@ -204,7 +216,7 @@ class AppDrawer extends StatelessWidget {
                             active:
                                 activeRoute == AppDrawerRoute.macrociclos,
                             onTap: () {
-                              Navigator.of(context).pop();
+                              _close(context);
                               if (activeRoute !=
                                   AppDrawerRoute.macrociclos) {
                                 Navigator.of(context)
@@ -220,7 +232,7 @@ class AppDrawer extends StatelessWidget {
                             active:
                                 activeRoute == AppDrawerRoute.entrenamiento,
                             onTap: () {
-                              Navigator.of(context).pop();
+                              _close(context);
                               if (activeRoute !=
                                   AppDrawerRoute.entrenamiento) {
                                 Navigator.of(context)
@@ -266,7 +278,7 @@ class AppDrawer extends StatelessWidget {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10),
                     onTap: () {
-                      Navigator.of(context).pop();
+                      _close(context);
                       Navigator.of(context).pushNamed('/profile');
                     },
                     child: Row(
@@ -361,7 +373,7 @@ class AppDrawer extends StatelessWidget {
         active && activeIcon != null ? activeIcon : icon;
 
     return InkWell(
-      onTap: onTap ?? () => Navigator.of(context).pop(),
+      onTap: onTap ?? () => _close(context),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         decoration: BoxDecoration(

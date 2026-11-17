@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../core/services/user_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -260,7 +261,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
     final hasSpecial =
         newPwd.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-]'));
 
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.compact,
       backgroundColor: AppColors.background,
       // ── AppBar ──────────────────────────────────────────────────
       appBar: AppBar(
@@ -553,12 +555,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                   const SizedBox(height: 24),
 
                   // ── Nota de seguridad ────────────────────────────
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.shield_outlined,
+                      Icon(Icons.shield_outlined,
                           size: 14, color: AppColors.neutral5),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6),
                       Text(
                         'Tu información viaja cifrada de forma segura.',
                         style: TextStyle(

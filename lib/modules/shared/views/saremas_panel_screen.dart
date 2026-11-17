@@ -6,6 +6,7 @@ import '../../../data/providers/team_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/athlete.dart';
 import '../widgets/boccia_court_painter.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 /// Pantalla completa de evaluación SAREMAS+.
 ///
@@ -44,7 +45,8 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
   // ═══════════════════════════════════════════════════════════════════
 
   Widget _buildSetupScreen(BuildContext context, SaremasProvider provider) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.wide,
       backgroundColor: AppColors.surface,
       appBar: AppBar(
         title: const Text(
@@ -114,8 +116,8 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
               _buildAthleteSearch(provider),
               const SizedBox(height: 16),
               if (provider.selectedAthletes.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Text(
                     'Agrega al menos un atleta para comenzar',
                     style: TextStyle(
@@ -274,7 +276,8 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
         ? 'SAREMAS+ — $athleteName'
         : 'SAREMAS+';
 
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.wide,
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Column(
@@ -358,7 +361,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
               color: diagonalBgColor,
               border: Border(
                 bottom: BorderSide(
-                  color: diagonalColor.withOpacity(0.3),
+                  color: diagonalColor.withValues(alpha: 0.3),
                 ),
               ),
             ),
@@ -386,7 +389,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: diagonalColor.withOpacity(0.15),
+                    color: diagonalColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -509,11 +512,11 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
                       fillColor: AppColors.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: AppColors.neutral7),
+                        borderSide: const BorderSide(color: AppColors.neutral7),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: AppColors.neutral7),
+                        borderSide: const BorderSide(color: AppColors.neutral7),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -600,7 +603,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: hasData
-                ? AppColors.success.withOpacity(0.1)
+                ? AppColors.success.withValues(alpha: 0.1)
                 : AppColors.infoBg,
             foregroundColor: hasData ? AppColors.success : AppColors.primary,
             elevation: 0,
@@ -609,8 +612,8 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
               borderRadius: BorderRadius.circular(12),
               side: BorderSide(
                 color: hasData
-                    ? AppColors.success.withOpacity(0.3)
-                    : AppColors.primary.withOpacity(0.3),
+                    ? AppColors.success.withValues(alpha: 0.3)
+                    : AppColors.primary.withValues(alpha: 0.3),
               ),
             ),
           ),
@@ -622,7 +625,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.success.withOpacity(0.3)),
+              border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -630,7 +633,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.1),
+                    color: AppColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
@@ -859,7 +862,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: color.withOpacity(0.35),
+                          color: color.withValues(alpha: 0.35),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -1027,7 +1030,8 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
     final maxPossible = stats['maxPossible'] ?? 140;
     final avg = stats['averageScore'] ?? 0.0;
 
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.wide,
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
@@ -1050,7 +1054,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
               Container(
                 width: 80,
                 height: 80,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.successBg,
                   shape: BoxShape.circle,
                 ),
@@ -1070,7 +1074,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
+              const Text(
                 'Se completaron los 28 lanzamientos',
                 style: TextStyle(
                   fontSize: 14,
@@ -1089,7 +1093,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
                   border: Border.all(color: AppColors.neutral8),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.black.withOpacity(0.05),
+                      color: AppColors.black.withValues(alpha: 0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -1118,7 +1122,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
                 child: ElevatedButton(
                   onPressed: () async {
                     await provider.resetForNewEvaluation();
-                    if (mounted) Navigator.of(context).pop();
+                    if (context.mounted) Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -1197,7 +1201,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
               .toList();
           final blockTotal =
               blockThrows.fold<int>(0, (s, t) => s + t.scoreObtained);
-          final blockMax = 7 * 5;
+          const blockMax = 7 * 5;
           return Container(
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.all(14),
@@ -1205,7 +1209,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: (d['color'] as Color).withOpacity(0.3),
+                color: (d['color'] as Color).withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -1496,7 +1500,7 @@ class _SaremasPanelScreenState extends State<SaremasPanelScreen> {
               ),
               child: Column(
                 children: List.generate(4, (i) {
-                  final blockMax = 7 * 5;
+                  const blockMax = 7 * 5;
                   final blockPct =
                       blockMax == 0 ? 0.0 : blockTotals[i] / blockMax;
                   final isRoja = i.isEven;

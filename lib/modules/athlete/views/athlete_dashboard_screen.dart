@@ -15,6 +15,8 @@ import '../../../data/providers/statistics_provider.dart';
 import '../../../data/providers/athlete_session_provider.dart';
 import '../../../data/providers/onboarding_provider.dart';
 import '../../onboarding/views/onboarding_intro_screen.dart';
+import '../../../shared/widgets/app_scaffold.dart';
+import '../../../shared/widgets/adaptive_layout.dart';
 
 /// Dashboard específico para el rol de **atleta**.
 ///
@@ -132,7 +134,7 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
     final selectedName = selected?.nameTeam ?? 'Sin equipo';
     final selectedCountry = selected?.country ?? '';
 
-    return Scaffold(
+    return AppScaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -263,12 +265,12 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
         _buildQuickActions(),
         const SizedBox(height: 20),
 
-        // ── Mi rendimiento ──────────────────────────────────────────
-        _buildMyPerformanceSection(),
-        const SizedBox(height: 20),
-
-        // ── Próximas sesiones ─────────────────────────────────────────
-        _buildUpcomingSessionsSection(),
+        // ── Mi rendimiento + próximas sesiones ──────────────────────
+        // En pantallas anchas se muestran en dos columnas.
+        TwoColumnSection(
+          left: _buildMyPerformanceSection(),
+          right: _buildUpcomingSessionsSection(),
+        ),
         const SizedBox(height: 20),
 
         // ── Actividad reciente ──────────────────────────────────────
@@ -282,7 +284,8 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
     final sessionProv = context.watch<AthleteSessionProvider>();
     final upcomingCount = sessionProv.upcomingSessions.length;
 
-    return GridView.count(
+    return AdaptiveStatGrid(
+      itemHeight: 116,
       crossAxisCount: ResponsiveUtils.valueByDevice<int>(
         context,
         mobile: 2,
@@ -1233,7 +1236,8 @@ class _AthleteDashboardScreenState extends State<AthleteDashboardScreen> {
       children: [
         _sectionHeader('Tu Resumen'),
         const SizedBox(height: 12),
-        GridView.count(
+        AdaptiveStatGrid(
+          itemHeight: 122,
           crossAxisCount: 2,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),

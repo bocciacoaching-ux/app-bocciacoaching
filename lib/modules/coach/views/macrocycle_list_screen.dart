@@ -12,6 +12,7 @@ import '../../../shared/widgets/profile_menu_button.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/utils/responsive_utils.dart';
 import '../../coach/services/macrocycle_excel_export.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 /// Pantalla que lista todos los macrociclos creados.
 /// Permite ver, crear y eliminar macrociclos.
@@ -36,7 +37,7 @@ class _MacrocycleListScreenState extends State<MacrocycleListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.background,
       drawer: const AppDrawer(
@@ -45,10 +46,12 @@ class _MacrocycleListScreenState extends State<MacrocycleListScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: AppColors.neutral3),
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-        ),
+        leading: AppScaffold.usesPersistentDrawer(context)
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.menu, color: AppColors.neutral3),
+                onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+              ),
         title: const Text(
           'Macrociclos',
           style: AppTextStyles.titleLarge,
@@ -83,6 +86,7 @@ class _MacrocycleListScreenState extends State<MacrocycleListScreen> {
           }
 
           return ResponsiveUtils.constrainedContainer(
+            maxWidth: AppContentWidth.medium,
             child: _buildMacrocycleList(context, provider),
           );
         },
@@ -99,7 +103,7 @@ class _MacrocycleListScreenState extends State<MacrocycleListScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.primary10,
                 shape: BoxShape.circle,
               ),
@@ -217,7 +221,7 @@ class _MacrocycleListScreenState extends State<MacrocycleListScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 22),
@@ -454,7 +458,7 @@ class _MacrocycleListScreenState extends State<MacrocycleListScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -493,7 +497,7 @@ class _MacrocycleListScreenState extends State<MacrocycleListScreen> {
 
       final filePath = await MacrocycleExcelExport.exportToExcel(macro);
 
-      if (!mounted) return;
+      if (!context.mounted) return;
       Navigator.of(context).pop();
 
       final fileName = filePath.split('/').last;
@@ -580,7 +584,7 @@ class _MacrocycleListScreenState extends State<MacrocycleListScreen> {
         ),
       );
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -614,12 +618,12 @@ class _MacrocycleListScreenState extends State<MacrocycleListScreen> {
 
       final filePath = await MacrocycleExcelExport.exportToExcel(macro);
 
-      if (!mounted) return;
+      if (!context.mounted) return;
       Navigator.of(context).pop();
 
       await _shareExcelFile(context, macro, filePath);
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

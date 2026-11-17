@@ -12,6 +12,7 @@ import '../../../core/services/athlete_service.dart';
 import '../../../core/services/notification_service.dart';
 import '../../../data/providers/team_provider.dart';
 import '../../../data/providers/session_provider.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 // ---------------------------------------------------------------------------
 // Modelo UI de atleta (construido a partir de TeamMember de la API)
@@ -95,7 +96,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
   _ViewMode _viewMode = _ViewMode.table;
   String _search = '';
   String? _filterStatus; // null = todos
-  int _notificationCount = 3;
+  final int _notificationCount = 3;
 
   // Equipo activo (puede cambiar desde el endDrawer)
   late String _selectedTeam;
@@ -138,7 +139,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
   Widget build(BuildContext context) {
     final teamProvider = context.watch<TeamProvider>();
 
-    return Scaffold(
+    return AppScaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.background,
       appBar: _buildAppBar(),
@@ -334,10 +335,12 @@ class _AthletesScreenState extends State<AthletesScreen> {
       backgroundColor: AppColors.surface,
       elevation: 0,
       automaticallyImplyLeading: false,
-      leading: IconButton(
-        icon: const Icon(Icons.menu, color: AppColors.textSecondary),
-        onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-      ),
+      leading: AppScaffold.usesPersistentDrawer(context)
+          ? null
+          : IconButton(
+              icon: const Icon(Icons.menu, color: AppColors.textSecondary),
+              onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+            ),
       title: TeamSelectorChip(
           teamName: _selectedTeam,
           teamFlag: _selectedFlag,
@@ -587,15 +590,15 @@ class _AthletesScreenState extends State<AthletesScreen> {
 
   // ── Estado vacío ─────────────────────────────────────────────────────────
   Widget _buildEmpty() {
-    return Center(
+    return const Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.search_off_rounded, size: 60, color: AppColors.neutral7),
-          const SizedBox(height: 12),
-          const Text('Sin resultados', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.neutral5, fontSize: 16)),
-          const SizedBox(height: 4),
-          const Text('Intenta con otro nombre o ajusta los filtros',
+          Icon(Icons.search_off_rounded, size: 60, color: AppColors.neutral7),
+          SizedBox(height: 12),
+          Text('Sin resultados', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.neutral5, fontSize: 16)),
+          SizedBox(height: 4),
+          Text('Intenta con otro nombre o ajusta los filtros',
               style: TextStyle(fontSize: 12, color: AppColors.neutral6)),
         ],
       ),
@@ -621,11 +624,11 @@ class _AthleteCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
-                color: const Color.fromRGBO(0, 0, 0, 0.06),
+                color: Color.fromRGBO(0, 0, 0, 0.06),
                 blurRadius: 10,
-                offset: const Offset(0, 2),
+                offset: Offset(0, 2),
               ),
             ],
           ),
@@ -755,11 +758,11 @@ class _AthleteListRow extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(14),
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
-                color: const Color.fromRGBO(0, 0, 0, 0.05),
+                color: Color.fromRGBO(0, 0, 0, 0.05),
                 blurRadius: 8,
-                offset: const Offset(0, 2),
+                offset: Offset(0, 2),
               ),
             ],
           ),
@@ -1293,7 +1296,7 @@ class _AddAthleteSheetState extends State<_AddAthleteSheet> {
                     ),
                     Switch(
                       value: _status,
-                      activeColor: AppColors.primary,
+                      activeThumbColor: AppColors.primary,
                       onChanged: (v) => setState(() => _status = v),
                     ),
                   ],

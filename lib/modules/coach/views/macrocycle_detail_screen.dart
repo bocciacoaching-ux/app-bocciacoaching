@@ -12,6 +12,7 @@ import '../../../data/models/mesocycle.dart';
 import '../../../data/models/microcycle.dart';
 import '../../../data/providers/macrocycle_provider.dart';
 import '../../coach/services/macrocycle_excel_export.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 /// Pantalla de detalle de un macrociclo con vista completa,
 /// opción de exportar a Excel y edición inline de todos los componentes.
@@ -101,7 +102,7 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
           Navigator.of(context).pop();
         }
       },
-      child: Scaffold(
+      child: AppScaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: AppColors.white,
@@ -298,9 +299,9 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.08),
+        color: AppColors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -378,9 +379,9 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: AppColors.white.withOpacity(0.8), size: 16),
+        Icon(icon, color: AppColors.white.withValues(alpha: 0.8), size: 16),
         const SizedBox(width: 8),
-        Text('$label: ', style: TextStyle(color: AppColors.white.withOpacity(0.7), fontSize: 13)),
+        Text('$label: ', style: TextStyle(color: AppColors.white.withValues(alpha: 0.7), fontSize: 13)),
         Expanded(
           child: Text(value, style: const TextStyle(color: AppColors.white, fontSize: 13, fontWeight: FontWeight.w600)),
         ),
@@ -392,7 +393,7 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.white.withOpacity(0.2),
+        color: AppColors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(label, style: const TextStyle(color: AppColors.white, fontSize: 11, fontWeight: FontWeight.bold)),
@@ -486,7 +487,7 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
               child: Icon(Icons.layers_outlined, color: color, size: 20),
             ),
             const SizedBox(width: 12),
@@ -503,12 +504,12 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
               child: Text('${period.weeks} sem.', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color)),
             ),
             if (_isEditing) ...[
               const SizedBox(width: 4),
-              Icon(Icons.edit_outlined, size: 16, color: color.withOpacity(0.6)),
+              Icon(Icons.edit_outlined, size: 16, color: color.withValues(alpha: 0.6)),
             ],
           ],
         ),
@@ -536,23 +537,28 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
                 const SizedBox(height: 16),
                 const Text('Tipo de período:', style: TextStyle(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
-                ...PeriodType.values.map((type) {
-                  final typeColor = _colorForPeriod(type);
-                  return RadioListTile<PeriodType>(
-                    contentPadding: EdgeInsets.zero,
-                    title: Row(children: [
-                      Container(width: 14, height: 14, decoration: BoxDecoration(color: typeColor, borderRadius: BorderRadius.circular(3))),
-                      const SizedBox(width: 8),
-                      Text(type.label, style: const TextStyle(fontSize: 14)),
-                    ]),
-                    value: type,
-                    groupValue: selectedType,
-                    activeColor: typeColor,
-                    onChanged: (value) {
-                      if (value != null) setDialogState(() => selectedType = value);
-                    },
-                  );
-                }),
+                RadioGroup<PeriodType>(
+                  groupValue: selectedType,
+                  onChanged: (value) {
+                    if (value != null) setDialogState(() => selectedType = value);
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: PeriodType.values.map((type) {
+                      final typeColor = _colorForPeriod(type);
+                      return RadioListTile<PeriodType>(
+                        contentPadding: EdgeInsets.zero,
+                        title: Row(children: [
+                          Container(width: 14, height: 14, decoration: BoxDecoration(color: typeColor, borderRadius: BorderRadius.circular(3))),
+                          const SizedBox(width: 8),
+                          Text(type.label, style: const TextStyle(fontSize: 14)),
+                        ]),
+                        value: type,
+                        activeColor: typeColor,
+                      );
+                    }).toList(),
+                  ),
+                ),
               ],
             ),
           ),
@@ -616,12 +622,12 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
                   Row(children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
                       child: Text(event.type.label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color)),
                     ),
                     if (event.location != null) ...[
                       const SizedBox(width: 8),
-                      Icon(Icons.location_on_outlined, size: 12, color: AppColors.neutral5),
+                      const Icon(Icons.location_on_outlined, size: 12, color: AppColors.neutral5),
                       Text(' ${event.location}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                     ],
                   ]),
@@ -673,7 +679,7 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 DropdownButtonFormField<EventType>(
-                  value: selectedType,
+                  initialValue: selectedType,
                   decoration: const InputDecoration(labelText: 'Tipo de evento', prefixIcon: Icon(Icons.category_outlined)),
                   items: EventType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.label))).toList(),
                   onChanged: (value) { if (value != null) setDialogState(() => selectedType = value); },
@@ -783,7 +789,7 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
                   const SizedBox(height: 2),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(color: _colorForMesocycleType(meso.type).withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                    decoration: BoxDecoration(color: _colorForMesocycleType(meso.type).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
                     child: Text(meso.type.label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: _colorForMesocycleType(meso.type))),
                   ),
                   if (meso.objective != null) ...[
@@ -823,14 +829,20 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
                 const SizedBox(height: 12),
                 const Text('Tipo de mesociclo:', style: TextStyle(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
-                ...MesocycleType.values.map((type) {
-                  return RadioListTile<MesocycleType>(
-                    contentPadding: EdgeInsets.zero, dense: true,
-                    title: Text(type.label, style: const TextStyle(fontSize: 13)),
-                    value: type, groupValue: selectedType, activeColor: AppColors.primary,
-                    onChanged: (value) { if (value != null) setDialogState(() => selectedType = value); },
-                  );
-                }),
+                RadioGroup<MesocycleType>(
+                  groupValue: selectedType,
+                  onChanged: (value) { if (value != null) setDialogState(() => selectedType = value); },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: MesocycleType.values.map((type) {
+                      return RadioListTile<MesocycleType>(
+                        contentPadding: EdgeInsets.zero, dense: true,
+                        title: Text(type.label, style: const TextStyle(fontSize: 13)),
+                        value: type, activeColor: AppColors.primary,
+                      );
+                    }).toList(),
+                  ),
+                ),
                 const SizedBox(height: 12),
                 TextField(controller: objectiveCtrl, decoration: const InputDecoration(labelText: 'Objetivo', hintText: 'Objetivo del mesociclo', prefixIcon: Icon(Icons.flag_outlined)), maxLines: 2),
               ],
@@ -869,7 +881,7 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -883,7 +895,7 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
               final color = _colorForMicrocycleType(type);
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(8), border: Border.all(color: color.withOpacity(0.4))),
+                decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8), border: Border.all(color: color.withValues(alpha: 0.4))),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Container(width: 12, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3))),
                   const SizedBox(width: 6),
@@ -930,9 +942,9 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: _colorForMicrocycleType(micro.type).withOpacity(0.1),
+                      color: _colorForMicrocycleType(micro.type).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
-                      border: _isEditing ? Border.all(color: _colorForMicrocycleType(micro.type).withOpacity(0.5), width: 1.5) : null,
+                      border: _isEditing ? Border.all(color: _colorForMicrocycleType(micro.type).withValues(alpha: 0.5), width: 1.5) : null,
                     ),
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                       Text(micro.type.label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: _colorForMicrocycleType(micro.type))),
@@ -1023,7 +1035,7 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: isSelected ? color : color.withOpacity(0.1),
+                            color: isSelected ? color : color.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: color, width: isSelected ? 2 : 1),
                           ),
@@ -1055,7 +1067,7 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
                           ),
                           Switch(
                             value: useCustomDistribution,
-                            activeColor: AppColors.primary,
+                            activeThumbColor: AppColors.primary,
                             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             onChanged: (value) {
                               setDialogState(() {
@@ -1079,7 +1091,7 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: isValid ? AppColors.success.withOpacity(0.1) : AppColors.error.withOpacity(0.1),
+                      color: isValid ? AppColors.success.withValues(alpha: 0.1) : AppColors.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -1088,8 +1100,8 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
                     ]),
                   ),
                   if (!isValid)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 4),
                       child: Text('Los porcentajes deben sumar 100%', style: TextStyle(fontSize: 11, color: AppColors.error)),
                     ),
                 ],
@@ -1191,7 +1203,7 @@ class _MacrocycleDetailScreenState extends State<MacrocycleDetailScreen> {
               return DataRow(cells: [
                 DataCell(Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(color: cat.$2.withOpacity(0.15), borderRadius: BorderRadius.circular(4)),
+                  decoration: BoxDecoration(color: cat.$2.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
                   child: Text(cat.$1, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: cat.$2)),
                 )),
                 ..._macrocycle.microcycles.map((micro) {

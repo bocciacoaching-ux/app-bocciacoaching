@@ -10,6 +10,7 @@ import '../../../data/providers/macrocycle_provider.dart';
 import '../../../data/providers/microcycle_type_provider.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../data/providers/team_provider.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 /// Pantalla para construir un macrociclo nuevo.
 ///
@@ -63,7 +64,8 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.medium,
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.white,
@@ -243,7 +245,7 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
             decoration: BoxDecoration(
               color: AppColors.warningBg,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.warning.withOpacity(0.3)),
+              border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -264,7 +266,11 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
         const SizedBox(height: 8),
         if (members.isNotEmpty) ...[
           DropdownButtonFormField<String>(
-            value: members.any((m) => m.userId == _selectedAthleteId)
+            // La key se deriva del valor: si cambia por codigo (p. ej. al
+            // cambiar de equipo) el campo se reconstruye con el nuevo valor.
+            key: ValueKey(
+                'athlete-${members.any((m) => m.userId == _selectedAthleteId) ? _selectedAthleteId : null}'),
+            initialValue: members.any((m) => m.userId == _selectedAthleteId)
                 ? _selectedAthleteId
                 : null,
             decoration: const InputDecoration(
@@ -568,7 +574,7 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.1),
+                        color: color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -583,7 +589,7 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
                     if (event.location != null &&
                         event.location!.isNotEmpty) ...[
                       const SizedBox(width: 8),
-                      Icon(Icons.location_on_outlined,
+                      const Icon(Icons.location_on_outlined,
                           size: 12, color: AppColors.neutral5),
                       const SizedBox(width: 2),
                       Text(
@@ -665,7 +671,7 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
               children: [
                 // Tipo de evento
                 DropdownButtonFormField<EventType>(
-                  value: selectedType,
+                  initialValue: selectedType,
                   decoration: const InputDecoration(
                     labelText: 'Tipo de evento',
                     prefixIcon: Icon(Icons.category_outlined),
@@ -961,7 +967,7 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.primary10,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
@@ -1028,7 +1034,7 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: assigned != null
-              ? AppColors.primary.withOpacity(0.4)
+              ? AppColors.primary.withValues(alpha: 0.4)
               : AppColors.neutral8,
         ),
       ),
@@ -1074,7 +1080,9 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
 
           // Dropdown de tipos
           DropdownButtonFormField<String>(
-            value: assigned?.microcycleTypeId,
+            key: ValueKey(
+                'micro-type-${micro.number}-${assigned?.microcycleTypeId}'),
+            initialValue: assigned?.microcycleTypeId,
             isExpanded: true,
             decoration: InputDecoration(
               contentPadding:
@@ -1173,7 +1181,7 @@ class _MacrocycleBuilderScreenState extends State<MacrocycleBuilderScreen> {
       margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
         border: Border(
           left: BorderSide(color: color, width: 3),

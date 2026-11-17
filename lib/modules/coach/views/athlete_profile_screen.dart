@@ -5,6 +5,7 @@ import '../../../data/models/athlete.dart' as model;
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive_utils.dart';
 import 'athletes_screen.dart' show Athlete;
+import '../../../shared/widgets/app_scaffold.dart';
 
 // ---------------------------------------------------------------------------
 // Pantalla de perfil de un atleta
@@ -16,7 +17,7 @@ class AthleteProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [

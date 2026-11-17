@@ -12,6 +12,7 @@ import '../../../core/utils/responsive_utils.dart';
 import '../../../data/models/user_session.dart';
 import '../../../data/providers/session_provider.dart';
 import '../../../shared/widgets/profile_image_picker.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 /// Pantalla para editar la información personal del usuario
 /// (incluida la foto de perfil).
@@ -409,7 +410,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     final session = context.watch<SessionProvider>().session;
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.surface,
@@ -432,6 +433,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: SafeArea(
         bottom: false,
         child: ResponsiveUtils.constrainedContainer(
+          maxWidth: AppContentWidth.compact,
           child: SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(
               20,

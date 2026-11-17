@@ -18,6 +18,7 @@ import 'edit_profile_screen.dart';
 import 'help_support_screen.dart';
 import 'notification_settings_screen.dart';
 import 'privacy_security_screen.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -127,7 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     }
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.surface,
@@ -144,6 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         top: false,
         bottom: false,
         child: ResponsiveUtils.constrainedContainer(
+          maxWidth: AppContentWidth.compact,
           child: ListView(
             padding: EdgeInsets.fromLTRB(
                 16, 16, 16, 16 + MediaQuery.of(context).padding.bottom),
@@ -154,11 +156,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(10),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
-                    color: const Color.fromRGBO(0, 0, 0, 0.03),
+                    color: Color.fromRGBO(0, 0, 0, 0.03),
                     blurRadius: 6,
-                    offset: const Offset(0, 2),
+                    offset: Offset(0, 2),
                   ),
                 ],
               ),
@@ -179,14 +181,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 4),
                         Text(
                           email,
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: AppColors.neutral4, fontSize: 12),
                         ),
                         if (country.isNotEmpty) ...[
                           const SizedBox(height: 2),
                           Text(
                             country,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 color: AppColors.neutral5, fontSize: 12),
                           ),
                         ],
@@ -259,11 +261,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(10),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
-                    color: const Color.fromRGBO(0, 0, 0, 0.03),
+                    color: Color.fromRGBO(0, 0, 0, 0.03),
                     blurRadius: 6,
-                    offset: const Offset(0, 2),
+                    offset: Offset(0, 2),
                   ),
                 ],
               ),
@@ -397,17 +399,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           borderRadius: BorderRadius.circular(10),
           border:
               isActive ? Border.all(color: AppColors.primary, width: 2) : null,
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
-              color: const Color.fromRGBO(0, 0, 0, 0.03),
+              color: Color.fromRGBO(0, 0, 0, 0.03),
               blurRadius: 6,
-              offset: const Offset(0, 2),
+              offset: Offset(0, 2),
             ),
           ],
         ),
         child: Row(
           children: [
-            Icon(Icons.person_outline, color: AppColors.primary),
+            const Icon(Icons.person_outline, color: AppColors.primary),
             const SizedBox(width: 16),
             Expanded(
               child: Text(role,
@@ -580,11 +582,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: const Color.fromRGBO(0, 0, 0, 0.03),
+            color: Color.fromRGBO(0, 0, 0, 0.03),
             blurRadius: 6,
-            offset: const Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -628,7 +630,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Switch(
             value: _biometricEnabled,
             onChanged: _toggleBiometric,
-            activeColor: AppColors.primary,
+            activeThumbColor: AppColors.primary,
           ),
         ],
       ),
@@ -648,11 +650,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
-              color: const Color.fromRGBO(0, 0, 0, 0.03),
+              color: Color.fromRGBO(0, 0, 0, 0.03),
               blurRadius: 6,
-              offset: const Offset(0, 2),
+              offset: Offset(0, 2),
             ),
           ],
         ),
@@ -691,9 +693,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       confirmLabel: 'Cerrar sesión',
       icon: Icons.logout_rounded,
     );
-    if (!confirmed || !mounted) return;
+    if (!confirmed || !context.mounted) return;
     await context.read<SessionProvider>().clearSession();
-    if (!mounted) return;
+    if (!context.mounted) return;
     context.read<TeamProvider>().clear();
     Navigator.of(context).pushReplacementNamed('/');
   }

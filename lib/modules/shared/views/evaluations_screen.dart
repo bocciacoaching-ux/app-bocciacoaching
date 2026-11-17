@@ -12,6 +12,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive_utils.dart';
 import '../../../shared/widgets/app_dialog.dart';
 import '../../../shared/widgets/info_card.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 /// Widget reutilizable con el contenido de evaluaciones (sin Scaffold),
 /// para poder embeberse dentro del DashboardScreen.
@@ -370,7 +371,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
             const SizedBox(height: 32),
 
             // ── Info ───────────────────────────────────────────────
-            InfoCard.info(
+            const InfoCard.info(
               title: 'Información sobre las evaluaciones',
               message:
                   'Las evaluaciones están diseñadas para medir el rendimiento de los atletas de forma precisa y objetiva. Selecciona la evaluación apropiada según tus objetivos de entrenamiento.',
@@ -394,7 +395,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.08),
+            color: AppColors.black.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -477,11 +478,11 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.primary30, width: 1.5),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppColors.primary20,
             blurRadius: 12,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -606,7 +607,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                 const SizedBox(height: 14),
 
                 // ── Aviso ──────────────────────────────────────────
-                InfoCard.info(
+                const InfoCard.info(
                   message:
                       'No puedes crear una nueva prueba mientras tengas una pendiente.',
                   margin: EdgeInsets.zero,
@@ -715,7 +716,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.08),
+            color: AppColors.black.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -801,10 +802,10 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border:
-            Border.all(color: AppColors.accent4.withOpacity(0.35), width: 1.5),
+            Border.all(color: AppColors.accent4.withValues(alpha: 0.35), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppColors.accent4.withOpacity(0.12),
+            color: AppColors.accent4.withValues(alpha: 0.12),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -820,7 +821,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
               gradient: LinearGradient(
                 colors: [
                   AppColors.accent4,
-                  AppColors.accent4.withOpacity(0.75),
+                  AppColors.accent4.withValues(alpha: 0.75),
                 ],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
@@ -834,7 +835,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: AppColors.white.withOpacity(0.2),
+                    color: AppColors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
@@ -860,7 +861,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: AppColors.white.withOpacity(0.2),
+                      color: AppColors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Icon(
@@ -925,7 +926,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                     value: throwsDone / 36,
                     minHeight: 7,
                     backgroundColor: AppColors.neutral8,
-                    valueColor: AlwaysStoppedAnimation<Color>(
+                    valueColor: const AlwaysStoppedAnimation<Color>(
                       AppColors.accent4,
                     ),
                   ),
@@ -933,7 +934,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
 
                 const SizedBox(height: 14),
 
-                InfoCard.info(
+                const InfoCard.info(
                   message:
                       'No puedes crear una nueva prueba mientras tengas una pendiente.',
                   margin: EdgeInsets.zero,
@@ -1015,7 +1016,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.08),
+            color: AppColors.black.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1083,10 +1084,10 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border:
-            Border.all(color: AppColors.accent5.withOpacity(0.35), width: 1.5),
+            Border.all(color: AppColors.accent5.withValues(alpha: 0.35), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppColors.accent5.withOpacity(0.12),
+            color: AppColors.accent5.withValues(alpha: 0.12),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -1102,7 +1103,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
               gradient: LinearGradient(
                 colors: [
                   AppColors.accent5,
-                  AppColors.accent5.withOpacity(0.75),
+                  AppColors.accent5.withValues(alpha: 0.75),
                 ],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
@@ -1116,7 +1117,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: AppColors.white.withOpacity(0.2),
+                    color: AppColors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
@@ -1141,7 +1142,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: AppColors.white.withOpacity(0.2),
+                      color: AppColors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Icon(
@@ -1208,7 +1209,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
                     value: throwsDone / 28,
                     minHeight: 7,
                     backgroundColor: AppColors.neutral8,
-                    valueColor: AlwaysStoppedAnimation<Color>(
+                    valueColor: const AlwaysStoppedAnimation<Color>(
                       AppColors.accent5,
                     ),
                   ),
@@ -1216,7 +1217,7 @@ class _EvaluationsBodyState extends State<EvaluationsBody> {
 
                 const SizedBox(height: 14),
 
-                InfoCard.info(
+                const InfoCard.info(
                   message:
                       'No puedes crear una nueva prueba mientras tengas una pendiente.',
                   margin: EdgeInsets.zero,
@@ -1276,7 +1277,7 @@ class EvaluationsScreen extends StatefulWidget {
 class _EvaluationsScreenState extends State<EvaluationsScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text('Evaluaciones'),
         backgroundColor: AppColors.primary,

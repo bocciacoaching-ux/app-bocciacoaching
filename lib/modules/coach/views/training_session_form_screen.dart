@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/training_session.dart';
 import '../../../data/providers/training_session_provider.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 /// Pantalla de formulario para crear o editar una sesión de entrenamiento.
 ///
@@ -80,7 +81,8 @@ class _TrainingSessionFormScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.compact,
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.white,
@@ -380,9 +382,9 @@ class _TrainingSessionFormScreenState
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.accent5.withOpacity(0.08),
+        color: AppColors.accent5.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.accent5.withOpacity(0.3)),
+        border: Border.all(color: AppColors.accent5.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [

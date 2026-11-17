@@ -6,6 +6,7 @@ import '../../../core/routes/app_routes.dart';
 import '../../../data/models/microcycle.dart';
 import '../../../data/models/training_session.dart';
 import '../../../data/providers/training_session_provider.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 /// Pantalla que lista las sesiones de entrenamiento de un microciclo,
 /// organizadas por día de la semana.
@@ -35,7 +36,8 @@ class _TrainingSessionListScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.medium,
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.white,
@@ -164,7 +166,7 @@ class _TrainingSessionListScreenState
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.white.withOpacity(0.2),
+              color: AppColors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
@@ -188,7 +190,7 @@ class _TrainingSessionListScreenState
                 Text(
                   '${_formatDate(micro.startDate)} — ${_formatDate(micro.endDate)}',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.white.withOpacity(0.8),
+                    color: AppColors.white.withValues(alpha: 0.8),
                   ),
                 ),
               ],
@@ -197,7 +199,7 @@ class _TrainingSessionListScreenState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.white.withOpacity(0.2),
+              color: AppColors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -378,7 +380,7 @@ class _TrainingSessionListScreenState
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
+                      color: statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -412,7 +414,7 @@ class _TrainingSessionListScreenState
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
+                      color: statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -470,7 +472,7 @@ class _TrainingSessionListScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -501,7 +503,7 @@ class _TrainingSessionListScreenState
         'microcycleLabel': widget.microcycle.label,
       },
     ).then((_) {
-      if (!mounted) return;
+      if (!context.mounted) return;
       if (widget.microcycle.microcycleId != null) {
         context
             .read<TrainingSessionProvider>()

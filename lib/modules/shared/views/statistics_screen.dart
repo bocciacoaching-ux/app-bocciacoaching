@@ -9,6 +9,7 @@ import '../../../shared/widgets/app_drawer.dart';
 import '../../../shared/widgets/profile_menu_button.dart';
 import '../../../shared/widgets/team_selector_chip.dart';
 import '../../../shared/widgets/team_end_drawer.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -60,7 +61,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final selectedName = selected?.nameTeam ?? 'Sin equipo';
     final selectedCountry = selected?.country ?? '';
 
-    return Scaffold(
+    return AppScaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.background,
       appBar: AppBar(

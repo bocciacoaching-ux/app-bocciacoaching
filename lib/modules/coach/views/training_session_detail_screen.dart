@@ -5,6 +5,7 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../data/models/training_session.dart';
 import '../../../data/providers/training_session_provider.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 /// Pantalla de detalle de una sesión de entrenamiento.
 ///
@@ -34,7 +35,8 @@ class _TrainingSessionDetailScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.medium,
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.white,
@@ -362,7 +364,7 @@ class _TrainingSessionDetailScreenState
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? color.withOpacity(0.15)
+                        ? color.withValues(alpha: 0.15)
                         : AppColors.neutral9,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
@@ -471,7 +473,7 @@ class _TrainingSessionDetailScreenState
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(_partIcon(index), color: color, size: 20),
@@ -606,7 +608,7 @@ class _TrainingSessionDetailScreenState
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -703,7 +705,7 @@ class _TrainingSessionDetailScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -819,6 +821,7 @@ class _TrainingSessionDetailScreenState
       },
     );
     // Recargar la sesión si se guardó algo
+    if (!mounted) return;
     if (result == true) {
       context.read<TrainingSessionProvider>().loadFullSession(widget.sessionId);
     }
@@ -832,6 +835,7 @@ class _TrainingSessionDetailScreenState
         'section': section,
       },
     );
+    if (!mounted) return;
     if (result == true) {
       context.read<TrainingSessionProvider>().loadFullSession(widget.sessionId);
     }

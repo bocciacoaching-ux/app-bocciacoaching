@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 class TestStatisticsScreen extends StatefulWidget {
   final String evaluationType;
@@ -39,7 +40,8 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.medium,
       appBar: AppBar(
         title: Text(_getEvaluationTitle()),
         backgroundColor: AppColors.primary,
@@ -128,7 +130,7 @@ class _TestStatisticsScreenState extends State<TestStatisticsScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.08),
+            color: AppColors.black.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

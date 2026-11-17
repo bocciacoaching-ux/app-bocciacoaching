@@ -11,6 +11,7 @@ import '../../../data/providers/team_provider.dart';
 import '../../../data/providers/training_session_provider.dart';
 import '../../../shared/widgets/app_drawer.dart';
 import '../../../shared/widgets/profile_menu_button.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 
 /// Pantalla de acceso directo que muestra el microciclo actual y el
 /// próximo por cada atleta del equipo, con acceso rápido a sesiones
@@ -37,7 +38,8 @@ class _MicrocycleOverviewScreenState extends State<MicrocycleOverviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
+      maxContentWidth: AppContentWidth.medium,
       key: _scaffoldKey,
       backgroundColor: AppColors.background,
       drawer: const AppDrawer(
@@ -46,10 +48,12 @@ class _MicrocycleOverviewScreenState extends State<MicrocycleOverviewScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: AppColors.neutral3),
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-        ),
+        leading: AppScaffold.usesPersistentDrawer(context)
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.menu, color: AppColors.neutral3),
+                onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+              ),
         title: const Text(
           'Entrenamiento',
           style: AppTextStyles.titleLarge,
