@@ -259,7 +259,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
     final hasUppercase = newPwd.contains(RegExp(r'[A-Z]'));
     final hasNumber = newPwd.contains(RegExp(r'[0-9]'));
     final hasSpecial =
-        newPwd.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-]'));
+        newPwd.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>_\-]'));
 
     return AppScaffold(
       maxContentWidth: AppContentWidth.compact,
