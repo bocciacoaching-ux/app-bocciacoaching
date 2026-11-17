@@ -23,18 +23,7 @@ IconData _iconForType(String typeId, String? typeName) {
   if (name.contains('estadística') || name.contains('rendimiento')) {
     return Icons.show_chart_rounded;
   }
-  switch (typeId) {
-    case 1:
-      return Icons.group_add_outlined;
-    case 2:
-      return Icons.fitness_center_rounded;
-    case 3:
-      return Icons.assignment_outlined;
-    case 4:
-      return Icons.warning_amber_rounded;
-    default:
-      return Icons.notifications_none_rounded;
-  }
+  return Icons.notifications_none_rounded;
 }
 
 Color _colorForType(String typeId, String? typeName) {
@@ -52,18 +41,7 @@ Color _colorForType(String typeId, String? typeName) {
   if (name.contains('estadística') || name.contains('rendimiento')) {
     return AppColors.success;
   }
-  switch (typeId) {
-    case 1:
-      return AppColors.info;
-    case 2:
-      return AppColors.primary;
-    case 3:
-      return AppColors.accent4;
-    case 4:
-      return AppColors.warning;
-    default:
-      return AppColors.neutral4;
-  }
+  return AppColors.neutral4;
 }
 
 /// Modelo UI de notificación — mantiene compatibilidad con [NotificationsScreen].
@@ -212,7 +190,7 @@ class _NotificationsBottomSheet extends StatelessWidget {
             ),
           ),
 
-          Divider(height: 1, color: AppColors.neutral8),
+          const Divider(height: 1, color: AppColors.neutral8),
 
           // ── Lista de notificaciones ─────────────────────────────────
           ConstrainedBox(
@@ -222,7 +200,7 @@ class _NotificationsBottomSheet extends StatelessWidget {
             child: _buildContent(context, provider, notifications),
           ),
 
-          Divider(height: 1, color: AppColors.neutral8),
+          const Divider(height: 1, color: AppColors.neutral8),
 
           // ── Botón "Ver todas" ───────────────────────────────────────
           SafeArea(

@@ -32,7 +32,9 @@ class NotificationMessage {
       senderId: json['senderId'] as String? ?? '',
       receiverId: json['receiverId'] as String? ?? '',
       notificationTypeId: json['notificationTypeId'] as String? ?? '',
-      typeName: json['typeName'] as String?,
+      // La API lo envia como `notificationTypeName`; se acepta `typeName`
+      // por compatibilidad.
+      typeName: (json['notificationTypeName'] ?? json['typeName']) as String?,
       isRead: json['status'] as bool? ?? false,
       referenceId: json['referenceId'] as String?,
       createdAt: json['createdAt'] != null
