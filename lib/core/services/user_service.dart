@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import '../network/http_logger.dart';
 import '../constants/app_config.dart';
+import '../constants/app_constants.dart';
 
 class UserService {
   final String _base = AppConfig.baseUrl;
@@ -28,14 +29,20 @@ class UserService {
     required String rol,
     String? category,
   }) async {
-    // Mapeo de roles a UUIDs específicos
-    String roleValue;
-    if (rol.toLowerCase() == 'entrenador') {
-      roleValue = '00000000-0000-0000-0000-000000000002';
-    } else if (rol.toLowerCase() == 'deportista') {
-      roleValue = '00000000-0000-0000-0000-000000000003';
-    } else {
-      roleValue = rol;
+    // El backend solo acepta Coach o Athlete en el registro (nunca Admin).
+    final String roleValue;
+    switch (rol.toLowerCase()) {
+      case 'entrenador':
+      case AppConstants.roleCoachId:
+        roleValue = AppConstants.roleCoachId;
+      case 'deportista':
+      case AppConstants.roleAthleteId:
+        roleValue = AppConstants.roleAthleteId;
+      default:
+        return {
+          'success': false,
+          'message': 'Solo puedes registrarte como entrenador o deportista.',
+        };
     }
 
     try {
@@ -77,108 +84,8 @@ class UserService {
     }
   }
 
-  // PUT /api/User/UpdatePassword
-  //
-  // Retorna un Map con:
-  //   {'success': true,  'data': {...}}           → contraseña actualizada OK
-  //   {'success': false, 'message': 'Texto...'}   → error con mensaje legible
-  Future<Map<String, dynamic>> updatePassword({
-    required String userId,
-    required String currentPassword,
-    required String newPassword,
-    required String confirmPassword,
-  }) async {
-    try {
-      final response = await HttpLogger.put(
-        Uri.parse('$_base/User/UpdatePassword'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'userId': userId,
-          'currentPassword': currentPassword,
-          'newPassword': newPassword,
-          'confirmPassword': confirmPassword,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
-        // Si la API devuelve explícitamente success=false, lo propagamos
-        if (body['success'] == false) {
-          return {
-            'success': false,
-            'message': body['message'] as String? ??
-                'No se pudo actualizar la contraseña.',
-          };
-        }
-        return {'success': true, 'data': body};
-      }
-
-      final String message = switch (response.statusCode) {
-        400 => 'La contraseña actual es incorrecta o los datos son inválidos.',
-        401 => 'La contraseña actual no coincide.',
-        403 => 'No tienes permiso para realizar esta acción.',
-        404 => 'Usuario no encontrado.',
-        429 => 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
-        >= 500 => 'Error en el servidor. Inténtalo más tarde.',
-        _ =>
-          'No se pudo actualizar la contraseña (código ${response.statusCode}).',
-      };
-
-      return {'success': false, 'message': message};
-    } on SocketException {
-      return {
-        'success': false,
-        'message':
-            'Sin conexión a Internet. Comprueba tu red e inténtalo de nuevo.',
-      };
-    } catch (_) {
-      return {
-        'success': false,
-        'message': 'Ocurrió un error inesperado. Inténtalo de nuevo.',
-      };
-    }
-  }
-
-  // POST /api/User/ResetPassword
-  Future<Map<String, dynamic>> resetPassword({
-    required String email,
-    required String newPassword,
-  }) async {
-    try {
-      final response = await HttpLogger.post(
-        Uri.parse('$_base/User/ResetPassword'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'newPassword': newPassword,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
-        return {'success': true, 'data': body};
-      }
-
-      final String message = switch (response.statusCode) {
-        400 => 'Los datos son inválidos.',
-        404 => 'Usuario no encontrado.',
-        >= 500 => 'Error en el servidor. Inténtalo más tarde.',
-        _ => 'No se pudo restablecer la contraseña (código ${response.statusCode}).',
-      };
-
-      return {'success': false, 'message': message};
-    } on SocketException {
-      return {
-        'success': false,
-        'message': 'Sin conexión a Internet.',
-      };
-    } catch (_) {
-      return {
-        'success': false,
-        'message': 'Error inesperado.',
-      };
-    }
-  }
+  // Cambio y restablecimiento de contraseña: ver AuthService
+  // (`/api/v1/auth/change-password` y `/api/v1/auth/password-reset/*`).
 
   // PUT /api/User/UpdateUserInfo
   //
@@ -208,6 +115,8 @@ class UserService {
       final response = await HttpLogger.put(
         Uri.parse('$_base/User/UpdateUserInfo'),
         headers: {'Content-Type': 'application/json'},
+        // El 403 tiene un mensaje propio (abajo): sin el aviso genérico.
+        showErrorNotices: false,
         body: jsonEncode({
           'userId': userId,
           if (dni != null) 'dni': dni,
@@ -242,10 +151,11 @@ class UserService {
       final String message = switch (response.statusCode) {
         400 => 'Los datos enviados no son válidos.',
         401 => 'Sesión expirada. Inicia sesión de nuevo.',
-        403 => 'No tienes permiso para realizar esta acción.',
+        // Solo se puede editar el propio perfil (salvo Admin).
+        403 => 'Solo puedes modificar tu propio perfil',
         404 => 'Usuario no encontrado.',
         413 => 'La imagen es demasiado grande. Prueba con una más pequeña.',
-        429 => 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
+        429 => 'Espera un minuto e inténtalo de nuevo',
         >= 500 => 'Error en el servidor. Inténtalo más tarde.',
         _ => 'No se pudo actualizar el perfil (código ${response.statusCode}).',
       };

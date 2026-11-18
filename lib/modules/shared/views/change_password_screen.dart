@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../../../data/providers/session_provider.dart';
-import '../../../core/services/user_service.dart';
+import '../../../core/services/auth_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/app_scaffold.dart';
 
@@ -67,17 +65,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
 
     if (!_formKey.currentState!.validate()) return;
 
-    final session = context.read<SessionProvider>().session;
-    if (session == null) {
-      setState(() =>
-          _errorMessage = 'Sesión no encontrada. Inicia sesión de nuevo.');
-      return;
-    }
-
     setState(() => _loading = true);
 
-    final result = await UserService().updatePassword(
-      userId: session.userId,
+    // POST /api/v1/auth/change-password: el usuario sale del token. Devuelve
+    // un par de tokens nuevos (AuthService los guarda) y cierra las demás
+    // sesiones del usuario; esta sigue activa.
+    final result = await AuthService.instance.changePassword(
       currentPassword: _currentPasswordCtrl.text,
       newPassword: _newPasswordCtrl.text,
       confirmPassword: _confirmPasswordCtrl.text,

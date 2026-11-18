@@ -5,6 +5,7 @@ import 'core/theme/app_theme.dart';
 import 'core/routes/app_pages.dart';
 import 'core/routes/app_routes.dart';
 import 'core/constants/app_constants.dart';
+import 'core/network/app_messenger.dart';
 
 /// Widget raíz de la aplicación — usa GetMaterialApp.
 /// Las pantallas existentes siguen usando Navigator estándar,
@@ -17,6 +18,8 @@ class App extends StatelessWidget {
     return GetMaterialApp(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
+      // Permite mostrar avisos (403, 429, sesion expirada) desde la capa HTTP.
+      scaffoldMessengerKey: AppMessenger.key,
       theme: AppTheme.light,
       initialRoute: AppRoutes.splash,
       getPages: AppPages.pages,

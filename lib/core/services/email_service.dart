@@ -6,9 +6,10 @@ class EmailService {
   final String _base = AppConfig.baseUrl;
 
   // POST /api/Email/SendCodeVerify
+  // El código lo genera el backend: `code` es obligatorio en el contrato
+  // pero se ignora, por eso se envía siempre "-".
   Future<List<dynamic>?> sendCodeVerify({
     String? toEmail,
-    String? code,
     required int minutesValid,
   }) async {
     try {
@@ -17,7 +18,7 @@ class EmailService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'toEmail': toEmail,
-          'code': code,
+          'code': '-',
           'minutesValid': minutesValid,
         }),
       );
@@ -36,7 +37,7 @@ class EmailService {
     }
   }
 
-  // POST /api/Email/ValidateCode
+  // POST /api/Email/ValidateCode → { message, stateCode, resetToken }
   Future<List<dynamic>?> validateCode({
     String? toEmail,
     String? code,

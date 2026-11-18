@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/services/auth_service.dart';
 import '../models/user_session.dart';
 
 class SessionProvider extends ChangeNotifier {
@@ -12,6 +14,35 @@ class SessionProvider extends ChangeNotifier {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   UserSession? _session;
+  StreamSubscription<AuthEvent>? _authSubscription;
+
+  /// Los tokens los gestiona [AuthService]; aqui solo se guardan los datos
+  /// del usuario. Cuando la sesion se cierra (logout, refresh rechazado o
+  /// logout en otra pestana) se borran tambien los datos del usuario.
+  SessionProvider() {
+    _authSubscription = AuthService.events.listen(_onAuthEvent);
+  }
+
+  Future<void> _onAuthEvent(AuthEvent event) async {
+    switch (event) {
+      case AuthEvent.loggedOut:
+        await clearSession();
+      case AuthEvent.loggedInElsewhere:
+        // Otra pestana inicio sesion: recargar el usuario que guardo.
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.reload();
+        await loadSession();
+      case AuthEvent.loggedIn:
+      case AuthEvent.tokensRefreshed:
+        break;
+    }
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
+  }
 
   UserSession? get session => _session;
   bool get isLoggedIn => _session != null;
@@ -34,7 +65,9 @@ class SessionProvider extends ChangeNotifier {
 
   /// Guarda la sesión a partir del campo "data" del response de la API.
   Future<void> saveSession(Map<String, dynamic> data) async {
-    _session = UserSession.fromJson(data);
+    // Los tokens nunca se guardan junto al usuario.
+    final user = Map<String, dynamic>.from(data)..remove('tokens');
+    _session = UserSession.fromJson(user);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kSessionKey, jsonEncode(_session!.toJson()));
     notifyListeners();

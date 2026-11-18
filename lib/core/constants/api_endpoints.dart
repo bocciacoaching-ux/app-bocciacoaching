@@ -3,6 +3,20 @@
 /// Nota: Todos los identificadores del backend son `uuid` (GUID), por lo que se
 /// representan como `String` en la app.
 abstract final class ApiEndpoints {
+  // ── Auth v1 (JWT) ────────────────────────────────────────────────
+  static const String authLogin = '/v1/auth/login';
+  static const String authGoogle = '/v1/auth/google';
+  static const String authRefresh = '/v1/auth/refresh';
+  static const String authLogout = '/v1/auth/logout';
+  static const String authLogoutAll = '/v1/auth/logout-all';
+  static const String authChangePassword = '/v1/auth/change-password';
+  static const String authPasswordResetRequest =
+      '/v1/auth/password-reset/request';
+  static const String authPasswordResetVerify =
+      '/v1/auth/password-reset/verify';
+  static const String authPasswordResetConfirm =
+      '/v1/auth/password-reset/confirm';
+
   // ── Auth / User ──────────────────────────────────────────────────
   static const String getInfoUser = '/User';
   static const String addInfoUser = '/User/AddInfoUser';

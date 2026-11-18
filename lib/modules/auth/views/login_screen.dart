@@ -58,6 +58,18 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
+  /// Tras iniciar sesión vuelve a la pantalla de `?returnUrl=` (si la
+  /// sesión expiró estando en ella) o, si no hay, al dashboard del rol.
+  void _goToNextScreen() {
+    final returnUrl = AuthService.returnUrlFromRoute(
+        ModalRoute.of(context)?.settings.name);
+    if (returnUrl != null) {
+      Navigator.of(context).pushReplacementNamed(returnUrl);
+    } else {
+      NavigationHelper.goToDashboard(context);
+    }
+  }
+
   Future<void> _submit() async {
     // Limpiar error previo al intentar de nuevo
     setState(() => _errorMessage = null);
@@ -76,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen>
       // Guardar credenciales para re-autenticación biométrica
       await sessionProvider.saveCredentials(email, password);
       if (!mounted) return;
-      NavigationHelper.goToDashboard(context);
+      _goToNextScreen();
     } else {
       final message = (result != null && result['message'] != null)
           ? result['message'] as String
@@ -102,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen>
       await sessionProvider
           .saveSession(result['data'] as Map<String, dynamic>);
       if (!mounted) return;
-      NavigationHelper.goToDashboard(context);
+      _goToNextScreen();
     } else {
       setState(() => _errorMessage = (result['message'] as String?) ??
           'No se pudo iniciar sesión con Google. Inténtalo de nuevo.');

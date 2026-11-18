@@ -47,6 +47,7 @@ import '../../modules/shared/views/saremas_panel_screen.dart';
 import '../../modules/shared/views/strength_test_screen.dart';
 import '../../modules/shared/views/test_statistics_screen.dart';
 import '../../modules/shared/views/body_map_screen.dart';
+import '../auth/auth_guards.dart';
 /// Páginas de la aplicación registradas con GetX.
 /// Usa las pantallas originales (*_screen.dart) para mantener la funcionalidad.
 abstract final class AppPages {
@@ -70,32 +71,39 @@ abstract final class AppPages {
     ),
     GetPage(
       name: AppRoutes.biometricLock,
+      // Sin guard: la pantalla valida/renueva la sesion por su cuenta.
       page: () => const BiometricLockScreen(),
     ),
 
     // ── Home / Dashboard ─────────────────────────────────────────
     GetPage(
       name: AppRoutes.home,
+      middlewares: RouteGuards.authenticated,
       page: () => const HomeScreen(),
     ),
     GetPage(
       name: AppRoutes.dashboard,
+      middlewares: RouteGuards.authenticated,
       page: () => const DashboardScreen(),
     ),
     GetPage(
       name: AppRoutes.athleteDashboard,
+      middlewares: RouteGuards.authenticated,
       page: () => const AthleteDashboardScreen(),
     ),
     GetPage(
       name: AppRoutes.notifications,
+      middlewares: RouteGuards.authenticated,
       page: () => const NotificationsScreen(),
     ),
     GetPage(
       name: AppRoutes.teams,
+      middlewares: RouteGuards.authenticated,
       page: () => const TeamsScreen(),
     ),
     GetPage(
       name: AppRoutes.teamForm,
+      middlewares: RouteGuards.authenticated,
       page: () {
         final team = Get.arguments is Team ? Get.arguments as Team : null;
         return TeamFormScreen(team: team);
@@ -103,32 +111,39 @@ abstract final class AppPages {
     ),
     GetPage(
       name: AppRoutes.profile,
+      middlewares: RouteGuards.authenticated,
       page: () => const ProfileScreen(),
     ),
     GetPage(
       name: AppRoutes.evaluations,
+      middlewares: RouteGuards.authenticated,
       page: () => const EvaluationsScreen(),
     ),
     GetPage(
       name: AppRoutes.statistics,
+      middlewares: RouteGuards.authenticated,
       page: () => const StatisticsScreen(),
     ),
     GetPage(
       name: AppRoutes.forceTestModule,
+      middlewares: RouteGuards.authenticated,
       page: () => const TestForcePanelScreen(),
     ),
     GetPage(
       name: AppRoutes.directionTestModule,
+      middlewares: RouteGuards.authenticated,
       page: () => const TestDirectionPanelScreen(),
     ),
     GetPage(
       name: AppRoutes.saremasTestModule,
+      middlewares: RouteGuards.authenticated,
       page: () => const SaremasPanelScreen(),
     ),
 
     // ── Pantallas que reciben argumentos ──────────────────────────
     GetPage(
       name: AppRoutes.athletes,
+      middlewares: RouteGuards.authenticated,
       page: () {
         final args = Get.arguments as Map<String, dynamic>?;
         return AthletesScreen(
@@ -140,6 +155,7 @@ abstract final class AppPages {
     ),
     GetPage(
       name: AppRoutes.athleteProfile,
+      middlewares: RouteGuards.authenticated,
       page: () {
         final athlete = Get.arguments as Athlete;
         return AthleteProfileScreen(athlete: athlete);
@@ -147,6 +163,7 @@ abstract final class AppPages {
     ),
     GetPage(
       name: AppRoutes.athleteSelection,
+      middlewares: RouteGuards.authenticated,
       page: () {
         final evaluationType = Get.arguments as String? ?? 'strength';
         return AthleteSelectionScreen(evaluationType: evaluationType);
@@ -154,6 +171,7 @@ abstract final class AppPages {
     ),
     GetPage(
       name: AppRoutes.strengthTest,
+      middlewares: RouteGuards.authenticated,
       page: () {
         final args = Get.arguments as Map<String, dynamic>?;
         return StrengthTestScreen(
@@ -164,6 +182,7 @@ abstract final class AppPages {
     ),
     GetPage(
       name: AppRoutes.testStatistics,
+      middlewares: RouteGuards.authenticated,
       page: () {
         final args = Get.arguments as Map<String, dynamic>?;
         return TestStatisticsScreen(
@@ -177,14 +196,17 @@ abstract final class AppPages {
     // ── Macrociclos ──────────────────────────────────────────────
     GetPage(
       name: AppRoutes.macrocycles,
+      middlewares: RouteGuards.authenticated,
       page: () => const MacrocycleListScreen(),
     ),
     GetPage(
       name: AppRoutes.macrocycleBuilder,
+      middlewares: RouteGuards.authenticated,
       page: () => const MacrocycleBuilderScreen(),
     ),
     GetPage(
       name: AppRoutes.macrocycleDetail,
+      middlewares: RouteGuards.authenticated,
       page: () {
         final macrocycle = Get.arguments as Macrocycle;
         return MacrocycleDetailScreen(macrocycle: macrocycle);
@@ -194,6 +216,7 @@ abstract final class AppPages {
     // ── Sesiones de Entrenamiento ────────────────────────────────
     GetPage(
       name: AppRoutes.trainingSessions,
+      middlewares: RouteGuards.authenticated,
       page: () {
         final microcycle = Get.arguments as Microcycle;
         return TrainingSessionListScreen(microcycle: microcycle);
@@ -201,6 +224,7 @@ abstract final class AppPages {
     ),
     GetPage(
       name: AppRoutes.trainingSessionDetail,
+      middlewares: RouteGuards.authenticated,
       page: () {
         final sessionId = Get.arguments as String;
         return TrainingSessionDetailScreen(sessionId: sessionId);
@@ -208,6 +232,7 @@ abstract final class AppPages {
     ),
     GetPage(
       name: AppRoutes.trainingSessionForm,
+      middlewares: RouteGuards.authenticated,
       page: () {
         final args = Get.arguments as Map<String, dynamic>;
         final session = args['session'] as TrainingSession?;
@@ -224,6 +249,7 @@ abstract final class AppPages {
     // ── Sección de Sesión ────────────────────────────────────────
     GetPage(
       name: AppRoutes.sectionForm,
+      middlewares: RouteGuards.authenticated,
       page: () {
         final args = Get.arguments as Map<String, dynamic>;
         final sessionPartId = args['sessionPartId'] as String;
@@ -240,24 +266,28 @@ abstract final class AppPages {
     // ── Microciclo Overview (acceso directo) ─────────────────────
     GetPage(
       name: AppRoutes.microcycleOverview,
+      middlewares: RouteGuards.authenticated,
       page: () => const MicrocycleOverviewScreen(),
     ),
 
     // ── Calendario del atleta ────────────────────────────────────
     GetPage(
       name: AppRoutes.athleteCalendar,
+      middlewares: RouteGuards.authenticated,
       page: () => const AthleteSessionCalendarScreen(),
     ),
 
     // ── Onboarding (intro) ───────────────────────────────────────
     GetPage(
       name: AppRoutes.onboardingIntro,
+      middlewares: RouteGuards.authenticated,
       page: () => const OnboardingIntroScreen(),
     ),
 
     // ── Mapa corporal interactivo ────────────────────────────────
     GetPage(
       name: AppRoutes.bodyMap,
+      middlewares: RouteGuards.authenticated,
       page: () => const BodyMapScreen(),
     ),
   ];

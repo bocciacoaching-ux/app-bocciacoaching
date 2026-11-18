@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'app.dart';
 import 'firebase_options.dart';
 import 'core/network/api_client.dart';
+import 'core/services/auth_service.dart';
 import 'core/services/storage_service.dart';
 import 'data/providers/direction_test_provider.dart';
 import 'data/providers/force_test_provider.dart';
@@ -61,4 +62,10 @@ Future<void> _initServices() async {
 
   // Cliente HTTP
   Get.put(ApiClient(), permanent: true);
+
+  // Sesion JWT (equivalente a APP_INITIALIZER): carga los tokens guardados
+  // y, si el access token falta o expiro pero el refresh token sigue
+  // vigente, renueva la sesion en segundo plano. El splash espera a
+  // `AuthService.ready` antes de decidir a donde navegar.
+  await AuthService.instance.init();
 }

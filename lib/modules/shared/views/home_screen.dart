@@ -16,7 +16,8 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              await authService?.signOut();
+              await (authService ?? AuthService.instance)
+                  .logout(navigate: false);
               // Avoid using the BuildContext across the async gap if the
               // widget was removed from the tree while signing out.
               if (!context.mounted) return;

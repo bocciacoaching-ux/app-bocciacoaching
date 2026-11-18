@@ -1,10 +1,8 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/services/user_service.dart';
-import '../../../core/services/email_service.dart';
+import '../../../core/services/auth_service.dart';
 import '../../../core/routes/app_routes.dart';
 import 'widgets/responsive_auth_layout.dart';
 
@@ -67,8 +65,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     _confirmPasswordCtrl.dispose();
-    for (final c in _codeCtrls) c.dispose();
-    for (final n in _codeNodes) n.dispose();
+    for (final c in _codeCtrls) {
+      c.dispose();
+    }
+    for (final n in _codeNodes) {
+      n.dispose();
+    }
     super.dispose();
   }
 
@@ -86,55 +88,88 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
     return RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+$").hasMatch(v);
   }
 
-  bool get _pwValid => _passwordCtrl.text.length >= 6;
+  /// El backend exige al menos 8 caracteres.
+  bool get _pwValid => _passwordCtrl.text.length >= 8;
   bool get _pwMatch => _passwordCtrl.text == _confirmPasswordCtrl.text;
 
+  /// Token de un solo uso (10 min) devuelto al verificar el código.
+  String? _resetToken;
+
+  String get _email => _emailCtrl.text.trim();
+
+  void _clearCode() {
+    for (final c in _codeCtrls) {
+      c.clear();
+    }
+  }
+
+  // Paso 1: POST /api/v1/auth/password-reset/request
+  // Responde siempre 200 (exista o no el correo) y el código lo genera el
+  // backend.
   Future<void> _sendCode() async {
     setState(() {
       _loading = true;
       _errorMessage = null;
     });
-    final code = (100000 + Random().nextInt(900000)).toString();
-    final result = await EmailService().sendCodeVerify(
-      toEmail: _emailCtrl.text.trim(),
-      code: code,
-      minutesValid: 10,
-    );
+    final result = await AuthService.instance.requestPasswordReset(_email);
     if (!mounted) return;
     setState(() => _loading = false);
 
-    if (result != null) {
+    if (result['success'] == true) {
+      _clearCode();
+      _resetToken = null;
       _goToStep(1);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message'] as String? ??
+              'Si el correo está registrado, recibirás un código'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     } else {
-      setState(() => _errorMessage = 'No se pudo enviar el código.');
+      setState(() => _errorMessage =
+          result['message'] as String? ?? 'No se pudo enviar el código.');
     }
   }
 
+  // Paso 2: POST /api/v1/auth/password-reset/verify → resetToken
+  // 400 = código incorrecto. Tras 5 intentos el código se invalida y hay
+  // que pedir otro: se muestra el mensaje del backend.
   Future<void> _verifyCode() async {
     final code = _codeCtrls.map((c) => c.text.trim()).join();
-    if (code.length < 6) return;
+    if (code.length < 6 || _loading) return;
     setState(() {
       _loading = true;
       _errorMessage = null;
     });
-    final result = await EmailService().validateCode(
-      toEmail: _emailCtrl.text.trim(),
-      code: code,
-      minutesValid: 10,
-    );
+    final result = await AuthService.instance
+        .verifyPasswordResetCode(email: _email, code: code);
     if (!mounted) return;
     setState(() => _loading = false);
 
-    if (result != null) {
+    if (result['success'] == true) {
+      _resetToken = result['resetToken'] as String;
       _goToStep(2);
     } else {
-      setState(() => _errorMessage = 'Código inválido o expirado.');
+      _clearCode();
+      _codeNodes.first.requestFocus();
+      setState(() => _errorMessage =
+          result['message'] as String? ?? 'Código inválido o expirado.');
     }
   }
 
+  // Paso 3: POST /api/v1/auth/password-reset/confirm
+  // 401 = el token expiró o ya se usó → volver al paso 1.
   Future<void> _resetPassword() async {
     if (!_pwMatch) {
       setState(() => _errorMessage = 'Las contraseñas no coinciden.');
+      return;
+    }
+    final resetToken = _resetToken;
+    if (resetToken == null) {
+      _goToStep(0);
+      setState(() => _errorMessage =
+          'El código expiró o ya se usó. Solicita uno nuevo.');
       return;
     }
     setState(() {
@@ -142,9 +177,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
       _errorMessage = null;
     });
 
-    final result = await UserService().resetPassword(
-      email: _emailCtrl.text.trim(),
+    final result = await AuthService.instance.confirmPasswordReset(
+      email: _email,
       newPassword: _passwordCtrl.text,
+      resetToken: resetToken,
     );
 
     if (!mounted) return;
@@ -152,11 +188,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
 
     if (result['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Contraseña restablecida correctamente.')),
+        const SnackBar(
+          content: Text('Contraseña restablecida. Inicia sesión con tu '
+              'nueva contraseña.'),
+        ),
       );
-      Navigator.of(context).pushReplacementNamed('/');
+      // Todas las sesiones del usuario se cerraron: al login.
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil(AppRoutes.login, (_) => false);
+    } else if (result['statusCode'] == 401) {
+      _resetToken = null;
+      _clearCode();
+      _goToStep(0);
+      setState(() => _errorMessage = result['message'] as String?);
     } else {
-      setState(() => _errorMessage = result['message']);
+      setState(() => _errorMessage = result['message'] as String?);
     }
   }
 
@@ -206,8 +252,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             _step == 0
                 ? 'Introduce tu correo para recibir un código de verificación.'
                 : _step == 1
-                    ? 'Introduce el código de 6 dígitos enviado a ${_emailCtrl.text}.'
-                    : 'Crea una nueva contraseña segura.',
+                    ? 'Si ${_emailCtrl.text} está registrado, recibirás un '
+                        'código de 6 dígitos. Introdúcelo aquí.'
+                    : 'Crea una nueva contraseña de al menos 8 caracteres.',
             textAlign: TextAlign.center,
             style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),

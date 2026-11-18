@@ -9,10 +9,11 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../network/http_logger.dart';
 import '../constants/app_config.dart';
 import '../constants/api_endpoints.dart';
+import 'auth_service.dart';
 
 /// Servicio encargado de iniciar sesión con Google a través de Firebase
 /// Authentication y de intercambiar el `idToken` resultante con el backend
-/// propio (endpoint `POST /api/User/login/google`).
+/// propio (endpoint `POST /api/v1/auth/google`).
 class GoogleAuthService {
   final String _base = AppConfig.baseUrl;
 
@@ -102,33 +103,10 @@ class GoogleAuthService {
     }
   }
 
-  Future<Map<String, dynamic>> _loginWithBackend(String idToken) async {
-    final response = await HttpLogger.post(
-      Uri.parse('$_base${ApiEndpoints.loginGoogle}'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'idToken': idToken}),
-    );
-
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body) as Map<String, dynamic>;
-      return {
-        'success': body['success'] ?? true,
-        'message': body['message'],
-        'data': body['data'],
-      };
-    }
-
-    final String message = switch (response.statusCode) {
-      401 => 'No se pudo verificar tu cuenta de Google. Inténtalo de nuevo.',
-      403 => 'Tu cuenta no tiene permiso para acceder. Contacta con soporte.',
-      404 => 'No existe una cuenta asociada a este correo de Google.',
-      >= 500 => 'Error en el servidor. Inténtalo más tarde.',
-      _ =>
-        'No se pudo iniciar sesión con Google (código ${response.statusCode}).',
-    };
-
-    return {'success': false, 'message': message};
-  }
+  /// Intercambia el ID token de Firebase por la sesión JWT del backend
+  /// (`POST /api/v1/auth/google`). AuthService guarda los tokens.
+  Future<Map<String, dynamic>> _loginWithBackend(String idToken) =>
+      AuthService.instance.loginWithGoogle(idToken);
 
   /// Ejecuta el flujo de Google Sign-In + autenticación con Firebase y retorna
   /// el `idToken` de Firebase junto a los datos básicos de la cuenta.

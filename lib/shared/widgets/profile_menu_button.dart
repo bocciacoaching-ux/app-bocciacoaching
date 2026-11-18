@@ -5,6 +5,8 @@ import '../../data/providers/team_provider.dart';
 import '../../data/models/user_session.dart';
 import '../../core/theme/app_colors.dart';
 import 'app_dialog.dart';
+import '../../core/services/auth_service.dart';
+import '../../core/routes/app_routes.dart';
 
 /// Botón de menú de perfil compartido por todas las pantallas.
 ///
@@ -42,10 +44,14 @@ class _ProfileMenuButtonState extends State<ProfileMenuButton> {
         icon: Icons.logout_rounded,
       );
       if (!confirmed || !mounted) return;
-      await context.read<SessionProvider>().clearSession();
+      final teamProvider = context.read<TeamProvider>();
+      // POST /v1/auth/logout + borrado local de tokens y usuario
+      // (SessionProvider escucha el evento). En web cierra las demas pestanas.
+      await AuthService.instance.logout(navigate: false);
+      teamProvider.clear();
       if (!mounted) return;
-      context.read<TeamProvider>().clear();
-      Navigator.of(context).pushReplacementNamed('/');
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil(AppRoutes.login, (_) => false);
     }
   }
 

@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -149,10 +148,9 @@ class _RegisterScreenState extends State<RegisterScreen>
       // envío del código; el backend volverá a validar en el registro final.
     }
 
-    final code = (100000 + Random().nextInt(900000)).toString();
+    // El backend genera y envía el código.
     final result = await EmailService().sendCodeVerify(
       toEmail: _emailCtrl.text.trim(),
-      code: code,
       minutesValid: 10,
     );
     if (!mounted) return;

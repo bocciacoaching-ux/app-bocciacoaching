@@ -19,6 +19,8 @@ import 'help_support_screen.dart';
 import 'notification_settings_screen.dart';
 import 'privacy_security_screen.dart';
 import '../../../shared/widgets/app_scaffold.dart';
+import '../../../core/services/auth_service.dart';
+import '../../../core/routes/app_routes.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -694,9 +696,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       icon: Icons.logout_rounded,
     );
     if (!confirmed || !context.mounted) return;
-    await context.read<SessionProvider>().clearSession();
+    final teamProvider = context.read<TeamProvider>();
+    // POST /v1/auth/logout + borrado local de tokens y usuario.
+    await AuthService.instance.logout(navigate: false);
+    teamProvider.clear();
     if (!context.mounted) return;
-    context.read<TeamProvider>().clear();
-    Navigator.of(context).pushReplacementNamed('/');
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil(AppRoutes.login, (_) => false);
   }
 }

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/app_dialog.dart';
 import '../../../shared/widgets/app_scaffold.dart';
+import 'package:provider/provider.dart';
+import '../../../core/services/auth_service.dart';
+import '../../../data/providers/team_provider.dart';
 
 class PrivacySecurityScreen extends StatefulWidget {
   const PrivacySecurityScreen({super.key});
@@ -170,7 +173,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen>
                   )),
               const SizedBox(height: 4),
               _dangerButton(
-                label: 'Cerrar todas las otras sesiones',
+                label: 'Cerrar sesión en todos los dispositivos',
                 icon: Icons.logout_rounded,
                 onTap: () => _confirmCloseAllSessions(context),
               ),
@@ -577,16 +580,30 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen>
     }
   }
 
+  /// POST /api/v1/auth/logout-all: cierra la sesión en TODOS los
+  /// dispositivos, incluido este (AuthService lleva al login).
   void _confirmCloseAllSessions(BuildContext ctx) async {
     final confirmed = await AppDialog.destructive(
       ctx,
       title: 'Cerrar todas las sesiones',
-      message: '¿Deseas cerrar todas las sesiones excepto la actual?',
+      message: 'Se cerrará la sesión en todos tus dispositivos, incluido '
+          'este. Tendrás que volver a iniciar sesión.',
       confirmLabel: 'Cerrar todas',
       icon: Icons.devices_rounded,
     );
-    if (confirmed && mounted) {
-      setState(() => _activeSessions.removeWhere((s) => !s.isCurrent));
+    if (!confirmed || !mounted) return;
+    final teamProvider = context.read<TeamProvider>();
+    final result = await AuthService.instance.logoutAll();
+    if (result['success'] == true) {
+      teamProvider.clear();
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message'] as String? ??
+              'No se pudieron cerrar las sesiones.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 

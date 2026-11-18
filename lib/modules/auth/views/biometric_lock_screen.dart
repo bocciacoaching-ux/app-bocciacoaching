@@ -56,8 +56,21 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> {
       return;
     }
 
-    // Biometría exitosa → consultar la API con las credenciales guardadas
+    // Biometría exitosa. Si la sesión JWT sigue vigente (renovándola si el
+    // access token expiró) se entra directamente, sin volver a enviar la
+    // contraseña.
     final sessionProvider = context.read<SessionProvider>();
+    if (_authService.isAuthenticated() && sessionProvider.isLoggedIn) {
+      await _authService.validAccessToken();
+      if (!mounted) return;
+      if (_authService.isAuthenticated()) {
+        setState(() => _isAuthenticating = false);
+        NavigationHelper.goToDashboard(context);
+        return;
+      }
+    }
+
+    // Sin sesión válida → iniciar sesión con las credenciales guardadas
     final credentials = await sessionProvider.getCredentials();
 
     if (credentials == null) {
