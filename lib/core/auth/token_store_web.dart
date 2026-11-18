@@ -41,7 +41,9 @@ class WebTokenStore implements TokenStore {
   @override
   Future<void> writeAll(Map<String, String> values) async {
     try {
-      values.forEach(_storage.setItem);
+      // Sin tear-off: los miembros externos de interop JS no se pueden
+      // pasar como funcion (falla al compilar para web / wasm).
+      values.forEach((key, value) => _storage.setItem(key, value));
     } catch (_) {}
   }
 
