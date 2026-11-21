@@ -1,0 +1,125 @@
+<title>Boccia Coaching Demo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Layout: barra superior con selector de dispositivo; debajo, el dispositivo escalado para caber en la pantalla. */
+  :root {
+    --bg: #e8eef3;
+    --bar: #ffffff;
+    --fg: #1d3446;
+    --muted: #5d7385;
+    --line: #d3dde5;
+    --accent: #2f5470;
+    --accent-fg: #ffffff;
+    --frame: #1b2a36;
+    --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1820; --bar: #16222c; --fg: #e3ebf1; --muted: #93a6b5;
+      --line: #263642; --accent: #6fa3c7; --accent-fg: #0c1620; --frame: #000000;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1820; --bar: #16222c; --fg: #e3ebf1; --muted: #93a6b5;
+    --line: #263642; --accent: #6fa3c7; --accent-fg: #0c1620; --frame: #000000;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg); color: var(--fg); font-family: var(--font);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+    padding-block: 10px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    background: var(--bar); border-bottom: 1px solid var(--line);
+  }
+  .name { font-weight: 600; font-size: 15px; margin-right: auto; }
+  .name small { font-weight: 400; color: var(--muted); margin-left: 6px; font-size: 12px; }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button {
+    font: inherit; font-size: 13px; padding: 7px 12px; border: 0; cursor: pointer;
+    background: transparent; color: var(--fg); display: flex; gap: 6px; align-items: baseline;
+  }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button span { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+  .seg button[aria-pressed="true"] span { color: inherit; opacity: .8; }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+  .meta { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .stage { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+  .device {
+    position: absolute; left: 50%; top: 50%; transform-origin: center center;
+    background: var(--frame); box-shadow: 0 12px 40px rgba(10, 25, 40, .25);
+  }
+  .device iframe { display: block; border: 0; background: #2f5470; width: 100%; height: 100%; }
+  .device.mobile, .device.tablet { padding: 14px; border-radius: 36px; }
+  .device.mobile iframe, .device.tablet iframe { border-radius: 24px; }
+  .device.desktop { padding: 28px 0 0; border-radius: 10px 10px 4px 4px; }
+  .device.desktop::before {
+    content: ""; position: absolute; top: 10px; left: 14px; width: 44px; height: 8px;
+    background: radial-gradient(circle 4px at 4px 4px, #ff5f57 98%, transparent) 0 0 / 18px 8px repeat-x;
+  }
+  .device.desktop iframe { border-radius: 0 0 4px 4px; }
+</style>
+
+<header class="bar">
+  <div class="name">Boccia Coaching <small>modo demo</small></div>
+  <div class="seg" role="group" aria-label="Dispositivo">
+    <button id="b-desktop" data-dev="desktop" aria-pressed="false">Escritorio <span>1440</span></button>
+    <button id="b-tablet" data-dev="tablet" aria-pressed="false">iPad <span>820</span></button>
+    <button id="b-mobile" data-dev="mobile" aria-pressed="true">Móvil <span>390</span></button>
+  </div>
+  <div class="meta" id="meta"></div>
+</header>
+<main class="stage" id="stage">
+  <div class="device mobile" id="device"><iframe id="app" src="app.html" title="App Boccia Coaching"></iframe></div>
+</main>
+
+<script>
+  const DEVICES = {
+    desktop: { w: 1440, h: 900, label: 'Escritorio' },
+    tablet:  { w: 820,  h: 1180, label: 'iPad' },
+    mobile:  { w: 390,  h: 844,  label: 'Móvil' },
+  };
+  const stage = document.getElementById('stage');
+  const device = document.getElementById('device');
+  const meta = document.getElementById('meta');
+  let current = 'mobile';
+  try { const saved = localStorage.getItem('device'); if (DEVICES[saved]) current = saved; } catch (e) {}
+  const fromHash = location.hash.slice(1);
+  if (DEVICES[fromHash]) current = fromHash;
+
+  function layout() {
+    const d = DEVICES[current];
+    const pad = current === 'desktop' ? { x: 0, y: 28 } : { x: 28, y: 28 };
+    const outerW = d.w + pad.x, outerH = d.h + pad.y;
+    device.style.width = outerW + 'px';
+    device.style.height = outerH + 'px';
+    const r = stage.getBoundingClientRect();
+    const scale = Math.min(1, (r.width - 32) / outerW, (r.height - 32) / outerH);
+    device.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    meta.textContent = `${d.w} × ${d.h} · ${Math.round(scale * 100)} %`;
+  }
+  function select(dev) {
+    current = dev;
+    device.className = 'device ' + dev;
+    document.querySelectorAll('.seg button').forEach(b =>
+      b.setAttribute('aria-pressed', String(b.dataset.dev === dev)));
+    try { localStorage.setItem('device', dev); } catch (e) {}
+    if (location.hash.slice(1) !== dev) history.replaceState(null, '', '#' + dev);
+    layout();
+  }
+  document.querySelectorAll('.seg button').forEach(b =>
+    b.addEventListener('click', () => select(b.dataset.dev)));
+  window.addEventListener('hashchange', () => {
+    const h = location.hash.slice(1); if (DEVICES[h] && h !== current) select(h);
+  });
+  new ResizeObserver(layout).observe(stage);
+  select(current);
+</script>
