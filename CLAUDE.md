@@ -24,10 +24,14 @@
    `demo-tools/build_demo.sh` compila `lib/demo/demo_main.dart` (API simulada,
    usuarios `coach@demo.com` / `atleta@demo.com`, contraseña `demo1234`) y se
    republica el artefacto. El visor tiene escritorio 1440, iPad y móvil.
-3. **Respaldo:** después de cada avance, subir `demo-local` a la rama de
-   respaldo `respaldo/demo-local` (`git push --force-with-lease origin
-   demo-local:respaldo/demo-local`). Es la única rama que se sube sin
-   aprobación; no es una rama de cambios.
+3. **Respaldo:** después de cada avance, subir `demo-local` a la rama privada
+   del mismo nombre (`git push --force-with-lease origin demo-local`). Es la
+   única rama que se sube sin aprobación; no es una rama de cambios.
+   - **Cambios descartados:** cuando Jesica descarte un cambio, quitar sus
+     commits de `demo-local` (rebase eliminándolos, no un revert), revisar que
+     no quede rastro (archivos, datos de demo), recompilar y republicar el
+     demo, y subir `demo-local` con `--force-with-lease` para que la rama
+     privada tampoco lo conserve.
 4. **Cada día (8:00 hora Colombia) revisar `main`:** `git fetch --depth=50
    origin main` y `git log --oneline demo-local..origin/main`. Si Oscar subió
    cambios: rebase de `demo-local` sobre `origin/main`, recompilar y
