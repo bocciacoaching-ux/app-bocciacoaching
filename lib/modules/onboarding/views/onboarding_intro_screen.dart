@@ -31,6 +31,8 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
   static const _slides = <_IntroSlide>[
     _IntroSlide(
       visual: _VisualKind.welcome,
+      image: 'assets/images/onboarding/bienvenida.jpg',
+      imageFocus: Alignment(0, -0.1),
       title: 'Te damos la bienvenida a Boccia Coaching',
       body:
           'El primer sistema global de evaluación y seguimiento del rendimiento en Boccia.',
@@ -40,6 +42,8 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
     ),
     _IntroSlide(
       visual: _VisualKind.uncertainty,
+      image: 'assets/images/onboarding/problema.jpg',
+      imageFocus: Alignment(0.1, -0.35),
       eyebrow: 'El problema',
       title: 'Entrenar sin datos genera incertidumbre',
       body:
@@ -48,6 +52,8 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
     ),
     _IntroSlide(
       visual: _VisualKind.evaluate,
+      image: 'assets/images/onboarding/solucion.jpg',
+      imageFocus: Alignment(0, -0.45),
       eyebrow: 'La solución',
       title: 'Evalúa. Compara. Mejora.',
       body:
@@ -60,6 +66,8 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
     ),
     _IntroSlide(
       visual: _VisualKind.steps,
+      image: 'assets/images/onboarding/pasos.jpg',
+      imageFocus: Alignment(0, -0.6),
       eyebrow: 'Cómo funciona',
       title: 'Un sistema simple en 3 pasos',
       body: '',
@@ -143,27 +151,49 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
       decoration: const BoxDecoration(gradient: _backgroundGradient),
       child: Column(
         children: [
-          SizedBox(height: topInset),
-          _Header(
-            showClose: _index > 0,
-            onClose: _finish,
-            padding: EdgeInsets.fromLTRB(hPad, 16, hPad - 8, 8),
-          ),
-          // Ilustraciones: lo único que se desliza
+          // Fotos / ilustraciones: lo único que se desliza. Se extienden
+          // por debajo de las esquinas redondeadas de la hoja blanca.
           Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (i) => setState(() => _index = i),
-              itemCount: _slides.length,
-              itemBuilder: (_, i) => Padding(
-                padding: EdgeInsets.fromLTRB(hPad, 8, hPad, isTablet ? 32 : 24),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: isTablet ? 520 : 360),
-                    child: _SlideVisual(kind: _slides[i].visual),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  bottom: -28,
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (i) => setState(() => _index = i),
+                    itemCount: _slides.length,
+                    itemBuilder: (_, i) {
+                      final slide = _slides[i];
+                      if (slide.image != null) return _SlidePhoto(slide: slide);
+                      return Padding(
+                        padding: EdgeInsets.fromLTRB(
+                            hPad, topInset + 72, hPad, isTablet ? 60 : 52),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                                maxWidth: isTablet ? 520 : 360),
+                            child: _SlideVisual(kind: slide.visual),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
-              ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: topInset,
+                  child: _Header(
+                    showClose: _index > 0,
+                    onClose: _finish,
+                    padding: EdgeInsets.fromLTRB(hPad, 16, hPad - 8, 8),
+                  ),
+                ),
+              ],
             ),
           ),
           // Hoja blanca fija: solo cambia el texto y su altura se ajusta
@@ -245,32 +275,35 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
     final slide = _slides[_index];
     return Row(
       children: [
-        // Ilustración
+        // Foto / ilustración
         Expanded(
           flex: 11,
           child: DecoratedBox(
             decoration: const BoxDecoration(gradient: _backgroundGradient),
             child: Stack(
               children: [
+                Positioned.fill(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 400),
+                    child: slide.image != null
+                        ? _SlidePhoto(key: ValueKey(_index), slide: slide)
+                        : Center(
+                            key: ValueKey(_index),
+                            child: Padding(
+                              padding: const EdgeInsets.all(64),
+                              child: ConstrainedBox(
+                                constraints:
+                                    const BoxConstraints(maxWidth: 560),
+                                child: _SlideVisual(kind: slide.visual),
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
                 const Positioned(
                   top: 40,
                   left: 48,
                   child: _Logo(height: 40),
-                ),
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(64),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 560),
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: _SlideVisual(
-                          key: ValueKey(_index),
-                          kind: slide.visual,
-                        ),
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -407,6 +440,10 @@ enum _VisualKind { welcome, uncertainty, evaluate, steps }
 
 class _IntroSlide {
   final _VisualKind visual;
+  /// Foto de fondo (si es null se usa la ilustración dibujada).
+  final String? image;
+  /// Punto de la foto que debe quedar visible al recortarla.
+  final Alignment imageFocus;
   final String? eyebrow;
   final String title;
   final String body;
@@ -418,6 +455,8 @@ class _IntroSlide {
 
   const _IntroSlide({
     required this.visual,
+    this.image,
+    this.imageFocus = Alignment.center,
     this.eyebrow,
     required this.title,
     required this.body,
@@ -738,6 +777,45 @@ class _DotsIndicator extends StatelessWidget {
   }
 }
 
+// ── Foto de fondo ────────────────────────────────────────────────────────
+
+/// Foto a sangre con un velo azul de la marca: más oscuro arriba para que
+/// el logo y "Saltar" se lean, y abajo para fundirse con la hoja blanca.
+class _SlidePhoto extends StatelessWidget {
+  final _IntroSlide slide;
+  const _SlidePhoto({super.key, required this.slide});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.asset(
+          slide.image!,
+          fit: BoxFit.cover,
+          alignment: slide.imageFocus,
+          filterQuality: FilterQuality.medium,
+        ),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: const [0, 0.28, 0.7, 1],
+              colors: [
+                AppColors.headerGradientTop.withValues(alpha: 0.85),
+                AppColors.headerGradientTop.withValues(alpha: 0.15),
+                AppColors.headerGradientTop.withValues(alpha: 0.05),
+                AppColors.headerGradientTop.withValues(alpha: 0.35),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 // ── Ilustraciones de cada paso ───────────────────────────────────────────
 //
 // Marcadores de posición dibujados en código (cancha + bolas de boccia +
@@ -749,7 +827,7 @@ const _jack = Color(0xFFF7F7F2);
 
 class _SlideVisual extends StatelessWidget {
   final _VisualKind kind;
-  const _SlideVisual({super.key, required this.kind});
+  const _SlideVisual({required this.kind});
 
   @override
   Widget build(BuildContext context) {

@@ -63,6 +63,7 @@ flutter:
     # Incluye todo el directorio para que las imagenes del mapa corporal
     # (body_front.png / body_back.png) se carguen al agregarlas.
     - assets/images/
+    - assets/images/onboarding/
     - assets/data/test.force.json
     - assets/data/test.direction.json
     - assets/animations/splash_animation.json
