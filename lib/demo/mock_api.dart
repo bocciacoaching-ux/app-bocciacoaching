@@ -14,16 +14,19 @@ class DemoUser {
   const DemoUser(this.id, this.email, this.password, this.firstName,
       this.lastName, this.rolId, this.role);
 
+  bool get isNew => id.endsWith('a1') || id.endsWith('a2');
+
   Map<String, dynamic> toJson() => {
         'userId': id,
         'dni': role == 'Athlete' ? '10203040' : '43876521',
         'firstName': firstName,
         'lastName': lastName,
         'email': email,
-        'address': 'Medellín, Antioquia',
-        'country': 'Colombia',
+        // Los usuarios nuevos (id terminado en a1/a2) tienen el perfil vacío.
+        'address': isNew ? null : 'Medellín, Antioquia',
+        'country': isNew ? null : 'Colombia',
         'image': null,
-        'category': role == 'Athlete' ? 'BC1' : null,
+        'category': role == 'Athlete' && !isNew ? 'BC1' : null,
         'seniority': null,
         'status': true,
         'rolId': rolId,
@@ -38,7 +41,14 @@ const demoCoach = DemoUser('11111111-1111-1111-1111-000000000001',
 const demoAthlete = DemoUser('11111111-1111-1111-1111-000000000002',
     'atleta@demo.com', 'demo1234', 'Andrés', 'Atleta',
     AppConstants.roleAthleteId, 'Athlete');
-const demoUsers = [demoCoach, demoAthlete];
+// Usuarios nuevos, sin datos, para probar el primer ingreso y el onboarding.
+const demoCoachNew = DemoUser('11111111-1111-1111-1111-0000000000a1',
+    'coach.nuevo@demo.com', 'demo1234', 'Diego', 'Nuevo',
+    AppConstants.roleCoachId, 'Coach');
+const demoAthleteNew = DemoUser('11111111-1111-1111-1111-0000000000a2',
+    'atleta.nuevo@demo.com', 'demo1234', 'Sofía', 'Nueva',
+    AppConstants.roleAthleteId, 'Athlete');
+const demoUsers = [demoCoach, demoAthlete, demoCoachNew, demoAthleteNew];
 
 typedef _Handler = Object? Function(http.BaseRequest req, Map<String, dynamic>? body, RegExpMatch m);
 
@@ -83,7 +93,7 @@ class MockApiClient extends http.BaseClient {
       final u = demoUsers.where((u) =>
           u.email == (body?['email'] as String?)?.toLowerCase().trim() &&
           u.password == body?['password']);
-      if (u.isEmpty) return _Status(401, {'success': false, 'message': 'Usuario demo: coach@demo.com o atleta@demo.com, contraseña demo1234'});
+      if (u.isEmpty) return _Status(401, {'success': false, 'message': 'Usuarios demo: coach@demo.com, atleta@demo.com, coach.nuevo@demo.com o atleta.nuevo@demo.com; contraseña demo1234'});
       _current = u.first;
       return {...u.first.toJson(), 'tokens': _tokens(u.first)};
     },

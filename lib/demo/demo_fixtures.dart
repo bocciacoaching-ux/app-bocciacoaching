@@ -227,6 +227,11 @@ class _DemoStore {
         'Carla Entrenadora te invitó a unirte al equipo Selección Juvenil.',
         5,
         read: false, ref: _team2);
+    // La atleta nueva solo tiene una invitación pendiente.
+    _notif(20, demoCoach.id, demoAthleteNew.id, 'Invitación a equipo',
+        'Carla Entrenadora te invitó a unirte al equipo Boccia Antioquia.',
+        1,
+        read: false, ref: _team1);
     _notif(11, demoCoach.id, demoAthlete.id, 'Sesión de entrenamiento',
         'Tienes una sesión programada mañana a las 15:00.', 1, read: false);
     _notif(12, demoCoach.id, demoAthlete.id, 'Evaluación',
@@ -602,7 +607,37 @@ class _DemoStore {
 
   String get _me => client._current?.id ?? demoCoach.id;
 
-  Map<String, _Handler> routes() => {
+  /// El usuario actual no tiene equipos (usuarios nuevos del demo).
+  bool get _meHasNoTeams => !teams.any((t) =>
+      t['coachId'] == _me || (members[t['teamId']] ?? const []).contains(_me));
+
+  /// Para usuarios sin equipo, las estadísticas generales salen vacías
+  /// (si no, los cálculos sin teamId devolverían los datos de todos).
+  Map<String, _Handler> routes() {
+    final raw = _routesRaw();
+    const empty = <String, Object>{
+      'GET /Statistics/DashboardIndicators': {
+        'totalAthletes': 0,
+        'totalEvaluations': 0,
+        'avgEffectiveness': 0.0,
+        'pendingEvaluations': 0,
+        'totalTeams': 0,
+      },
+      'GET /Statistics/TopPerformanceAthletes': <Object>[],
+      'GET /Statistics/RecentTests': <Object>[],
+      'GET /Statistics/MonthlyEvolution': <Object>[],
+    };
+    return {
+      for (final e in raw.entries)
+        e.key: empty.containsKey(e.key)
+            ? (req, body, m) => _q(req, 'teamId').isEmpty && _meHasNoTeams
+                ? empty[e.key]
+                : e.value(req, body, m)
+            : e.value,
+    };
+  }
+
+  Map<String, _Handler> _routesRaw() => {
         // ── Usuario ───────────────────────────────────────────────────
         'GET /User': (req, body, m) {
           final u = client._current ?? demoCoach;
