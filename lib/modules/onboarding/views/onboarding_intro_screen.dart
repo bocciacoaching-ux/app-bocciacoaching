@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -453,11 +454,11 @@ class _Logo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      'assets/images/isologo-horizontal.png',
+    // Mismo logo que la pantalla de inicio de sesión (versión crema).
+    return SvgPicture.asset(
+      'assets/images/isologo-h-crema.svg',
       height: height,
-      color: AppColors.white,
-      colorBlendMode: BlendMode.srcIn,
+      fit: BoxFit.contain,
     );
   }
 }
