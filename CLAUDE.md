@@ -22,7 +22,8 @@
    Nada de esto se sube como rama de cambios ni a `main`.
 2. **Se prueba en el demo del artefacto** (https://claude.ai/artifact/UDpEk7CNziZvTjMfQZNnJC):
    `demo-tools/build_demo.sh` compila `lib/demo/demo_main.dart` (API simulada,
-   usuarios `coach@demo.com` / `atleta@demo.com`, contraseña `demo1234`) y se
+   usuarios con datos `coach@demo.com` / `atleta@demo.com` y usuarios nuevos sin
+   datos `coach.nuevo@demo.com` / `atleta.nuevo@demo.com`, contraseña `demo1234`) y se
    republica el artefacto. El visor tiene escritorio 1440, iPad y móvil.
 3. **Respaldo:** después de cada avance, subir `demo-local` a la rama privada
    del mismo nombre (`git push --force-with-lease origin demo-local`). Es la
