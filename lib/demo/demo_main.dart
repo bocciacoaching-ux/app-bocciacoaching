@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/constants/app_constants.dart';
 import '../core/network/api_client.dart';
@@ -41,6 +42,12 @@ class _FakeFirebaseAuth implements fb.FirebaseAuth {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpLogger.client = MockApiClient();
+
+  // En la demo el carrusel de bienvenida se muestra en cada inicio de sesión.
+  final prefs = await SharedPreferences.getInstance();
+  for (final k in prefs.getKeys().where((k) => k.startsWith('onboarding.introSeen.'))) {
+    await prefs.remove(k);
+  }
 
   final storage = StorageService();
   await storage.init();
