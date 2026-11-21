@@ -58,4 +58,4 @@
 
 | # | Rama | Resumen |
 |---|------|---------|
-| 1 | `feature/1-onboarding` | Cambios en el onboarding (resumen pendiente de definir) |
+| — | (todavía no hay cambios aprobados; el primero será el 1) | |
