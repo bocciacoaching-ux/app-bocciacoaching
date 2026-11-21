@@ -148,73 +148,88 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
             onClose: _finish,
             padding: EdgeInsets.fromLTRB(hPad, 16, hPad - 8, 8),
           ),
+          // Ilustraciones: lo único que se desliza
           Expanded(
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (i) => setState(() => _index = i),
               itemCount: _slides.length,
-              itemBuilder: (_, i) {
-                final slide = _slides[i];
-                return Column(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                            hPad, 8, hPad, isTablet ? 32 : 24),
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints:
-                                BoxConstraints(maxWidth: isTablet ? 520 : 360),
-                            child: _SlideVisual(kind: slide.visual),
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Hoja blanca con el texto (se desliza con la ilustración)
-                    Container(
-                      width: double.infinity,
-                      decoration: const BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(28)),
-                      ),
-                      constraints: BoxConstraints(maxHeight: c.maxHeight * 0.55),
-                      padding: EdgeInsets.fromLTRB(
-                          hPad, isTablet ? 40 : 32, hPad, 8),
-                      child: Align(
+              itemBuilder: (_, i) => Padding(
+                padding: EdgeInsets.fromLTRB(hPad, 8, hPad, isTablet ? 32 : 24),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: isTablet ? 520 : 360),
+                    child: _SlideVisual(kind: _slides[i].visual),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Hoja blanca fija: solo cambia el texto y su altura se ajusta
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onHorizontalDragEnd: (d) {
+              final v = d.primaryVelocity ?? 0;
+              if (v < -200) _next();
+              if (v > 200) _back();
+            },
+            child: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              padding: EdgeInsets.fromLTRB(
+                hPad,
+                isTablet ? 40 : 32,
+                hPad,
+                16 + MediaQuery.of(context).padding.bottom,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: contentMax),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 280),
+                        curve: Curves.easeOutCubic,
                         alignment: Alignment.topCenter,
-                        heightFactor: 1,
                         child: ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: contentMax),
+                          constraints:
+                              BoxConstraints(maxHeight: c.maxHeight * 0.5),
                           child: SingleChildScrollView(
-                            child: _SlideText(
-                              slide: slide,
-                              index: i,
-                              total: _slides.length,
-                              large: isTablet,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 220),
+                              switchInCurve: Curves.easeOut,
+                              switchOutCurve: Curves.easeIn,
+                              layoutBuilder: (current, previous) => Stack(
+                                alignment: Alignment.topLeft,
+                                children: [
+                                  ...previous,
+                                  if (current != null) current,
+                                ],
+                              ),
+                              child: SizedBox(
+                                key: ValueKey(_index),
+                                width: double.infinity,
+                                child: _SlideText(
+                                  slide: _slides[_index],
+                                  index: _index,
+                                  total: _slides.length,
+                                  large: isTablet,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          // Pie fijo: indicador + botones
-          Container(
-            color: AppColors.surface,
-            padding: EdgeInsets.fromLTRB(
-              hPad,
-              16,
-              hPad,
-              16 + MediaQuery.of(context).padding.bottom,
-            ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: contentMax),
-                child: _buildFooter(),
+                      const SizedBox(height: 28),
+                      _buildFooter(),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
