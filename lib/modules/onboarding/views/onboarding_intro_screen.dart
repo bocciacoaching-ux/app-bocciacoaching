@@ -2,18 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/navigation_helper.dart';
 import '../../../data/providers/onboarding_provider.dart';
 import '../../../data/providers/session_provider.dart';
+import '../../../data/providers/statistics_provider.dart';
+import '../../../data/providers/team_provider.dart';
 
-/// Carrusel de bienvenida (4 pasos) que se muestra a los usuarios nuevos
-/// la primera vez que entran a la aplicación, justo antes de aterrizar
-/// en el dashboard correspondiente a su rol.
+/// Carrusel de bienvenida que se muestra a los usuarios nuevos la primera
+/// vez que entran a la aplicación, justo antes de aterrizar en el dashboard
+/// correspondiente a su rol.
+///
+/// - El contenido cambia según el rol (coach o atleta).
+/// - El último paso muestra los "primeros pasos" del usuario (los mismos del
+///   dashboard) y el botón principal lleva directo al primero pendiente.
 ///
 /// Diseño adaptable:
-/// - Móvil / tablet: ilustración arriba y hoja blanca abajo con el texto.
-/// - Escritorio (>= 1000 px): ilustración a la izquierda y panel a la derecha.
+/// - Móvil / tablet: foto arriba y hoja blanca fija abajo con el texto.
+/// - Escritorio (>= 1000 px): foto a la izquierda y panel a la derecha.
 class OnboardingIntroScreen extends StatefulWidget {
   const OnboardingIntroScreen({super.key});
 
@@ -28,10 +35,16 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
   static const double _desktopBreakpoint = 1000;
   static const double _tabletBreakpoint = 600;
 
-  static const _slides = <_IntroSlide>[
+  static const _welcomeImage = 'assets/images/onboarding/bienvenida.jpg';
+  static const _problemImage = 'assets/images/onboarding/problema.jpg';
+  static const _solutionImage = 'assets/images/onboarding/solucion.jpg';
+  static const _stepsImage = 'assets/images/onboarding/pasos.jpg';
+
+  // ── Contenido para coaches ─────────────────────────────────────────────
+  static const _coachSlides = <_IntroSlide>[
     _IntroSlide(
       visual: _VisualKind.welcome,
-      image: 'assets/images/onboarding/bienvenida.jpg',
+      image: _welcomeImage,
       imageFocus: Alignment(0, -0.1),
       title: 'Te damos la bienvenida a Boccia Coaching',
       body:
@@ -42,7 +55,7 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
     ),
     _IntroSlide(
       visual: _VisualKind.uncertainty,
-      image: 'assets/images/onboarding/problema.jpg',
+      image: _problemImage,
       imageFocus: Alignment(0.1, -0.35),
       eyebrow: 'El problema',
       title: 'Entrenar sin datos genera incertidumbre',
@@ -52,7 +65,7 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
     ),
     _IntroSlide(
       visual: _VisualKind.evaluate,
-      image: 'assets/images/onboarding/solucion.jpg',
+      image: _solutionImage,
       imageFocus: Alignment(0, -0.45),
       eyebrow: 'La solución',
       title: 'Evalúa. Compara. Mejora.',
@@ -66,7 +79,7 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
     ),
     _IntroSlide(
       visual: _VisualKind.steps,
-      image: 'assets/images/onboarding/pasos.jpg',
+      image: _stepsImage,
       imageFocus: Alignment(0, -0.6),
       eyebrow: 'Cómo funciona',
       title: 'Un sistema simple en 3 pasos',
@@ -89,7 +102,125 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
         ),
       ],
     ),
+    _IntroSlide(
+      visual: _VisualKind.welcome,
+      image: _welcomeImage,
+      imageFocus: Alignment(0, 0.35),
+      eyebrow: 'Para empezar',
+      title: 'Tus primeros pasos',
+      body: 'También los verás en tu inicio.',
+      isChecklist: true,
+    ),
   ];
+
+  // ── Contenido para atletas ─────────────────────────────────────────────
+  static const _athleteSlides = <_IntroSlide>[
+    _IntroSlide(
+      visual: _VisualKind.welcome,
+      image: _welcomeImage,
+      imageFocus: Alignment(0, -0.1),
+      title: 'Te damos la bienvenida a Boccia Coaching',
+      body:
+          'Sigue tu rendimiento en Boccia con evaluaciones estandarizadas y el acompañamiento de tu entrenador.',
+      primaryCta: 'Comenzar',
+      secondaryCta: 'Saltar',
+      isWelcome: true,
+    ),
+    _IntroSlide(
+      visual: _VisualKind.uncertainty,
+      image: _problemImage,
+      imageFocus: Alignment(0.1, -0.35),
+      eyebrow: 'Por qué',
+      title: 'Saber exactamente en qué mejorar',
+      body:
+          'Las sensaciones no siempre cuentan toda la historia. Con evaluaciones '
+          'estandarizadas ves con datos cómo vas en cada habilidad.',
+    ),
+    _IntroSlide(
+      visual: _VisualKind.evaluate,
+      image: _solutionImage,
+      imageFocus: Alignment(0, -0.45),
+      eyebrow: 'Qué vas a ver',
+      title: 'Tu progreso, siempre a mano',
+      body:
+          'Consulta tus resultados, tus próximas sesiones y tu evolución en el tiempo.',
+      bullets: [
+        _IntroBullet(
+            Icons.fact_check_outlined, 'Resultados de tus evaluaciones'),
+        _IntroBullet(Icons.event_outlined, 'Calendario de sesiones'),
+        _IntroBullet(Icons.show_chart_rounded, 'Tu evolución en el tiempo'),
+      ],
+    ),
+    _IntroSlide(
+      visual: _VisualKind.steps,
+      image: _stepsImage,
+      imageFocus: Alignment(0, -0.6),
+      eyebrow: 'Cómo funciona',
+      title: 'Así funciona con tu entrenador',
+      body: '',
+      steps: [
+        _IntroStep(
+          icon: Icons.group_add_outlined,
+          title: 'Únete',
+          description: 'Acepta la invitación de tu entrenador a su equipo.',
+        ),
+        _IntroStep(
+          icon: Icons.assignment_turned_in_outlined,
+          title: 'Entrena y evalúa',
+          description: 'Tu entrenador registra tus evaluaciones y sesiones.',
+        ),
+        _IntroStep(
+          icon: Icons.trending_up_rounded,
+          title: 'Mejora',
+          description: 'Revisa tus resultados y sigue tu evolución.',
+        ),
+      ],
+    ),
+    _IntroSlide(
+      visual: _VisualKind.welcome,
+      image: _welcomeImage,
+      imageFocus: Alignment(0, 0.35),
+      eyebrow: 'Para empezar',
+      title: 'Tus primeros pasos',
+      body: 'También los verás en tu inicio.',
+      isChecklist: true,
+    ),
+  ];
+
+  bool get _isAthlete =>
+      context.read<SessionProvider>().session?.isAthlete ?? false;
+
+  List<_IntroSlide> get _slides => _isAthlete ? _athleteSlides : _coachSlides;
+
+  bool get _reduceMotion => MediaQuery.of(context).disableAnimations;
+
+  /// Pasos del onboarding del usuario (los mismos de la tarjeta del inicio).
+  List<OnboardingStep> _currentSteps() {
+    final session = context.watch<SessionProvider>().session;
+    if (session == null) return const [];
+    return context.watch<OnboardingProvider>().stepsFor(
+          session: session,
+          teamProvider: context.watch<TeamProvider>(),
+          statsProvider: context.watch<StatisticsProvider>(),
+        );
+  }
+
+  /// Acción del primer paso pendiente: (texto del botón, ruta o null para
+  /// ir solo al inicio).
+  (String, String?) _firstAction(List<OnboardingStep> steps) {
+    final pending = steps.where((s) => !s.completed).toList();
+    if (pending.isEmpty) return ('Ir al inicio', null);
+    switch (pending.first.id) {
+      case 'team':
+        return _isAthlete
+            ? ('Ver mi invitación', AppRoutes.notifications)
+            : ('Crear mi equipo', AppRoutes.teamForm);
+      case 'profile':
+        return ('Completar mi perfil', AppRoutes.profile);
+      default:
+        return ('Ir al inicio', null);
+    }
+  }
 
   void _next() {
     if (_index < _slides.length - 1) {
@@ -104,21 +235,27 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
   }
 
   void _goTo(int i) {
-    if (_pageController.hasClients) {
+    if (!_pageController.hasClients) {
+      setState(() => _index = i);
+    } else if (_reduceMotion) {
+      _pageController.jumpToPage(i);
+    } else {
       _pageController.animateToPage(
         i,
         duration: const Duration(milliseconds: 320),
         curve: Curves.easeOutCubic,
       );
-    } else {
-      setState(() => _index = i);
     }
   }
 
-  Future<void> _finish() async {
+  /// Cierra la intro y va al inicio; si [route] no es null, abre además esa
+  /// pantalla encima del inicio (al volver, el usuario queda en su inicio).
+  Future<void> _finish({String? route}) async {
     await context.read<OnboardingProvider>().markIntroSeen();
     if (!mounted) return;
+    final nav = Navigator.of(context);
     NavigationHelper.goToDashboard(context);
+    if (route != null) nav.pushNamed(route);
   }
 
   @override
@@ -127,8 +264,12 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
     super.dispose();
   }
 
+  /// Pasos del usuario, recalculados en cada build.
+  List<OnboardingStep> _steps = const [];
+
   @override
   Widget build(BuildContext context) {
+    _steps = _currentSteps();
     return Scaffold(
       backgroundColor: AppColors.headerGradientTop,
       body: LayoutBuilder(
@@ -174,8 +315,8 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
                             hPad, topInset + 72, hPad, isTablet ? 60 : 52),
                         child: Center(
                           child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                                maxWidth: isTablet ? 520 : 360),
+                            constraints:
+                                BoxConstraints(maxWidth: isTablet ? 520 : 360),
                             child: _SlideVisual(kind: slide.visual),
                           ),
                         ),
@@ -224,7 +365,9 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       AnimatedSize(
-                        duration: const Duration(milliseconds: 280),
+                        duration: _reduceMotion
+                            ? Duration.zero
+                            : const Duration(milliseconds: 280),
                         curve: Curves.easeOutCubic,
                         alignment: Alignment.topCenter,
                         child: ConstrainedBox(
@@ -232,7 +375,9 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
                               BoxConstraints(maxHeight: c.maxHeight * 0.5),
                           child: SingleChildScrollView(
                             child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 220),
+                              duration: _reduceMotion
+                                  ? Duration.zero
+                                  : const Duration(milliseconds: 220),
                               switchInCurve: Curves.easeOut,
                               switchOutCurve: Curves.easeIn,
                               layoutBuilder: (current, previous) => Stack(
@@ -246,6 +391,7 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
                                 key: ValueKey(_index),
                                 width: double.infinity,
                                 child: _SlideText(
+                                  checklist: _steps,
                                   slide: _slides[_index],
                                   index: _index,
                                   total: _slides.length,
@@ -341,10 +487,14 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
                             duration: const Duration(milliseconds: 250),
                             layoutBuilder: (current, previous) => Stack(
                               alignment: Alignment.topLeft,
-                              children: [...previous, if (current != null) current],
+                              children: [
+                                ...previous,
+                                if (current != null) current
+                              ],
                             ),
                             child: _SlideText(
                               key: ValueKey(_index),
+                              checklist: _steps,
                               slide: slide,
                               index: _index,
                               total: _slides.length,
@@ -373,16 +523,17 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
     final isLast = _index == _slides.length - 1;
     final secondaryLabel =
         slide.isWelcome ? (slide.secondaryCta ?? 'Saltar') : 'Atrás';
+    final (actionLabel, actionRoute) = _firstAction(_steps);
     final primaryLabel = slide.isWelcome
         ? (slide.primaryCta ?? 'Comenzar')
-        : (isLast ? 'Empezar a usar la app' : 'Siguiente');
+        : (isLast ? actionLabel : 'Siguiente');
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _DotsIndicator(count: _slides.length, index: _index, onTap: _goTo),
-        const SizedBox(height: 20),
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
@@ -406,7 +557,7 @@ class _OnboardingIntroScreenState extends State<OnboardingIntroScreen> {
             Expanded(
               flex: 3,
               child: ElevatedButton(
-                onPressed: _next,
+                onPressed: isLast ? () => _finish(route: actionRoute) : _next,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(52),
                   backgroundColor: AppColors.primary,
@@ -440,8 +591,10 @@ enum _VisualKind { welcome, uncertainty, evaluate, steps }
 
 class _IntroSlide {
   final _VisualKind visual;
+
   /// Foto de fondo (si es null se usa la ilustración dibujada).
   final String? image;
+
   /// Punto de la foto que debe quedar visible al recortarla.
   final Alignment imageFocus;
   final String? eyebrow;
@@ -452,6 +605,9 @@ class _IntroSlide {
   final String? primaryCta;
   final String? secondaryCta;
   final bool isWelcome;
+
+  /// Último paso: muestra los primeros pasos del usuario.
+  final bool isChecklist;
 
   const _IntroSlide({
     required this.visual,
@@ -465,6 +621,7 @@ class _IntroSlide {
     this.primaryCta,
     this.secondaryCta,
     this.isWelcome = false,
+    this.isChecklist = false,
   });
 }
 
@@ -532,7 +689,10 @@ class _Header extends StatelessWidget {
                   textStyle: const TextStyle(
                       fontSize: 14, fontWeight: FontWeight.w600),
                 ),
-                child: const Text('Saltar'),
+                child: const Text(
+                  'Saltar',
+                  semanticsLabel: 'Saltar introducción',
+                ),
               ),
             ),
           ],
@@ -549,9 +709,11 @@ class _SlideText extends StatelessWidget {
   final int index;
   final int total;
   final bool large;
+  final List<OnboardingStep> checklist;
   const _SlideText({
     super.key,
     required this.slide,
+    this.checklist = const [],
     required this.index,
     required this.total,
     this.large = false,
@@ -562,55 +724,163 @@ class _SlideText extends StatelessWidget {
     final eyebrow = slide.isWelcome
         ? 'Bienvenida'
         : '${slide.eyebrow ?? ''} · Paso $index de ${total - 1}';
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          eyebrow.toUpperCase(),
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
-            color: AppColors.primary,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          slide.title,
-          style: TextStyle(
-            fontSize: large ? 32 : 26,
-            fontWeight: FontWeight.w800,
-            color: AppColors.black,
-            height: 1.18,
-            letterSpacing: -0.4,
-          ),
-        ),
-        if (slide.body.isNotEmpty) ...[
-          const SizedBox(height: 14),
+    // liveRegion: los lectores de pantalla anuncian el nuevo paso.
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
           Text(
-            slide.body,
-            style: TextStyle(
-              fontSize: large ? 17 : 15,
-              color: AppColors.neutral3,
-              height: 1.55,
+            eyebrow.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+              color: AppColors.primary,
             ),
           ),
-        ],
-        if (slide.bullets.isNotEmpty) ...[
-          const SizedBox(height: 20),
-          for (final b in slide.bullets) _BulletRow(bullet: b),
-        ],
-        if (slide.steps.isNotEmpty) ...[
-          const SizedBox(height: 20),
-          for (var i = 0; i < slide.steps.length; i++)
-            _StepRow(
-              step: slide.steps[i],
-              number: i + 1,
-              isLast: i == slide.steps.length - 1,
+          const SizedBox(height: 10),
+          Semantics(
+            header: true,
+            child: Text(
+              slide.title,
+              style: TextStyle(
+                fontSize: large ? 32 : 26,
+                fontWeight: FontWeight.w800,
+                color: AppColors.black,
+                height: 1.18,
+                letterSpacing: -0.4,
+              ),
             ),
+          ),
+          if (slide.body.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Text(
+              slide.body,
+              style: TextStyle(
+                fontSize: large ? 17 : 15,
+                color: AppColors.neutral3,
+                height: 1.55,
+              ),
+            ),
+          ],
+          if (slide.bullets.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            for (final b in slide.bullets) _BulletRow(bullet: b),
+          ],
+          if (slide.steps.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            for (var i = 0; i < slide.steps.length; i++)
+              _StepRow(
+                step: slide.steps[i],
+                number: i + 1,
+                isLast: i == slide.steps.length - 1,
+              ),
+          ],
+          if (slide.isChecklist && checklist.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            for (var i = 0; i < checklist.length; i++)
+              _ChecklistRow(
+                step: checklist[i],
+                number: i + 1,
+                isNext: !checklist[i].completed &&
+                    checklist.take(i).every((s) => s.completed),
+              ),
+          ],
         ],
-      ],
+      ),
+    );
+  }
+}
+
+/// Fila de "Tus primeros pasos": hecho (check verde), siguiente (resaltado)
+/// o pendiente.
+class _ChecklistRow extends StatelessWidget {
+  final OnboardingStep step;
+  final int number;
+  final bool isNext;
+  const _ChecklistRow({
+    required this.step,
+    required this.number,
+    required this.isNext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final done = step.completed;
+    return Semantics(
+      label:
+          '${step.title}. ${done ? 'Completado' : 'Pendiente'}. ${step.subtitle}',
+      excludeSemantics: true,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isNext ? AppColors.primary10 : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isNext ? AppColors.primary30 : AppColors.neutral8,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 30,
+              height: 30,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: done
+                    ? AppColors.success
+                    : (isNext ? AppColors.primary : AppColors.white),
+                border: done || isNext
+                    ? null
+                    : Border.all(color: AppColors.neutral6, width: 1.5),
+              ),
+              child: done
+                  ? const Icon(Icons.check_rounded,
+                      color: AppColors.white, size: 18)
+                  : Text(
+                      '$number',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: isNext ? AppColors.white : AppColors.neutral4,
+                      ),
+                    ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    step.title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: done ? AppColors.neutral4 : AppColors.black,
+                      decoration: done ? TextDecoration.lineThrough : null,
+                      decorationColor: AppColors.neutral5,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    step.subtitle,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.neutral4,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -756,18 +1026,24 @@ class _DotsIndicator extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(count, (i) {
         final active = i == index;
-        return GestureDetector(
-          onTap: () => onTap(i),
-          behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              width: active ? 28 : 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: active ? AppColors.primary : AppColors.neutral7,
-                borderRadius: BorderRadius.circular(8),
+        return Semantics(
+          button: true,
+          selected: active,
+          label: 'Ir al paso ${i + 1} de $count',
+          child: GestureDetector(
+            onTap: () => onTap(i),
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              // Área táctil amplia (≈ 44 px de alto) para dedos con poca precisión.
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 18),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                width: active ? 28 : 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: active ? AppColors.primary : AppColors.neutral7,
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             ),
           ),
@@ -795,6 +1071,7 @@ class _SlidePhoto extends StatelessWidget {
           fit: BoxFit.cover,
           alignment: slide.imageFocus,
           filterQuality: FilterQuality.medium,
+          excludeFromSemantics: true,
         ),
         DecoratedBox(
           decoration: BoxDecoration(
@@ -971,8 +1248,8 @@ class _SlideVisual extends StatelessWidget {
       left: s * x,
       top: s * y,
       child: Container(
-        padding: EdgeInsets.symmetric(
-            horizontal: s * 0.035, vertical: s * 0.022),
+        padding:
+            EdgeInsets.symmetric(horizontal: s * 0.035, vertical: s * 0.022),
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(100),
